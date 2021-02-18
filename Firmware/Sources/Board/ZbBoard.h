@@ -23,7 +23,6 @@
 #include "ZbGPIO.h"
 #include "ZbWatchDog.h"
 #include "ZbDAC.h"
-#include "ZbFan.h"
 #include "ZbSPI-UART.h"
 #include "ZbThermistor.h"
 #include "ZbAnalogInput.h"

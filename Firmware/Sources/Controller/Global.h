@@ -30,11 +30,14 @@
 
 // Debug modes
 #define DBG_USE_SPI_UART			TRUE
-#define DBG_USE_CLAMP_BRAKE			TRUE
-#define DBG_USE_AIR_CTRL			FALSE
 
 // Compatability patch
-#undef PATCH_OLD_PC_SOFT
-#define PATCH_LENZE_DI6_INVERT
+#define PATCH_LENZE_DI6_INVERT		TRUE
+
+// Sliding system config
+#define SLS_PUSH_UP_TO_OUT_PAUSE	200		// in ms
+#define SLS_PUSH_IN_TIMEOUT			10000	// in ms
+#define SLS_BOUNCE_COUNTER			10
+
 
 #endif // __GLOBAL_H

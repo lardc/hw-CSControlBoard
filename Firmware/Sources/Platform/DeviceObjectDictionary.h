@@ -20,8 +20,8 @@
 #define ACT_CLAMPING_UPDATE			103 // Update regulator with new parameters
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
 #define ACT_HALT					105 // Abort operation
-#define ACT_READ_FORCE				106 // Read current force value
-#define ACT_READ_LENZE_ERROR		107 // Read current error value
+#define ACT_SLIDING_PUSH_OUT		106	// Push out sliding system
+#define ACT_SLIDING_PUSH_IN			107	// Push in sliding system
 #define ACT_SET_TEMPERATURE			108	// Set temperature
 //
 #define ACT_DBG_READ_LENZE_REG		110	// Read Lenze register
@@ -40,6 +40,13 @@
 #define ACT_DBG_BREAK_MAN_RLS_ON	123	// Enable brake manual release
 #define ACT_DBG_BREAK_MAN_RLS_OFF	124	// Disable brake manual release
 #define ACT_DBG_BREAK_AUTO_CONTROL	125	// Disable brake manual control
+#define ACT_DBG_READ_FORCE			126 // Read current force value
+#define ACT_DBG_READ_LENZE_ERROR	127 // Read current error value
+// 128 - 129
+#define ACT_DBG_SLS_PUSH_UP			130	// Push up sliding system
+#define ACT_DBG_SLS_PUSH_DOWN		131	// Push down sliding system
+#define ACT_DBG_SLS_PUSH_OUT		132	// Push out sliding system
+#define ACT_DBG_SLS_PUSH_IN			133	// Push in sliding system
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -97,13 +104,14 @@
 #define REG_TEMP_TO_DAC_K_D			50	// Temperature to DAC recalculating K coefficient (D)
 #define REG_2ST_FORCE_LIM			51	// Double stage clamping force threshold (in x10 kN)
 #define REG_USE_2ST_CLAMP			52	// Enable/disable double stage clamping
-#define REG_USE_SLIDING_SYSTEM		53	// Enable/disable sliding system
-#define REG_USE_BREAK				54	// Enable/disable motor break control
+#define REG_USE_SLIDING_SENSOR		53	// Enable/disable sliding system sensor
+#define REG_USE_CLAMP_BREAK			54	// Enable/disable motor break control
 #define REG_GEAR_RATIO_K_N			55	// Gear ratio coefficient (N)
 #define REG_GEAR_RATIO_K_D			56	// Gear ratio coefficient (D)
 #define REG_BALL_SCREW_STROKE		57	// Ball screw overall move (in mm)
 #define REG_ALLOWED_MOVE			58	// Clamp allowed move (in mm)
 #define REG_POWER_SW_DELAY			59	// Time to close power switch (in ms) (must be a multiple of 50ms @ 20 Hz TIMER2)
+#define REG_USE_AIR_CONTROL			60	// Use air pressure monitoring system
 //
 #define REG_SP__1					63
 //
@@ -113,6 +121,7 @@
 #define REG_FORCE_VAL				70	// Force value (in kN x10)
 #define REG_DEV_HEIGHT				71	// Device height (in mm)
 #define REG_TEMP_SETPOINT			72	// Temperature setpoint (in C x10)
+#define REG_USE_SLIDING_SYSTEM		73	// Activate sliding system
 //
 #define REG_DBG_CAN_INDEX			80	// Read\Write Lenze register - Index
 #define REG_DBG_CAN_SUBCODE			81	// Read\Write Lenze register - Subcode
@@ -142,16 +151,15 @@
 #define REG_TEMP_CH2				102	// Sampled temperature on channel 2
 #define REG_TRM_DATA				103	// Data read from TRM
 #define REG_TRM_ERROR				104	// TRM error value
-//
 #define REG_SLIDING_SENSOR			105	// Sliding sensor current state
 //
 #define REG_FORCE_RESULT			110	// Actual force value (in kN x10)
 #define REG_DRV_ERROR				111	// Lenze error
+//
 #define REG_DBG_READ_REG			112	// Read Lenze register output
 #define REG_DBG_READ_REG_32			113
 #define REG_DBG_TEMP				114	// Temperature isolator data (in C x10)
 #define REG_DBG_ADC_RAW_DATA		115	// Initial ADC offset (in ticks of 4095 scale)
-//
 #define REG_DBG_TEMP_RAW			117	// Temperature isolator raw data
 //
 #define REG_CANA_BUSOFF_COUNTER		120 // Counter of bus-off states
@@ -189,6 +197,7 @@
 #define FAULT_CANOPEN				3	// CANopen high-level fault
 #define FAULT_TRM					4	// TRM communication fault
 #define FAULT_PRESSURE				5	// Pressure is low
+#define FAULT_SLIDING				6	// Sliding system fault
 
 // PROBLEM CODES
 //

@@ -211,9 +211,6 @@ void InitializeBoard()
 {
 	// Init board GPIO
    	ZbGPIO_Init();
-
-   	// Init cooling system
-   	ZbFan_Init();
 }
 // -----------------------------------------
 
@@ -244,9 +241,6 @@ ISRCALL Timer0_ISR(void)
 	// Get analog input data
 	ZbAnanlogInput_StartAcquisition();
 
-	// Service watch-dogs
-	CONTROL_ServiceWD();
-
 	// allow other interrupts from group 1
 	TIMER0_ISR_DONE;
 }
@@ -261,6 +255,13 @@ ISRCALL Timer2_ISR(void)
 	++CONTROL_TimeCounter;
 	// Update low-priority tasks
 	CONTROL_UpdateLow();
+
+	// Service watch-dogs
+	if (CONTROL_BootLoaderRequest != BOOT_LOADER_REQUEST)
+	{
+		ZwSystem_ServiceDog();
+		ZbWatchDog_Strobe();
+	}
 
 	++dbgCounter;
 	if(dbgCounter == DBG_COUNTER_PERIOD)

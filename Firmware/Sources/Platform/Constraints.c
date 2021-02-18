@@ -47,7 +47,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {1, X_D_MAX, X_D_DEF},													// 30
 											   {0, INT16U_MAX, FORCE_Kp_POST_N_DEF},									// 31
 											   {1, X_D_MAX, X_D_DEF},													// 32
-											   {NO, YES, NO},															// 33
+											   {NO, YES, YES},															// 33
 											   {0, INT16U_MAX, 0},														// 34
 											   {0, INT16U_MAX, X_D_DEF2},												// 35
 											   {0, INT16U_MAX, 0},														// 36
@@ -67,14 +67,14 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {1, X_D_MAX, X_D_DEF},													// 50
 											   {FORCE_VAL_MIN, FORCE_VAL_MAX, FORCE_VAL_DEF},							// 51
 											   {NO, YES, YES},															// 52
-											   {NO, YES, NO},															// 53
-											   {NO, YES, NO},															// 54
+											   {NO, YES, YES},															// 53
+											   {NO, YES, YES},															// 54
 											   {1, X_D_MAX, X_D_DEF},													// 55
 											   {1, X_D_MAX, X_D_DEF},													// 56
 											   {0, POS_MAX, POS_MAX},													// 57
 											   {0, POS_MAX, POS_MAX},													// 58
 											   {0, INT16U_MAX, 0},														// 59
-											   {0, 0, 0},																// 60
+											   {NO, YES, YES},															// 60
 											   {0, 0, 0},																// 61
 											   {0, 0, 0},																// 62
                                     		   {INT16U_MAX, 0, 0}														// 63
@@ -91,7 +91,7 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {FORCE_VAL_MIN, FORCE_VAL_MAX, FORCE_VAL_DEF},							// 70
 											   {DEV_HEIGHT_MIN, DEV_HEIGHT_MAX, DEV_HEIGHT_DEF},						// 71
 											   {TRM_TEMP_MIN, TRM_TEMP_MAX, TRM_TEMP_DEF},								// 72
-											   {0, 0, 0},																// 73
+											   {NO, YES, NO},															// 73
 											   {0, 0, 0},																// 74
 											   {0, 0, 0},																// 75
 											   {0, 0, 0},																// 76

@@ -46,7 +46,7 @@ static volatile Int16U PositionSpeedLimit, PositionTorqueLimit;
 static volatile Int16U ClampMidPosition, ClampTopPosition, ClampSpeedLimit, ClampTorqueLimit;
 static volatile Int16U ReleaseTargetPosition;
 //
-static volatile Boolean ContinuousControl, Use2STReleaseMode;
+static volatile Boolean ContinuousControl, Use2STReleaseMode, UseClampBreak, UseAirControl;
 
 // Forward functions
 //
@@ -73,7 +73,6 @@ void CLAMPCTRL_StartClamping()
 	CLAMP_GoToPosition_mm(TRUE, ClampMidPosition);
 	DELAY_US(1000L * DELAY_OP_COMPLETE);
 
-	Error = 0;
 	CLAMPCTRL_State = CS_CLAMP_GOTO_MID_POS;
 }
 // ----------------------------------------
@@ -123,7 +122,7 @@ Boolean CLAMPCTRL_IsClampingDone()
 
 				if (Result)
 				{
-					if (DBG_USE_CLAMP_BRAKE) CLAMP_BrakeManualRelease(FALSE);
+					if (UseClampBreak) CLAMP_BrakeManualRelease(FALSE);
 					CLAMPCTRL_Apply_Kp(REG_FORCE_Kp_POST_N, REG_FORCE_Kp_POST_D);
 
 					Result = FALSE;
@@ -146,7 +145,7 @@ Boolean CLAMPCTRL_IsClampingDone()
 					Result = TRUE;
 					CLAMPCTRL_State = CS_CLAMP_POSTREGULATOR2;
 
-					DataTable[REG_PROBLEM] = ZbGPIO_PressureOK() ? PROBLEM_NONE : PROBLEM_NO_AIR_PRESSURE;
+					DataTable[REG_PROBLEM] = (UseAirControl ? ZbGPIO_PressureOK() : TRUE) ? PROBLEM_NONE : PROBLEM_NO_AIR_PRESSURE;
 				}
 			}
 			break;
@@ -166,6 +165,7 @@ Boolean CLAMPCTRL_IsClampingDone()
 
 void CLAMPCTRL_XLog(DeviceState State)
 {
+	Int32S tmp;
 	static Boolean EnableSampling = FALSE;
 
 	// Start sampling on clamping start
@@ -178,8 +178,11 @@ void CLAMPCTRL_XLog(DeviceState State)
 
 	if (CONTROL_Values_XLogCounter < VALUES_XLOG_x_SIZE && EnableSampling)
 	{
+		tmp = _IQint(CLAMP_ReadForce());
+		tmp = (tmp < 0) ? 0 : tmp;
+
 		CONTROL_Values_SubState[CONTROL_Values_XLogCounter] = (Int16U)CLAMPCTRL_State;
-		CONTROL_Values_Force[CONTROL_Values_XLogCounter] = (Int16U)_IQint(CLAMP_ReadForce());
+		CONTROL_Values_Force[CONTROL_Values_XLogCounter] = (Int16U)tmp;
 		CONTROL_Values_Error[CONTROL_Values_XLogCounter] = (Int16U)_IQint(Error);
 		CONTROL_Values_TorqueLimit[CONTROL_Values_XLogCounter] = CLAMP_GetTorqueLimit();
 		CONTROL_Values_XLogCounter++;
@@ -189,12 +192,7 @@ void CLAMPCTRL_XLog(DeviceState State)
 
 void CLAMPCTRL_ClampingUpdateRequest()
 {
-#ifdef PATCH_OLD_PC_SOFT
-	ForceDesired = _IQI(DataTable[REG_FORCE_VAL]);
-#else
 	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL]);
-#endif
-
 	MaxAllowedError = _IQint(_IQmpy(ForceDesired, _FPtoIQ2(DataTable[REG_CLAMP_ERR_ZONE], 100)));
 	ControlSignal = CLAMP_CurrentIncrements();
 
@@ -341,12 +339,7 @@ void CLAMPCTRL_CacheVariables()
 	ClampTorqueLimit = CLAMPCTRL_CalcTorqueLimit(TRUE);
 
 	GearRatio = _FPtoIQ2(DataTable[REG_GEAR_RATIO_K_N], DataTable[REG_GEAR_RATIO_K_D]);
-
-#ifdef PATCH_OLD_PC_SOFT
-	ForceDesired = _IQI(DataTable[REG_FORCE_VAL]);
-#else
 	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL]);
-#endif
 
 	Force2STReleaseMode = _IQI(100l * DataTable[REG_2ST_FORCE_LIM]);
 	Use2STReleaseMode = DataTable[REG_USE_2ST_CLAMP] ? TRUE : FALSE;
@@ -355,7 +348,9 @@ void CLAMPCTRL_CacheVariables()
 
 	ReleaseTargetPosition = DataTable[REG_CLAMPING_RLS_POS];
 	ClampMaxIncrements =  (MM_TO_INCREMENT / DataTable[REG_GEAR_RATIO_K_D]) * DataTable[REG_GEAR_RATIO_K_N] * ClampTopPosition;
-	ContinuousControl = DBG_USE_CLAMP_BRAKE ? FALSE : DataTable[REG_CONTINUOUS_CTRL];
+	UseClampBreak = DataTable[REG_USE_CLAMP_BREAK] ? TRUE : FALSE;
+	UseAirControl = DataTable[REG_USE_AIR_CONTROL] ? TRUE : FALSE;
+	ContinuousControl = DataTable[REG_USE_CLAMP_BREAK] ? FALSE : DataTable[REG_CONTINUOUS_CTRL];
 	MaxAllowedError = _IQint(_IQmpy(ForceDesired, _FPtoIQ2(DataTable[REG_CLAMP_ERR_ZONE], 100)));
 }
 // ----------------------------------------

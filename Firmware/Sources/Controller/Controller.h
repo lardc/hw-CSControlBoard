@@ -28,7 +28,8 @@ typedef enum __DeviceState
 	DS_Clamping = 7,
 	DS_ClampingDone = 8,
 	DS_ClampingUpdate = 9,
-	DS_ClampingRelease = 10
+	DS_ClampingRelease = 10,
+	DS_Sliding = 11
 } DeviceState;
 
 // Variables
@@ -54,8 +55,6 @@ extern volatile Int16U CONTROL_Values_Counter;
 //
 // Initialize controller
 void CONTROL_Init(Boolean BadClockDetected);
-// Service watch-dog
-void CONTROL_ServiceWD();
 // Do background idle operation
 void CONTROL_Idle();
 // Update low-priority tasks

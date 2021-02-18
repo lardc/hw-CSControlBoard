@@ -46,8 +46,8 @@
 
 // TIMERs
 //--------------------------------------------------------
-#define CS_REALTIME_FREQ	50000		// in Hz
-#define CS_MONITORING_FREQ	10			// in Hz
+#define CS_REALTIME_FREQ	50000L		// in Hz
+#define CS_MONITORING_FREQ	10L			// in Hz
 
 #define TIMER0_PERIOD		(1000000L / CS_REALTIME_FREQ)
 #define TIMER2_PERIOD		(1000000L / CS_MONITORING_FREQ)
@@ -138,8 +138,8 @@
 
 // Fan
 //--------------------------------------------------------
-#define FAN_SILENT_DUTY		20			// in %
-#define FAN_PERFORM_DUTY	80			// in %
+#define FAN_TIMEOUT			30000			// in ms
+#define FAN_TIMEOUT_TCK		((CS_MONITORING_FREQ * FAN_TIMEOUT) / 1000)
 //--------------------------------------------------------
 
 // Clamp

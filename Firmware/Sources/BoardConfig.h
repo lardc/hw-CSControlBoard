@@ -17,8 +17,7 @@
 #define SYS_HSP_FREQ		(CPU_FRQ / 2) 	// High-speed bus freq = 50MHz
 #define SYS_LSP_FREQ		(CPU_FRQ / 4) 	// Low-speed bus freq = 25MHz
 //
-#define ZW_PWM_FREQUENCY	2000
-#define ZW_PWM_DUTY_BASE	(CPU_FRQ / ZW_PWM_FREQUENCY)
+#define ZW_PWM_DUTY_BASE	5000
 
 // Peripheral options
 #define HWUSE_SPI_A
@@ -58,15 +57,14 @@
 #define SCI_B_MUX_SELECTOR	2
 //
 #define PIN_WD_RST			32
-#define PIN_STPM_DIR		2
-#define PIN_STPM_STEP		3
-#define PIN_STPM_EN			7
+#define PIN_M1M2			2
+#define PIN_M3M4			3
 #define PIN_SEN1			8
 #define PIN_SEN2			10
 #define PIN_SEN3			6
 #define PIN_SAFETY			22
 #define PIN_SAFETY_HOLD		1
-#define PIN_LIGHT1			0
+#define PIN_FAN				0
 #define PIN_POWER_SWITCH	33
 #define PIN_LED				12
 #define PIN_SPIMUX_A		14

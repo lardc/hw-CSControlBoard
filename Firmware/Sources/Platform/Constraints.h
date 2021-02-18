@@ -100,15 +100,9 @@ typedef struct __TableItemConstraint
 #define POS_MAX						110
 
 // Device parameters
-#ifdef PATCH_OLD_PC_SOFT
-	#define DEV_HEIGHT_MIN			0		// (in mm)
-	#define DEV_HEIGHT_MAX			70		// (in mm)
-	#define DEV_HEIGHT_DEF			50		// (in mm)
-#else
-	#define DEV_HEIGHT_MIN			0		// (in mm)
-	#define DEV_HEIGHT_MAX			70		// (in mm)
-	#define DEV_HEIGHT_DEF			0		// (in mm)
-#endif
+#define DEV_HEIGHT_MIN				0		// (in mm)
+#define DEV_HEIGHT_MAX				70		// (in mm)
+#define DEV_HEIGHT_DEF				0		// (in mm)
 
 // Device offset
 #define POS_DEV_OFFS_MIN			0		// (in mm)
@@ -116,15 +110,9 @@ typedef struct __TableItemConstraint
 #define POS_DEV_OFFS_DEF			20		// (in mm)
 
 // Force settting
-#ifdef PATCH_OLD_PC_SOFT
-	#define FORCE_VAL_MIN			5000
-	#define FORCE_VAL_MAX			50000
-	#define FORCE_VAL_DEF			10000
-#else
-	#define FORCE_VAL_MIN			50
-	#define FORCE_VAL_MAX			1100
-	#define FORCE_VAL_DEF			200
-#endif
+#define FORCE_VAL_MIN				50
+#define FORCE_VAL_MAX				1100
+#define FORCE_VAL_DEF				200
 
 // Temperature
 #define TRM_TEMP_MIN				0		// in C x10

@@ -29,18 +29,14 @@ void CLAMP_CompleteOperation(Boolean InhibitController)
 
 void CLAMP_BrakeAutoControl(Boolean Flag)
 {
-	if (DataTable[REG_USE_BREAK])
-	{
-		if (Flag) CLAMP_BrakeManualRelease(FALSE);
-		CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x55eb, 0, Flag ? 12 : 11);
-	}
+	if (Flag) CLAMP_BrakeManualRelease(FALSE);
+	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x55eb, 0, Flag ? 12 : 11);
 }
 // ----------------------------------------
 
 void CLAMP_BrakeManualRelease(Boolean Flag)
 {
-	if (DataTable[REG_USE_BREAK])
-		CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5e29, 1, Flag ? 1 : 0);
+	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5e29, 1, Flag ? 1 : 0);
 }
 // ----------------------------------------
 
@@ -74,7 +70,7 @@ void CLAMP_HomingStart()
 {
 	Int32U Data;
 
-#ifdef PATCH_LENZE_DI6_INVERT
+#if (PATCH_LENZE_DI6_INVERT == TRUE)
 	// Configure DI6 input inversion
 	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5f8d, 0, 0x20);
 #endif
@@ -275,15 +271,9 @@ _iq CLAMP_ReadForce()
 	Int16S P2, P0;
 	Int16U P1, ADCdata;
 
-#ifdef PATCH_OLD_PC_SOFT
-	P2 = 0;
-	P1 = 1000;
-	P0 = 0;
-#else
 	P2 = (Int16S)DataTable[REG_FORCE_FINE_P2];
 	P1 = DataTable[REG_FORCE_FINE_P1];
 	P0 = (Int16S)DataTable[REG_FORCE_FINE_P0];
-#endif
 
 	ADCdata = ZbAnanlogInput_GetResult();
 	ADCdata = (ADCdata > DataTable[REG_ADC_INIT_OFFSET]) ? (ADCdata - DataTable[REG_ADC_INIT_OFFSET]) : 0;
