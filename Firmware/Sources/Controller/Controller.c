@@ -131,9 +131,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 		{
 			TRMError dummy_error;
 
-			// Init interface
-			ZbSU_Init();
-
 			// Terminate heating for sure
 			TRM_Stop(TRM_CH1_ADDR, &dummy_error);
 			TRM_Stop(TRM_CH2_ADDR, &dummy_error);

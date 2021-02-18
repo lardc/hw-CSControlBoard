@@ -28,9 +28,6 @@
 #define VALUES_x_SIZE				500
 #define VALUES_XLOG_x_SIZE			1000
 
-// Debug modes
-#define DBG_USE_SPI_UART			TRUE
-
 // Compatability patch
 #define PATCH_LENZE_DI6_INVERT		TRUE
 
