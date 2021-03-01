@@ -288,7 +288,7 @@ _iq CLAMP_ReadForce()
 	// Write to register
 	DataTable[REG_FORCE_RESULT] = (result > 0) ? _IQint(_IQdiv(result, _IQ(100))) : 0;
 
-	return result;
+	return (result > 0) ? result : 0;
 }
 // ----------------------------------------
 
