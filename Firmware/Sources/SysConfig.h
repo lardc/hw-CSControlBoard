@@ -83,8 +83,6 @@
 //--------------------------------------------------------
 #define SPIMUX_AOUT			0
 #define SPIMUX_SU			1
-#define SPIMUX_OPTO1		2
-#define SPIMUX_OPTO2		3
 #define SPIMUX_EPROM		4
 //--------------------------------------------------------
 

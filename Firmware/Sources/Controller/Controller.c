@@ -14,12 +14,10 @@
 #include "DataTable.h"
 #include "DeviceObjectDictionary.h"
 #include "DeviceProfile.h"
-#include "TemperatureFeedback.h"
 #include "Clamp.h"
 #include "ClampControl.h"
 #include "TRM101.h"
 //
-#include "AnalogOutput.h"
 
 // Types
 //
@@ -69,7 +67,6 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 // Forward functions
 //
 static void CONTROL_HandleClampActions();
-static void CONTROL_UpdateTemperatureFeedback();
 static void CONTROL_HandleFanControl();
 static void CONTROL_SetDeviceState(DeviceState NewState);
 static void CONTROL_FillWPPartDefault();
@@ -152,9 +149,6 @@ void CONTROL_Idle()
 	// Update CAN bus status
 	DEVPROFILE_UpdateCANDiagStatus();
 
-	// Update temperature feedback
-	CONTROL_UpdateTemperatureFeedback();
-
 	// Read sliding system state
 	DataTable[REG_SLIDING_SENSOR] = CONTROL_SlidingSensorOK();
 
@@ -232,13 +226,6 @@ void CONTROL_NotifyCANopenFault()
 {
 	DataTable[REG_FAULT_REASON] = FAULT_CANOPEN;
 	CONTROL_SetDeviceState(DS_Fault);
-}
-// ----------------------------------------
-
-static void CONTROL_UpdateTemperatureFeedback()
-{
-	if (DataTable[REG_USE_HEATING] && !DataTable[REG_DBG_PAUSE_T_FEEDBACK])
-		TempFb_UpdateTemperatureFeedback(CONTROL_TimeCounter);
 }
 // ----------------------------------------
 
@@ -708,56 +695,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				CLAMP_WriteRegister(DataTable[REG_DBG_CAN_INDEX], DataTable[REG_DBG_CAN_SUBCODE], Value);
 
 				MuteRegulator = FALSE;
-			}
-			break;
-
-		case ACT_DBG_WRITE_DAC_RAW:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready ||
-				CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled)
-			{
-				if (DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
-					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbDAC_WriteA(DataTable[REG_DBG_TEMP_CH_DATA]) : ZbDAC_WriteB(DataTable[REG_DBG_TEMP_CH_DATA]);
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			else
-				*UserError = ERR_DEVICE_NOT_READY;
-			break;
-
-		case ACT_DBG_WRITE_DAC_TEMP:
-			if ((CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready ||
-				CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled))
-			{
-				if (DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
-				{
-					_iq temp = _FPtoIQ2(DataTable[REG_DBG_TEMP_CH_DATA], 10);
-					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? AnalogOutput_SetCH1(temp) : AnalogOutput_SetCH2(temp);
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			else
-				*UserError = ERR_DEVICE_NOT_READY;
-			break;
-
-		case ACT_DBG_READ_TEMP:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					_iq temp = (DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? TempFb_GetTemperatureCH1() : TempFb_GetTemperatureCH2();
-					DataTable[REG_DBG_TEMP] = _IQmpyI32int(temp, 10);
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			break;
-
-		case ACT_DBG_READ_TEMP_RAW:
-			{
-				if (DataTable[REG_USE_HEATING])
-					DataTable[REG_DBG_TEMP_RAW] = (DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbTh_ReadSEN1() : ZbTh_ReadSEN2();
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
 			}
 			break;
 

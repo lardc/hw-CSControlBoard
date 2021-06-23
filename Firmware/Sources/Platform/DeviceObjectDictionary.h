@@ -25,10 +25,7 @@
 #define ACT_SET_TEMPERATURE			108	// Set temperature
 //
 #define ACT_DBG_READ_LENZE_REG		110	// Read Lenze register
-#define ACT_DBG_WRITE_DAC_RAW		111	// Write raw value to DAC channel
-#define ACT_DBG_WRITE_DAC_TEMP		112	// Write temperature value to DAC channel (with correction)
-#define ACT_DBG_READ_TEMP			113	// Read temperature value
-#define ACT_DBG_READ_TEMP_RAW		114	// Read temperature raw ADC value
+//
 #define ACT_DBG_READ_TRM_TEMP		115	// Read actual temperature value from TRM
 #define ACT_DBG_READ_TRM_POWER		116	// Read TRM output power
 #define ACT_DBG_TRM_START			117	// Start TRM operation
@@ -91,17 +88,9 @@
 #define REG_TEMP2_READ_FINE_P2		37	// Temperature channel 2 read p2 member of quadratic correction polynom (x10^6)
 #define REG_TEMP2_READ_FINE_P1		38	// Temperature channel 2 read p1 member of quadratic correction polynom (x1000)
 #define REG_TEMP2_READ_FINE_P0		39	// Temperature channel 2 read p0 member of quadratic correction polynom (offset) (in C x10)
-#define REG_TEMP1_TO_DAC_FINE_P2	40	// Temperature channel 1 to DAC p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP1_TO_DAC_FINE_P1	41	// Temperature channel 1 to DAC p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP1_TO_DAC_FINE_P0	42	// Temperature channel 1 to DAC p0 member of quadratic correction polynom (offset) (in C x10)
-#define REG_TEMP2_TO_DAC_FINE_P2	43	// Temperature channel 2 to DAC p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP2_TO_DAC_FINE_P1	44	// Temperature channel 2 to DAC p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP2_TO_DAC_FINE_P0	45	// Temperature channel 2 to DAC p0 member of quadratic correction polynom (offset) (in C x10)
+//
 #define REG_USE_HEATING				46	// Enable/disable heating system
-#define REG_TEMP_READ_K_N			47	// Temperature read recalculating K coefficient (N)
-#define REG_TEMP_READ_K_D			48	// Temperature read recalculating K coefficient (D)
-#define REG_TEMP_TO_DAC_K_N			49	// Temperature to DAC recalculating K coefficient (N)
-#define REG_TEMP_TO_DAC_K_D			50	// Temperature to DAC recalculating K coefficient (D)
+//
 #define REG_2ST_FORCE_LIM			51	// Double stage clamping force threshold (in x10 kN)
 #define REG_USE_2ST_CLAMP			52	// Enable/disable double stage clamping
 #define REG_USE_SLIDING_SENSOR		53	// Enable/disable sliding system sensor
@@ -160,7 +149,6 @@
 #define REG_DBG_READ_REG_32			113
 #define REG_DBG_TEMP				114	// Temperature isolator data (in C x10)
 #define REG_DBG_ADC_RAW_DATA		115	// Initial ADC offset (in ticks of 4095 scale)
-#define REG_DBG_TEMP_RAW			117	// Temperature isolator raw data
 //
 #define REG_CANA_BUSOFF_COUNTER		120 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			121	// CAN status register (32 bit)

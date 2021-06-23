@@ -54,17 +54,17 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {0, INT16U_MAX, 0},														// 37
 											   {0, INT16U_MAX, X_D_DEF2},												// 38
 											   {0, INT16U_MAX, 0},														// 39
-											   {0, INT16U_MAX, 0},														// 40
-											   {0, INT16U_MAX, X_D_DEF2},												// 41
-											   {0, INT16U_MAX, 0},														// 42
-											   {0, INT16U_MAX, 0},														// 43
-											   {0, INT16U_MAX, X_D_DEF2},												// 44
-											   {0, INT16U_MAX, 0},														// 45
+											   {0, 0, 0},																// 40
+											   {0, 0, 0},																// 41
+											   {0, 0, 0},																// 42
+											   {0, 0, 0},																// 43
+											   {0, 0, 0},																// 44
+											   {0, 0, 0},																// 45
 											   {NO, YES, YES},															// 46
-											   {0, INT16U_MAX, TEMP_READ_K_DEF},										// 47
-											   {1, X_D_MAX, X_D_DEF},													// 48
-											   {0, INT16U_MAX, TEMP_TO_DAC_K_DEF},										// 49
-											   {1, X_D_MAX, X_D_DEF},													// 50
+											   {0, 0, 0},																// 47
+											   {0, 0, 0},																// 48
+											   {0, 0, 0},																// 49
+											   {0, 0, 0},																// 50
 											   {FORCE_VAL_MIN, FORCE_VAL_MAX, FORCE_VAL_DEF},							// 51
 											   {NO, YES, YES},															// 52
 											   {NO, YES, YES},															// 53

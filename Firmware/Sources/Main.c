@@ -176,12 +176,6 @@ void InitializeSPI()
 	ZwSPIa_ConfigInterrupts(FALSE, FALSE);
 	ZwSPIa_EnableInterrupts(FALSE, FALSE);
 
-	// Init SPI-B (Optical input)
-	ZwSPIb_Init(TRUE, SPIB_BAUDRATE, 16, SPIB_PLR, SPIB_PHASE, ZW_SPI_INIT_RX | ZW_SPI_INIT_CS, FALSE, FALSE);
-	ZwSPIb_InitFIFO(0, 0);
-	ZwSPIb_ConfigInterrupts(FALSE, FALSE);
-	ZwSPIb_EnableInterrupts(FALSE, FALSE);
-
 	// Common (ABCD)
 	ZwSPI_EnableInterruptsGlobal(FALSE);
 }
