@@ -34,28 +34,11 @@ volatile DeviceState CONTROL_State = DS_None;
 //
 #pragma DATA_SECTION(CONTROL_Values_1, "data_mem");
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_2, "data_mem");
-Int16U CONTROL_Values_2[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_3, "data_mem");
-Int16U CONTROL_Values_3[VALUES_x_SIZE];
 //
 #pragma DATA_SECTION(CONTROL_Values_1_32, "data_mem");
 Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_2_32, "data_mem");
-Int32U CONTROL_Values_2_32[VALUES_x_SIZE];
-//
-// Extended data logger
-#pragma DATA_SECTION(CONTROL_Values_SubState, "data_mem");
-Int16U CONTROL_Values_SubState[VALUES_XLOG_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_Force, "data_mem");
-Int16U CONTROL_Values_Force[VALUES_XLOG_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_Error, "data_mem");
-Int16U CONTROL_Values_Error[VALUES_XLOG_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_TorqueLimit, "data_mem");
-Int16U CONTROL_Values_TorqueLimit[VALUES_XLOG_x_SIZE];
 //
 volatile Int16U CONTROL_Values_Counter = 0;
-volatile Int16U CONTROL_Values_XLogCounter = 0;
 //
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
@@ -75,17 +58,16 @@ Boolean CONTROL_PressureOK();
 void CONTROL_Init(Boolean BadClockDetected)
 {
 	// Variables for endpoint configuration
-	Int16U EPIndexes_16[EP_COUNT_16] = {0, 0, 0, 0, 0, 0, 0};
-	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE};
-	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter,
-										  (pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter};
-	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1, CONTROL_Values_2, CONTROL_Values_3, CONTROL_Values_SubState, CONTROL_Values_Force, CONTROL_Values_Error, CONTROL_Values_TorqueLimit};
+	Int16U EPIndexes_16[EP_COUNT_16] = {0};
+	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE};
+	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter};
+	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1};
 
 	// Variables for endpoint configuration
-	Int16U EPIndexes_32[EP_COUNT_32] = {0, 0};
-	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE, VALUES_x_SIZE};
-	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter};
-	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32, (pInt16U)CONTROL_Values_2_32};
+	Int16U EPIndexes_32[EP_COUNT_32] = {0};
+	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE};
+	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_Values_Counter};
+	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32};
 
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = { &ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM };

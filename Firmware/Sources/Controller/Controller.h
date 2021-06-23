@@ -38,16 +38,8 @@ extern volatile DeviceState CONTROL_State;
 extern volatile Int16U CONTROL_BootLoaderRequest;
 //
 extern Int16U CONTROL_Values_1[VALUES_x_SIZE];
-extern Int16U CONTROL_Values_2[VALUES_x_SIZE];
-extern Int16U CONTROL_Values_3[VALUES_x_SIZE];
-extern Int16U CONTROL_Values_4[VALUES_x_SIZE];
 extern Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
-extern Int32U CONTROL_Values_2_32[VALUES_x_SIZE];
 extern Int16U CONTROL_Values_SubState[VALUES_XLOG_x_SIZE];
-extern Int16U CONTROL_Values_Force[VALUES_XLOG_x_SIZE];
-extern Int16U CONTROL_Values_Error[VALUES_XLOG_x_SIZE];
-extern Int16U CONTROL_Values_TorqueLimit[VALUES_XLOG_x_SIZE];
-extern volatile Int16U CONTROL_Values_XLogCounter;
 extern volatile Int16U CONTROL_Values_Counter;
 
 // Functions
