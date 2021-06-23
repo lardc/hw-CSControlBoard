@@ -72,7 +72,6 @@
 // TRM
 //--------------------------------------------------------
 #define TRM_CH1_ADDR		1
-#define TRM_CH2_ADDR		2
 #define TRM_TEMP_THR		500			// in C x10
 #define TRM_ROOM_TEMP		250			// in C x10
 #define TRM_READ_TIMEOUT	100			// in ms

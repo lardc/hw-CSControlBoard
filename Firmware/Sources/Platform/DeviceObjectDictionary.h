@@ -82,12 +82,6 @@
 #define REG_FORCE_Kp_POST_N			31	// PID Kp post regulation (N)
 #define REG_FORCE_Kp_POST_D			32	// PID Kp post regulation (D)
 #define REG_CONTINUOUS_CTRL			33	// Enable controller after reaching desired force
-#define REG_TEMP1_READ_FINE_P2		34	// Temperature channel 1 read p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP1_READ_FINE_P1		35	// Temperature channel 1 read p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP1_READ_FINE_P0		36	// Temperature channel 1 read p0 member of quadratic correction polynom (offset) (in C x10)
-#define REG_TEMP2_READ_FINE_P2		37	// Temperature channel 2 read p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP2_READ_FINE_P1		38	// Temperature channel 2 read p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP2_READ_FINE_P0		39	// Temperature channel 2 read p0 member of quadratic correction polynom (offset) (in C x10)
 //
 #define REG_USE_HEATING				46	// Enable/disable heating system
 //
@@ -136,7 +130,7 @@
 #define REG_PROBLEM					100	// Problem if present
 //
 #define REG_TEMP_CH1				101	// Sampled temperature on channel 1
-#define REG_TEMP_CH2				102	// Sampled temperature on channel 2
+//
 #define REG_TRM_DATA				103	// Data read from TRM
 #define REG_TRM_ERROR				104	// TRM error value
 #define REG_SLIDING_SENSOR			105	// Sliding sensor current state

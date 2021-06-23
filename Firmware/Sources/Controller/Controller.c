@@ -130,7 +130,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 			// Terminate heating for sure
 			TRM_Stop(TRM_CH1_ADDR, &dummy_error);
-			TRM_Stop(TRM_CH2_ADDR, &dummy_error);
 		}
 	}
 	else
@@ -616,18 +615,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					if (DataTable[REG_TEMP_SETPOINT] < TRM_TEMP_THR)
 					{
 						TRM_SetTemp(TRM_CH1_ADDR, TRM_ROOM_TEMP, &error);
-						if (error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, TRM_ROOM_TEMP, &error);
 						if (error == TRME_None) TRM_Stop(TRM_CH1_ADDR, &error);
-						if (error == TRME_None) TRM_Stop(TRM_CH2_ADDR, &error);
 
 						HeatingActive = FALSE;
 					}
 					else
 					{
 						TRM_SetTemp(TRM_CH1_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
-						if (error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
 						if (error == TRME_None) TRM_Start(TRM_CH1_ADDR, &error);
-						if (error == TRME_None) TRM_Start(TRM_CH2_ADDR, &error);
 
 						HeatingActive = TRUE;
 					}
@@ -646,7 +641,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				else
 				{
 					DataTable[REG_TEMP_CH1] = DataTable[REG_TEMP_SETPOINT];
-					DataTable[REG_TEMP_CH2] = DataTable[REG_TEMP_SETPOINT];
 				}
 			}
 			break;
