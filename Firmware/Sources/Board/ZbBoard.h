@@ -22,7 +22,6 @@
 #include "ZbMemory.h"
 #include "ZbGPIO.h"
 #include "ZbWatchDog.h"
-#include "ZbDAC.h"
 #include "ZbUART.h"
 #include "ZbAnalogInput.h"
 

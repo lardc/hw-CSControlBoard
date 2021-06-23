@@ -115,7 +115,6 @@
 #define REG_DBG_CAN_INDEX			80	// Read\Write Lenze register - Index
 #define REG_DBG_CAN_SUBCODE			81	// Read\Write Lenze register - Subcode
 #define REG_DBG_TEMP_CH_INDEX		82	// Channel select
-#define REG_DBG_TEMP_CH_DATA		83	// DAC data to write
 #define REG_DBG_TRM_ADDRESS			84	// TRM address
 #define REG_DBG_PAUSE_T_FEEDBACK	85	// Deactivate temperature feedback
 #define REG_DBG_CAN_DATA			86	// Read\Write Lenze register - Data

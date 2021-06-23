@@ -71,6 +71,6 @@
 #define PIN_SPIMUX_B		15
 #define PIN_SPIMUX_C		23
 #define PIN_RS485_CTRL		24
-#define PIN_AOUT_LDAC		13
+
 
 #endif // __BOARD_CONFIG_H
