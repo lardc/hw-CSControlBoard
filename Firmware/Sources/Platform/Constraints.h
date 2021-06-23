@@ -9,7 +9,6 @@
 #include "stdinc.h"
 //
 #include "DataTable.h"
-#include "ClampSettings.h"
 #include "Global.h"
 
 // Types
@@ -21,12 +20,6 @@ typedef struct __TableItemConstraint
 	Int16U Default;
 } TableItemConstraint;
 
-// Restricitions
-//
-#define FORCE_K_N_DEF				2751
-#define FORCE_FINE_N_DEF			100
-#define FORCE_Kp_N_DEF				40
-#define FORCE_Kp_POST_N_DEF			10
 //
 #define X_D_DEF0					10
 #define X_D_DEF1					100
@@ -66,25 +59,6 @@ typedef struct __TableItemConstraint
 #define POSITION_TORQUE_MAX			100		// (in %)
 #define POSITION_TORQUE_DEF			50		// (in %)
 
-// Clamp error
-#define CLAMP_ERR_ZONE_MIN			1		// (in %)
-#define CLAMP_ERR_ZONE_MAX			20		// (in %)
-#define CLAMP_ERR_ZONE_DEF			5		// (in %)
-
-// Clamp speed
-#define CLAMP_SPEED_MIN				5		// (in %)
-#define CLAMP_SPEED_MAX				50		// (in %)
-#define CLAMP_SPEED_DEF				30		// (in %)
-
-// Clamp torque limit
-#define CLAMP_TORQUE_LIMIT_MIN		5		// (in %)
-#define CLAMP_TORQUE_LIMIT_MAX		199		// (in %)
-#define CLAMP_TORQUE_LIMIT_DEF		50		// (in %)
-
-// Clamp timeout
-#define CLAMP_TIMEOUT_MIN			1000	// (in ms)
-#define CLAMP_TIMEOUT_MAX			60000	// (in ms)
-#define CLAMP_TIMEOUT_DEF			2000	// (in ms)
 
 // Clamp manual release timeout
 #define AUTO_RLS_TIMEOUT_MIN		2000	// (in ms)
@@ -108,11 +82,6 @@ typedef struct __TableItemConstraint
 #define POS_DEV_OFFS_MIN			0		// (in mm)
 #define POS_DEV_OFFS_MAX			50		// (in mm)
 #define POS_DEV_OFFS_DEF			20		// (in mm)
-
-// Force settting
-#define FORCE_VAL_MIN				50
-#define FORCE_VAL_MAX				1100
-#define FORCE_VAL_DEF				200
 
 // Temperature
 #define TRM_TEMP_MIN				0		// in C x10

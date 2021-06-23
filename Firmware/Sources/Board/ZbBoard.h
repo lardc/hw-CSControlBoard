@@ -21,8 +21,6 @@
 //
 #include "ZbMemory.h"
 #include "ZbGPIO.h"
-#include "ZbWatchDog.h"
 #include "ZbUART.h"
-#include "ZbAnalogInput.h"
 
 #endif // end __ZB_BOARD_H

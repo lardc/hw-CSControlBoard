@@ -7,14 +7,10 @@
 
 // Include
 #include "BCCISlave.h"
-#include "CANopen.h"
 #include "OWENProtocol.h"
 #include "SCCISlave.h"
 #include "stdinc.h"
 //
-
-// Variables
-extern CANopen_Interface DEVICE_CANopen_Interface;
 
 // Functions
 //
@@ -38,8 +34,6 @@ void DEVPROFILE_ResetScopes16(Int16U ResetPosition);
 void DEVPROFILE_ResetScopes32(Int16U ResetPosition);
 // Notify that CANa system fault occurs
 void DEVPROFILE_NotifyCANaFault(ZwCAN_SysFlags Flag);
-// Notify that CANb system fault occurs
-void DEVPROFILE_NotifyCANbFault(ZwCAN_SysFlags Flag);
 // Update diagnostic registers
 void DEVPROFILE_UpdateCANDiagStatus();
 

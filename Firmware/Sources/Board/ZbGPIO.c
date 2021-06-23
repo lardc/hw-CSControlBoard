@@ -16,7 +16,6 @@ void ZbGPIO_Init()
 {
 	// Output pins
 	// Reset to default state
-	ZwGPIO_WritePin(PIN_WD_RST, FALSE);
 	ZwGPIO_WritePin(PIN_M1M2, FALSE);
 	ZwGPIO_WritePin(PIN_M3M4, FALSE);
 	ZwGPIO_WritePin(PIN_SAFETY_HOLD, FALSE);
@@ -29,7 +28,6 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_SPIMUX_C, TRUE);
 
    	// Configure pins
-   	ZwGPIO_PinToOutput(PIN_WD_RST);
    	ZwGPIO_PinToOutput(PIN_M1M2);
    	ZwGPIO_PinToOutput(PIN_M3M4);
    	ZwGPIO_PinToOutput(PIN_SAFETY_HOLD);

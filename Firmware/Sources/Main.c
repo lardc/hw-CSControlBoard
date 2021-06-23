@@ -17,7 +17,6 @@
 // -----------------------------------------
 Boolean InitializeCPU();
 void InitializeTimers();
-void InitializeADC();
 void InitializeSPI();
 void InitializeSCI();
 void InitializeCAN();
@@ -31,12 +30,8 @@ void InitializeController(Boolean GoodClock);
 ISRCALL Timer0_ISR();
 // CPU Timer 2 ISR
 ISRCALL Timer2_ISR();
-// ADC SEQ1 ISR
-ISRCALL SEQ1_ISR();
 // CANa Line 0 ISR
 ISRCALL CAN0A_ISR();
-// CANb Line 0 ISR
-ISRCALL CAN0B_ISR();
 // ILLEGAL ISR
 ISRCALL IllegalInstruction_ISR();
 // -----------------------------------------
@@ -55,7 +50,6 @@ void main()
 	if(clockInitResult)
 	{
 		InitializeTimers();
-		InitializeADC();
 		InitializeSPI();
 		InitializeCAN();
 		InitializeBoard();
@@ -69,8 +63,6 @@ void main()
 		ADD_ISR(TINT0, Timer0_ISR);
 		ADD_ISR(TINT2, Timer2_ISR);
 		ADD_ISR(ECAN0INTA, CAN0A_ISR);
-		ADD_ISR(ECAN0INTB, CAN0B_ISR);
-		ADD_ISR(SEQ1INT, SEQ1_ISR);
 		ADD_ISR(ILLEGAL, IllegalInstruction_ISR);
 	END_ISR_MAP
 
@@ -140,18 +132,6 @@ void InitializeTimers()
 }
 // -----------------------------------------
 
-void InitializeADC()
-{
-	// Initialize and prepare ADC
-	ZwADC_Init(ADC_PRESCALER, ADC_CD2, ADC_SH);
-	ZwADC_ConfigInterrupts(TRUE, FALSE);
-
-	// Enable interrupts on peripheral and CPU levels
-	ZwADC_EnableInterrupts(TRUE, FALSE);
-	ZwADC_EnableInterruptsGlobal(TRUE);
-}
-// -----------------------------------------
-
 // Initialize and prepare SCI modules
 void InitializeSCI()
 {
@@ -185,19 +165,13 @@ void InitializeCAN()
 {
 	// Init CAN
 	ZwCANa_Init(CANA_BR, CANA_BRP, CANA_TSEG1, CANA_TSEG2, CANA_SJW);
-	ZwCANb_Init(CANB_BR, CANB_BRP, CANB_TSEG1, CANB_TSEG2, CANB_SJW);
 
 	// Register system handler
 	ZwCANa_RegisterSysEventHandler(&CONTROL_NotifyCANaFault);
-	ZwCANb_RegisterSysEventHandler(&CONTROL_NotifyCANbFault);
 
     // Allow interrupts for CANa (internal interface)
     ZwCANa_InitInterrupts(TRUE);
     ZwCANa_EnableInterrupts(TRUE);
-
-    // Allow interrupts for CANb (CANopen interface)
-	ZwCANb_InitInterrupts(TRUE);
-	ZwCANb_EnableInterrupts(TRUE);
 }
 // -----------------------------------------
 
@@ -218,26 +192,11 @@ void InitializeController(Boolean GoodClock)
 // ISRs
 // -----------------------------------------
 #ifdef BOOT_FROM_FLASH
-	#pragma CODE_SECTION(Timer0_ISR, "ramfuncs");
 	#pragma CODE_SECTION(Timer2_ISR, "ramfuncs");
 	#pragma CODE_SECTION(CAN0A_ISR, "ramfuncs");
-	#pragma CODE_SECTION(CAN0B_ISR, "ramfuncs");
-	#pragma CODE_SECTION(SEQ1_ISR, "ramfuncs");
 	#pragma CODE_SECTION(IllegalInstruction_ISR, "ramfuncs");
 #endif
 //
-#pragma INTERRUPT(Timer0_ISR, HPI);
-#pragma INTERRUPT(SEQ1_ISR, HPI);
-
-// Timer 0 ISR
-ISRCALL Timer0_ISR(void)
-{
-	// Get analog input data
-	ZbAnanlogInput_StartAcquisition();
-
-	// allow other interrupts from group 1
-	TIMER0_ISR_DONE;
-}
 // -----------------------------------------
 
 // Timer 2 ISR
@@ -254,7 +213,6 @@ ISRCALL Timer2_ISR(void)
 	if (CONTROL_BootLoaderRequest != BOOT_LOADER_REQUEST)
 	{
 		ZwSystem_ServiceDog();
-		ZbWatchDog_Strobe();
 	}
 
 	++dbgCounter;
@@ -269,35 +227,11 @@ ISRCALL Timer2_ISR(void)
 }
 // -----------------------------------------
 
-// ADC SEQ1 ISR
-ISRCALL SEQ1_ISR(void)
-{
-	// Handle interrupt
-	ZwADC_ProcessInterruptSEQ1();
-	// Dispatch results
-	ZwADC_Dispatch1();
-
-	// allow other interrupts from group 1
-	ADC_ISR_DONE;
-}
-// -----------------------------------------
-
 // Line 0 CANa ISR
 ISRCALL CAN0A_ISR(void)
 {
     // handle CAN system events
 	ZwCANa_DispatchSysEvent();
-
-	// allow other interrupts from group 9
-	CAN_ISR_DONE;
-}
-// -----------------------------------------
-
-// Line 0 CANb ISR
-ISRCALL CAN0B_ISR(void)
-{
-    // handle CAN system events
-	ZwCANb_DispatchSysEvent();
 
 	// allow other interrupts from group 9
 	CAN_ISR_DONE;

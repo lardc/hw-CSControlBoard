@@ -12,7 +12,6 @@
 #include "ZwDSP.h"
 #include "Global.h"
 #include "DeviceObjectDictionary.h"
-#include "Clamp.h"
 
 // Types
 //
@@ -61,9 +60,5 @@ void CONTROL_Idle();
 void CONTROL_UpdateLow();
 // Notify that CANa system fault occurs
 void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
-// Notify that CANa system fault occurs
-void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
-// Notify about high-level CANopen fault
-void CONTROL_NotifyCANopenFault();
 
 #endif // __CONTROLLER_H

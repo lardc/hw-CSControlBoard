@@ -25,10 +25,6 @@
 #define HWUSE_SCI_A
 #define HWUSE_SCI_B
 
-// Analog input
-#define ADC_INA0			0x00
-#define ADC_SNUM			16				// Number of samples (1 to 16)
-
 // IO placement
 #define SPI_A_QSEL		    GPAQSEL2
 #define SPI_A_MUX			GPAMUX2
@@ -56,21 +52,19 @@
 #define SCI_B_TX			GPIO9
 #define SCI_B_MUX_SELECTOR	2
 //
-#define PIN_WD_RST			32
 #define PIN_M1M2			2
 #define PIN_M3M4			3
 #define PIN_SEN1			8
 #define PIN_SEN2			10
 #define PIN_SEN3			6
 #define PIN_SAFETY			22
+#define PIN_POWER_SWITCH	33
 #define PIN_SAFETY_HOLD		1
 #define PIN_FAN				0
-#define PIN_POWER_SWITCH	33
 #define PIN_LED				12
 #define PIN_SPIMUX_A		14
 #define PIN_SPIMUX_B		15
 #define PIN_SPIMUX_C		23
 #define PIN_RS485_CTRL		24
-
-
+//
 #endif // __BOARD_CONFIG_H

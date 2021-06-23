@@ -41,11 +41,9 @@ typedef struct __EPStates_32
 //
 SCCI_Interface DEVICE_RS232_Interface;
 BCCI_Interface DEVICE_CAN_Interface;
-CANopen_Interface DEVICE_CANopen_Interface;
 //
 static SCCI_IOConfig RS232_IOConfig;
 static BCCI_IOConfig CAN_IOConfig;
-static CANopen_IOConfig CANopenBus_IOConfig;
 static xCCI_ServiceConfig X_ServiceConfig;
 static xCCI_FUNC_CallbackAction ControllerDispatchFunction;
 static EPStates_16 RS232_EPState_16, CAN_EPState_16;
@@ -57,7 +55,6 @@ static volatile Boolean *MaskChangesFlag;
 
 // Forward functions
 //
-void DEVPROFILE_CANopen_NetworkFail();
 static void DEVPROFILE_FillWRPartDefault();
 static Boolean DEVPROFILE_Validate32(Int16U Address, Int32U Data);
 static Boolean DEVPROFILE_Validate16(Int16U Address, Int16U Data);
@@ -88,13 +85,6 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 	CAN_IOConfig.IO_IsMessageReceived = &ZwCANa_IsMessageReceived;
 	CAN_IOConfig.IO_ConfigMailbox = &ZwCANa_ConfigMailbox;
 	//
-	CANopenBus_IOConfig.IO_ConfigMailbox = &ZwCANb_ConfigMailbox;
-	CANopenBus_IOConfig.IO_GetMessage = &ZwCANb_GetMessage;
-	CANopenBus_IOConfig.IO_GetTimeStamp = &ZwCANb_GetTimeStamp;
-	CANopenBus_IOConfig.IO_IsMessageReceived = &ZwCANb_IsMessageReceived;
-	CANopenBus_IOConfig.IO_SendMessage = &ZwCANb_SendMessage;
-	CANopenBus_IOConfig.IO_ClearMailbox = &ZwCANb_CancelMessage;
-
 	// Init service
 	X_ServiceConfig.Read32Service = &DEVPROFILE_ReadValue32;
 	X_ServiceConfig.Write32Service = &DEVPROFILE_WriteValue32;
@@ -107,7 +97,6 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 			  DATA_TABLE_SIZE, SCCI_TIMEOUT_TICKS, &RS232_EPState_16, &RS232_EPState_32);
 	BCCI_Init(&DEVICE_CAN_Interface, &CAN_IOConfig, &X_ServiceConfig, (pInt16U)DataTable,
 			  DATA_TABLE_SIZE, &CAN_EPState_16);
-	CANopen_Init(&DEVICE_CANopen_Interface, &CANopenBus_IOConfig, &DEVPROFILE_CANopen_NetworkFail);
 
 	// Set write protection
 	SCCI_AddProtectedArea(&DEVICE_RS232_Interface, DATA_TABLE_WP_START, DATA_TABLE_SIZE - 1);
@@ -188,12 +177,6 @@ void DEVPROFILE_ResetEPReadState()
 }
 // ----------------------------------------
 
-void DEVPROFILE_CANopen_NetworkFail()
-{
-	CONTROL_NotifyCANopenFault();
-}
-// ----------------------------------------
-
 void DEVPROFILE_ResetControlSection()
 {
 	DT_ResetWRPart(&DEVPROFILE_FillWRPartDefault);
@@ -242,21 +225,6 @@ void DEVPROFILE_NotifyCANaFault(ZwCAN_SysFlags Flag)
 }
 // ----------------------------------------
 
-#ifdef BOOT_FROM_FLASH
-	#pragma CODE_SECTION(DEVPROFILE_NotifyCANbFault, "ramfuncs");
-#endif
-void DEVPROFILE_NotifyCANbFault(ZwCAN_SysFlags Flag)
-{
-	// Update error counter
-	if(Flag & BOIM)
-		DataTable[REG_CANB_BUSOFF_COUNTER]++;
-
-	// Cancel messages in the case of bus fault
-	if(Flag & (EPIM | BOIM))
-		ZwCANb_CancelAllMessages();
-}
-// ----------------------------------------
-
 void DEVPROFILE_UpdateCANDiagStatus()
 {
 	CANDiagnosticInfo info;
@@ -265,11 +233,6 @@ void DEVPROFILE_UpdateCANDiagStatus()
 	DEVPROFILE_WriteValue32((pInt16U)DataTable, REG_CANA_STATUS_REG, info.Status);
 	DataTable[REG_CANA_DIAG_TEC] = info.TEC;
 	DataTable[REG_CANA_DIAG_REC] = info.REC;
-
-	info = ZwCANb_GetDiagnosticInfo();
-	DEVPROFILE_WriteValue32((pInt16U)DataTable, REG_CANB_STATUS_REG, info.Status);
-	DataTable[REG_CANB_DIAG_TEC] = info.TEC;
-	DataTable[REG_CANB_DIAG_REC] = info.REC;
 }
 // ----------------------------------------
 
