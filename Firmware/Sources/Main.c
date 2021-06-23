@@ -8,9 +8,7 @@
 #include "ZwDSP.h"
 #include "ZbBoard.h"
 #include "TRM101.h"
-//
 #include "SysConfig.h"
-//
 #include "Controller.h"
 
 // FORWARD FUNCTIONS
@@ -26,8 +24,6 @@ void InitializeController(Boolean GoodClock);
 
 // FORWARD ISRs
 // -----------------------------------------
-// CPU Timer 0 ISR
-ISRCALL Timer0_ISR();
 // CPU Timer 2 ISR
 ISRCALL Timer2_ISR();
 // CANa Line 0 ISR
@@ -60,7 +56,6 @@ void main()
 
 	// Setup ISRs
 	BEGIN_ISR_MAP
-		ADD_ISR(TINT0, Timer0_ISR);
 		ADD_ISR(TINT2, Timer2_ISR);
 		ADD_ISR(ECAN0INTA, CAN0A_ISR);
 		ADD_ISR(ILLEGAL, IllegalInstruction_ISR);
@@ -79,7 +74,6 @@ void main()
 		ZwSystem_LockDog();
 
 		// Start timers
-		ZwTimer_StartT0();
 		ZwTimer_StartT2();
 	}
 
@@ -122,10 +116,6 @@ Boolean InitializeCPU()
 // Initialize CPU timers
 void InitializeTimers()
 {
-    ZwTimer_InitT0();
-	ZwTimer_SetT0(TIMER0_PERIOD);
-	ZwTimer_EnableInterruptsT0(TRUE);
-
     ZwTimer_InitT2();
  	ZwTimer_SetT2(TIMER2_PERIOD);
 	ZwTimer_EnableInterruptsT2(TRUE);

@@ -6,6 +6,7 @@
 #include "SCCISlave.h"
 #include "Controller.h"
 //
+
 // Includes
 #include "SysConfig.h"
 #include "Global.h"
@@ -20,7 +21,6 @@
 // Types
 //
 typedef void (*FUNC_AsyncDelegate)();
-
 
 // Variables
 //
@@ -61,7 +61,6 @@ volatile Int16U CONTROL_Values_XLogCounter = 0;
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
 volatile Int16U CONTROL_BootLoaderRequest = 0;
 
-
 // Forward functions
 //
 static void CONTROL_HandleFanControl();
@@ -70,7 +69,6 @@ static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
-
 
 // Functions
 //
