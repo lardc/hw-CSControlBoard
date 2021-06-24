@@ -31,12 +31,6 @@ inline Boolean ZbGPIO_GetS3State()
 }
 // ----------------------------------------
 
-inline void ZbGPIO_EnablePowerSwitch(Boolean State)
-{
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, State);
-}
-// ----------------------------------------
-
 inline void ZbGPIO_PneumoPushUp(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_M1M2, State);

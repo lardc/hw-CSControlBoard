@@ -16,7 +16,6 @@ void ZbGPIO_Init()
 {
 	// Output pins
 	// Reset to default state
-	ZwGPIO_WritePin(PIN_WD_RST, FALSE);
 	ZwGPIO_WritePin(PIN_M1M2, FALSE);
 	ZwGPIO_WritePin(PIN_M3M4, FALSE);
 	ZwGPIO_WritePin(PIN_SAFETY_HOLD, FALSE);
@@ -27,9 +26,8 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
 	ZwGPIO_WritePin(PIN_SPIMUX_B, TRUE);
 	ZwGPIO_WritePin(PIN_SPIMUX_C, TRUE);
-	ZwGPIO_WritePin(PIN_AOUT_LDAC, TRUE);
+
    	// Configure pins
-   	ZwGPIO_PinToOutput(PIN_WD_RST);
    	ZwGPIO_PinToOutput(PIN_M1M2);
    	ZwGPIO_PinToOutput(PIN_M3M4);
    	ZwGPIO_PinToOutput(PIN_SAFETY_HOLD);
@@ -40,7 +38,6 @@ void ZbGPIO_Init()
    	ZwGPIO_PinToOutput(PIN_SPIMUX_B);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_C);
    	ZwGPIO_PinToOutput(PIN_RS485_CTRL);
-   	ZwGPIO_PinToOutput(PIN_AOUT_LDAC);
 
    	// Input pins
    	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);

@@ -49,18 +49,11 @@
 #define CS_REALTIME_FREQ	50000L		// in Hz
 #define CS_MONITORING_FREQ	10L			// in Hz
 
-#define TIMER0_PERIOD		(1000000L / CS_REALTIME_FREQ)
+
 #define TIMER2_PERIOD		(1000000L / CS_MONITORING_FREQ)
 
 #define DBG_FREQ			2			// 2 Hz
 #define DBG_COUNTER_PERIOD	(CS_MONITORING_FREQ / (DBG_FREQ * 2))
-//--------------------------------------------------------
-
-// ADC
-//--------------------------------------------------------
-#define ADC_PRESCALER		0			// HSPCLK / (1 * 1) = 50 MHz
-#define ADC_CD2				TRUE		// Div ADC core / 2 = 25 MHz
-#define ADC_SH				2			// S/H sample window = 2 => 6.25 MSPS
 //--------------------------------------------------------
 
 // Temperature feedback
@@ -72,7 +65,6 @@
 // TRM
 //--------------------------------------------------------
 #define TRM_CH1_ADDR		1
-#define TRM_CH2_ADDR		2
 #define TRM_TEMP_THR		500			// in C x10
 #define TRM_ROOM_TEMP		250			// in C x10
 #define TRM_READ_TIMEOUT	100			// in ms
@@ -83,8 +75,6 @@
 //--------------------------------------------------------
 #define SPIMUX_AOUT			0
 #define SPIMUX_SU			1
-#define SPIMUX_OPTO1		2
-#define SPIMUX_OPTO2		3
 #define SPIMUX_EPROM		4
 //--------------------------------------------------------
 

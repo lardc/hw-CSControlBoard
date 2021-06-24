@@ -23,18 +23,14 @@
 #define	SCCI_TIMEOUT_TICKS  		1000
 #define SC_FILTER_T					100
 //
-#define EP_COUNT_16					7
-#define EP_COUNT_32					2
+#define EP_COUNT_16					1
+#define EP_COUNT_32					1
 #define VALUES_x_SIZE				500
 #define VALUES_XLOG_x_SIZE			1000
-
-// Compatability patch
-#define PATCH_LENZE_DI6_INVERT		TRUE
 
 // Sliding system config
 #define SLS_PUSH_UP_TO_OUT_PAUSE	200		// in ms
 #define SLS_PUSH_IN_TIMEOUT			10000	// in ms
 #define SLS_BOUNCE_COUNTER			10
-
 
 #endif // __GLOBAL_H

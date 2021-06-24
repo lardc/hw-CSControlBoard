@@ -12,7 +12,6 @@
 #include "ZwDSP.h"
 #include "Global.h"
 #include "DeviceObjectDictionary.h"
-#include "Clamp.h"
 
 // Types
 //
@@ -39,16 +38,8 @@ extern volatile DeviceState CONTROL_State;
 extern volatile Int16U CONTROL_BootLoaderRequest;
 //
 extern Int16U CONTROL_Values_1[VALUES_x_SIZE];
-extern Int16U CONTROL_Values_2[VALUES_x_SIZE];
-extern Int16U CONTROL_Values_3[VALUES_x_SIZE];
-extern Int16U CONTROL_Values_4[VALUES_x_SIZE];
 extern Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
-extern Int32U CONTROL_Values_2_32[VALUES_x_SIZE];
 extern Int16U CONTROL_Values_SubState[VALUES_XLOG_x_SIZE];
-extern Int16U CONTROL_Values_Force[VALUES_XLOG_x_SIZE];
-extern Int16U CONTROL_Values_Error[VALUES_XLOG_x_SIZE];
-extern Int16U CONTROL_Values_TorqueLimit[VALUES_XLOG_x_SIZE];
-extern volatile Int16U CONTROL_Values_XLogCounter;
 extern volatile Int16U CONTROL_Values_Counter;
 
 // Functions
@@ -61,9 +52,5 @@ void CONTROL_Idle();
 void CONTROL_UpdateLow();
 // Notify that CANa system fault occurs
 void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
-// Notify that CANa system fault occurs
-void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
-// Notify about high-level CANopen fault
-void CONTROL_NotifyCANopenFault();
 
 #endif // __CONTROLLER_H
