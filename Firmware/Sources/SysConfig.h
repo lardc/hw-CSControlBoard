@@ -51,6 +51,7 @@
 
 
 #define TIMER2_PERIOD		(1000000L / CS_MONITORING_FREQ)
+#define TIMER1_PERIOD		100L		// in us
 
 #define DBG_FREQ			2			// 2 Hz
 #define DBG_COUNTER_PERIOD	(CS_MONITORING_FREQ / (DBG_FREQ * 2))

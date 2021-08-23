@@ -119,6 +119,11 @@ void InitializeTimers()
     ZwTimer_InitT2();
  	ZwTimer_SetT2(TIMER2_PERIOD);
 	ZwTimer_EnableInterruptsT2(TRUE);
+
+	// PFM timer
+	ZwTimer_InitT1();
+	ZwTimer_SetT1(TIMER1_PERIOD);
+	ZwTimer_EnableInterruptsT1(TRUE);
 }
 // -----------------------------------------
 
@@ -216,6 +221,7 @@ ISRCALL Timer2_ISR(void)
 	TIMER2_ISR_DONE;
 }
 // -----------------------------------------
+
 
 // Line 0 CANa ISR
 ISRCALL CAN0A_ISR(void)

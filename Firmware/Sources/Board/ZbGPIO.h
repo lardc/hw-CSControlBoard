@@ -25,21 +25,45 @@ inline Boolean ZbGPIO_PressureOK()
 }
 // ----------------------------------------
 
-inline Boolean ZbGPIO_GetS3State()
+inline Boolean ZbGPIO_HomeSensorActuate()
+{
+	return !ZwGPIO_ReadPin(PIN_SEN1);
+}
+// ----------------------------------------
+
+inline Boolean ZbGPIO_GetPowerConnectionState()
 {
 	return ZwGPIO_ReadPin(PIN_SEN3);
 }
 // ----------------------------------------
 
-inline void ZbGPIO_PneumoPushUp(Boolean State)
+inline void ZbGPIO_SwitchPowerConnection(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_M1M2, State);
+	ZwGPIO_WritePin(PIN_OUT3, State);
 }
 // ----------------------------------------
 
-inline void ZbGPIO_PneumoPushOut(Boolean State)
+inline void ZbGPIO_ToggleStep()
 {
-	ZwGPIO_WritePin(PIN_M3M4, State);
+	ZwGPIO_TogglePin(PIN_STPM_STEP);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_SwitchStep(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_STPM_STEP, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_SwitchDir(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_STPM_DIR, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_SwitchEnable(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_STPM_EN, State);
 }
 // ----------------------------------------
 

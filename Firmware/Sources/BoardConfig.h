@@ -52,16 +52,18 @@
 #define SCI_B_TX			GPIO9
 #define SCI_B_MUX_SELECTOR	2
 //
-#define PIN_M1M2			2
-#define PIN_M3M4			3
+#define PIN_FAN				0
+#define PIN_OUT4			1
+#define PIN_STPM_DIR		2
+#define PIN_STPM_STEP		3
+#define PIN_OUT3			4
+#define PIN_SEN3			6
+#define PIN_STPM_EN			7
 #define PIN_SEN1			8
 #define PIN_SEN2			10
-#define PIN_SEN3			6
-#define PIN_SAFETY			22
-#define PIN_POWER_SWITCH	33
-#define PIN_SAFETY_HOLD		1
-#define PIN_FAN				0
 #define PIN_LED				12
+#define PIN_SAFETY			22
+//
 #define PIN_SPIMUX_A		14
 #define PIN_SPIMUX_B		15
 #define PIN_SPIMUX_C		23

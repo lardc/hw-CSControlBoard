@@ -33,4 +33,9 @@
 #define SLS_PUSH_IN_TIMEOUT			10000	// in ms
 #define SLS_BOUNCE_COUNTER			10
 
+// Stepper motors system config
+#define SM_FULL_ROUND_STEPS			200		// steps/round
+#define SM_MOVING_RER_ROUND			5000	// in um/round
+#define SM_MAX_POSITION				180000	// in um
+
 #endif // __GLOBAL_H

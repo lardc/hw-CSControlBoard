@@ -86,8 +86,8 @@ void CONTROL_Init(Boolean BadClockDetected)
 	DEVPROFILE_ResetControlSection();
 
 	// Sliding system init
-	ZbGPIO_PneumoPushOut(FALSE);
-	ZbGPIO_PneumoPushUp(FALSE);
+	//ZbGPIO_PneumoPushOut(FALSE);
+	//ZbGPIO_PneumoPushUp(FALSE);
 
 	if(!BadClockDetected)
 	{
@@ -137,7 +137,7 @@ void CONTROL_Idle()
 
 Boolean CONTROL_SlidingSensorOK()
 {
-	return (DataTable[REG_USE_SLIDING_SENSOR]) ? ZbGPIO_GetS3State() : TRUE;
+	return (DataTable[REG_USE_SLIDING_SENSOR]) ? ZbGPIO_GetPowerConnectionState() : TRUE;
 }
 // ----------------------------------------
 

@@ -15,29 +15,29 @@ static Int16U SafetyCircuitCounter = 0;
 void ZbGPIO_Init()
 {
 	// Output pins
-	// Reset to default state
-	ZwGPIO_WritePin(PIN_M1M2, FALSE);
-	ZwGPIO_WritePin(PIN_M3M4, FALSE);
-	ZwGPIO_WritePin(PIN_SAFETY_HOLD, FALSE);
-	ZwGPIO_WritePin(PIN_FAN, FALSE);
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, FALSE);
-	ZwGPIO_WritePin(PIN_LED, FALSE);
-	ZwGPIO_WritePin(PIN_RS485_CTRL, FALSE);
-	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
-	ZwGPIO_WritePin(PIN_SPIMUX_B, TRUE);
-	ZwGPIO_WritePin(PIN_SPIMUX_C, TRUE);
-
-   	// Configure pins
-   	ZwGPIO_PinToOutput(PIN_M1M2);
-   	ZwGPIO_PinToOutput(PIN_M3M4);
-   	ZwGPIO_PinToOutput(PIN_SAFETY_HOLD);
+   	ZwGPIO_PinToOutput(PIN_STPM_EN);
+   	ZwGPIO_PinToOutput(PIN_STPM_DIR);
+	ZwGPIO_PinToOutput(PIN_STPM_STEP);
+   	ZwGPIO_PinToOutput(PIN_OUT4);
    	ZwGPIO_PinToOutput(PIN_FAN);
-   	ZwGPIO_PinToOutput(PIN_POWER_SWITCH);
    	ZwGPIO_PinToOutput(PIN_LED);
+   	ZwGPIO_PinToOutput(PIN_OUT3);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_A);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_B);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_C);
    	ZwGPIO_PinToOutput(PIN_RS485_CTRL);
+   	// Reset to default state
+	ZwGPIO_WritePin(PIN_STPM_EN, FALSE);
+	ZwGPIO_WritePin(PIN_STPM_DIR, FALSE);
+	ZwGPIO_WritePin(PIN_STPM_STEP, FALSE);
+	ZwGPIO_WritePin(PIN_OUT4, FALSE);
+	ZwGPIO_WritePin(PIN_FAN, FALSE);
+	ZwGPIO_WritePin(PIN_LED, FALSE);
+	ZwGPIO_WritePin(PIN_OUT3, FALSE);
+	ZwGPIO_WritePin(PIN_RS485_CTRL, FALSE);
+	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
+	ZwGPIO_WritePin(PIN_SPIMUX_B, TRUE);
+	ZwGPIO_WritePin(PIN_SPIMUX_C, TRUE);
 
    	// Input pins
    	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);

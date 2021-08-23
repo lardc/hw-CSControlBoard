@@ -57,7 +57,7 @@
 #define REG_DBG_TRM_ADDRESS			84	// TRM address
 #define REG_DBG_PAUSE_T_FEEDBACK	85	// Deactivate temperature feedback
 //
-#define REG_PWD_1					91	// Unlock password loct   ation 1
+#define REG_PWD_1					91	// Unlock password location 1
 #define REG_PWD_2					92	// Unlock password location 2
 #define REG_PWD_3					93	// Unlock password location 3
 #define REG_PWD_4					94	// Unlock password location 4
