@@ -86,9 +86,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 	DEVPROFILE_ResetControlSection();
 
 	// Sliding system init
-	//ZbGPIO_PneumoPushOut(FALSE);
-	//ZbGPIO_PneumoPushUp(FALSE);
-
 	if(!BadClockDetected)
 	{
 		if(ZwSystem_GetDogAlarmFlag())

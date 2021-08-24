@@ -15,18 +15,18 @@ static Int16U SafetyCircuitCounter = 0;
 void ZbGPIO_Init()
 {
 	// Output pins
-   	ZwGPIO_PinToOutput(PIN_STPM_EN);
-   	ZwGPIO_PinToOutput(PIN_STPM_DIR);
+	ZwGPIO_PinToOutput(PIN_STPM_EN);
+	ZwGPIO_PinToOutput(PIN_STPM_DIR);
 	ZwGPIO_PinToOutput(PIN_STPM_STEP);
-   	ZwGPIO_PinToOutput(PIN_OUT4);
-   	ZwGPIO_PinToOutput(PIN_FAN);
-   	ZwGPIO_PinToOutput(PIN_LED);
-   	ZwGPIO_PinToOutput(PIN_OUT3);
-   	ZwGPIO_PinToOutput(PIN_SPIMUX_A);
-   	ZwGPIO_PinToOutput(PIN_SPIMUX_B);
-   	ZwGPIO_PinToOutput(PIN_SPIMUX_C);
-   	ZwGPIO_PinToOutput(PIN_RS485_CTRL);
-   	// Reset to default state
+	ZwGPIO_PinToOutput(PIN_OUT4);
+	ZwGPIO_PinToOutput(PIN_FAN);
+	ZwGPIO_PinToOutput(PIN_LED);
+	ZwGPIO_PinToOutput(PIN_OUT3);
+	ZwGPIO_PinToOutput(PIN_SPIMUX_A);
+	ZwGPIO_PinToOutput(PIN_SPIMUX_B);
+	ZwGPIO_PinToOutput(PIN_SPIMUX_C);
+	ZwGPIO_PinToOutput(PIN_RS485_CTRL);
+	// Reset to default state
 	ZwGPIO_WritePin(PIN_STPM_EN, FALSE);
 	ZwGPIO_WritePin(PIN_STPM_DIR, FALSE);
 	ZwGPIO_WritePin(PIN_STPM_STEP, FALSE);
@@ -38,17 +38,17 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
 	ZwGPIO_WritePin(PIN_SPIMUX_B, TRUE);
 	ZwGPIO_WritePin(PIN_SPIMUX_C, TRUE);
-
-   	// Input pins
-   	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);
-   	ZwGPIO_PinToInput(PIN_SEN2, TRUE, PQ_Sample6);
-   	ZwGPIO_PinToInput(PIN_SEN3, TRUE, PQ_Sample6);
-   	ZwGPIO_PinToInput(PIN_SAFETY, TRUE, PQ_Sample6);
+	
+	// Input pins
+	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);
+	ZwGPIO_PinToInput(PIN_SEN2, TRUE, PQ_Sample6);
+	ZwGPIO_PinToInput(PIN_SEN3, TRUE, PQ_Sample6);
+	ZwGPIO_PinToInput(PIN_SAFETY, TRUE, PQ_Sample6);
 }
 // ----------------------------------------
 
 #ifdef BOOT_FROM_FLASH
-	#pragma CODE_SECTION(ZbGPIO_FilterSafetyCircuit, "ramfuncs");
+#pragma CODE_SECTION(ZbGPIO_FilterSafetyCircuit, "ramfuncs");
 #endif
 Boolean ZbGPIO_FilterSafetyCircuit(Boolean NewState)
 {
@@ -56,10 +56,10 @@ Boolean ZbGPIO_FilterSafetyCircuit(Boolean NewState)
 		SafetyCircuitCounter = 0;
 	else
 		SafetyCircuitCounter++;
-
+	
 	if(SafetyCircuitCounter > SC_FILTER_T)
 		SafetyCircuitCounter = SC_FILTER_T;
-
+	
 	return (SafetyCircuitCounter >= SC_FILTER_T);
 }
 // ----------------------------------------
