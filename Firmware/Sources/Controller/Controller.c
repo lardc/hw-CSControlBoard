@@ -16,6 +16,7 @@
 #include "DeviceObjectDictionary.h"
 #include "DeviceProfile.h"
 #include "TRM101.h"
+#include "StepperMotor.h"
 //
 
 // Types
@@ -47,6 +48,7 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 // Forward functions
 //
 static void CONTROL_HandleFanControl();
+static void CONTROL_HandleClampActions();
 static void CONTROL_SetDeviceState(DeviceState NewState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
@@ -138,12 +140,40 @@ Boolean CONTROL_SlidingSensorOK()
 }
 // ----------------------------------------
 
+Int16U CONTROL_DevicePosition(DevTypeId)
+{
+	Int16U DevPos = 0;
+	switch (DevTypeId)
+	{
+		case 1:
+			DevPos = SC_Type_A2;
+			break;
+		case 2:
+			DevPos = SC_Type_B0;
+			break;
+		case 3:
+			DevPos = SC_Type_C1;
+			break;
+		case 4:
+			DevPos = SC_Type_D;
+			break;
+		case 5:
+			DevPos = SC_Type_E;
+			break;
+		case 6:
+			DevPos = SC_Type_F;
+			break;
+}
+	return DevPos;
+}
+
 #ifdef BOOT_FROM_FLASH
 	#pragma CODE_SECTION(CONTROL_UpdateLow, "ramfuncs");
 #endif
 void CONTROL_UpdateLow()
 {
 	CONTROL_HandleFanControl();
+	CONTROL_HandleClampActions();
 	ZbSU_UpdateTimeCounter(CONTROL_TimeCounter);
 }
 // ----------------------------------------
@@ -170,7 +200,7 @@ static void CONTROL_FillWPPartDefault()
 
 static void CONTROL_SetDeviceState(DeviceState NewState)
 {
-	if (NewState == DS_Clamping || NewState == DS_ClampingUpdate)
+	if (NewState == DS_Clamping || NewState == DS_Sliding)
 		FanTimeout = FAN_TIMEOUT_TCK;
 
 	// Delay before changing device state
@@ -192,32 +222,6 @@ static void CONTROL_HandleFanControl()
 
 static void CONTROL_HandleClampActions()
 {
-	static Int64U ClampingDoneCounterCopy = 0;
-
-	// Handle quick stop request
-	switch(CONTROL_State)
-	{
-		case DS_Homing:
-		case DS_Position:
-		case DS_Clamping:
-		case DS_ClampingDone:
-		case DS_ClampingUpdate:
-		case DS_ClampingRelease:
-			{
-				if (CLAMP_IsQSPActive())
-				{
-					DINT;
-					CLAMP_CompleteOperation(TRUE);
-					CONTROL_SetDeviceState(DS_Halt);
-					EINT;
-				}
-			}
-			break;
-
-		default:
-			break;
-	}
-
 	// Handle operation modes
 	switch(CONTROL_State)
 	{
@@ -229,10 +233,25 @@ static void CONTROL_HandleClampActions()
 			break;
 
 		case DS_Sliding:
-			if (CLAMP_IsTargetReached())
+			if (ZbGPIO_IsSafetyOk())
 			{
-				CLAMP_CompleteOperation(TRUE);
-				CONTROL_SetDeviceState(DS_Ready);
+				if (SM_IsSlidingDone())
+				{
+					CONTROL_SetDeviceState(DS_Ready);
+				}
+			}
+			else
+			{
+				SM_SetStopSteps();
+				CONTROL_SetDeviceState(DS_Fault);
+			}
+			break;
+
+		case DS_Clamping:
+			if (SM_IsSlidingDone())
+			{
+				ZbGPIO_SwitchControlConnection(TRUE);
+				CONTROL_SetDeviceState(DS_ClampingDone);
 			}
 			break;
 	}
@@ -267,22 +286,32 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			}
 			else *UserError = ERR_OPERATION_BLOCKED;
 			break;
+
 		case ACT_START_CLAMPING:
 			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
+				if(!ZbGPIO_GetPowerConnectionState())
+				{
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
-					Int16U LowSpeedPos = DataTable[REG_CUSTOM_POS]*1000 - CONTROL_DevHeight(DataTable[REG_DEV_TYPE]);
+					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_TYPE]);
 					if (SM_GoToPosition(DataTable[REG_CUSTOM_POS]*1000, DataTable[REG_MAX_SPEED]*1000, LowSpeedPos, SM_MIN_SPEED))
 					{
 						CONTROL_SetDeviceState(DS_Sliding);
 					}
 					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
+				}
+				else
+				{
+					CONTROL_SetDeviceState(DS_Fault);
+					*UserError = ERR_SLIDING_SYSTEM;
+				}
 			}
 			else *UserError = ERR_OPERATION_BLOCKED;
 			break;
+
 		case ACT_RELEASE_CLAMPING:
-			if (CONTROL_State == DS_Halt || CONTROL_State == DS_Sliding)
+			if (CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone)
 			{
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
@@ -294,12 +323,28 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			}
 			else *UserError = ERR_OPERATION_BLOCKED;
 			break;
+
 		case ACT_HALT:
 			{
-				DINT;
+				SM_SetStopSteps();
 				CONTROL_SetDeviceState(DS_Halt);
-				EINT;
 			}
+			break;
+
+		case ACT_RELEASE_ADAPTER:
+			if (CONTROL_State == DS_None || CONTROL_State == DS_Ready)
+			{
+				ZbGPIO_SwitchPowerConnection(FALSE);
+			}
+			else *UserError = ERR_OPERATION_BLOCKED;
+			break;
+
+		case ACT_HOLD_ADAPTER:
+			if (CONTROL_State == DS_None || CONTROL_State == DS_Ready)
+			{
+				ZbGPIO_SwitchPowerConnection(TRUE);
+			}
+			else *UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_SET_TEMPERATURE:
@@ -456,6 +501,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				else
 					*UserError = ERR_OPERATION_BLOCKED;
 			}
+			break;
+
+		case ACT_DBG_CONNECT_CONTROL:
+			ZbGPIO_SwitchControlConnection(TRUE);
+			break;
+
+		case ACT_DBG_DISCONNECT_CONTROL:
+			ZbGPIO_SwitchControlConnection(FALSE);
 			break;
 
 		default:

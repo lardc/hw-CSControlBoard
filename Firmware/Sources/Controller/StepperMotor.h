@@ -53,6 +53,8 @@ Int32U SM_PosToSteps(Int32U NewPos);
 Int16U SM_SpeedToCycles(Int16U NewSpeed);
 // Get current position in um
 Int32U SM_GetPosition();
+Boolean SM_IsHomingDone();
+Boolean SM_IsSlidingDone();
 
 #endif // __STEPPER_MOTOR_H
 

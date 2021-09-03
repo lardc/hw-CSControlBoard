@@ -280,6 +280,13 @@ Boolean SM_IsHomingDone()
 {
 	return !(SM_HomingFlag || SM_OriginFlag);
 }
+// ----------------------------------------
+
+Boolean SM_IsSlidingDone()
+{
+	return ! SM_ChangePositionFlag;
+}
+// ----------------------------------------
 
 // Position in um to steps converter
 Int32U SM_PosToSteps(Int32U NewPos)

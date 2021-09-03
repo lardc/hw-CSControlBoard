@@ -19,10 +19,12 @@
 #define ACT_START_CLAMPING			102 // Star clamping
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
 #define ACT_HALT					105 // Abort operation
-#define ACT_ADAPTER_OPEN			106	// To open adapter for changing
-#define ACT_ADAPTER_CLOSE			107	// To close adapter
+#define ACT_RELEASE_ADAPTER			106	// Release adapter for changing
+#define ACT_HOLD_ADAPTER			107	// Hold adapter
 #define ACT_SET_TEMPERATURE			108	// Set temperature
 // 109 - 114
+#define	ACT_DBG_CONNECT_CONTROL		113	// Connect control circuit to device
+#define	ACT_DBG_DISCONNECT_CONTROL	114	// Disconnect control circuit from device
 #define ACT_DBG_READ_TRM_TEMP		115	// Read actual temperature value from TRM
 #define ACT_DBG_READ_TRM_POWER		116	// Read TRM output power
 #define ACT_DBG_TRM_START			117	// Start TRM operation
@@ -138,5 +140,6 @@
 #define ERR_PARAMETER_OUT_OF_RNG	6	// Configured parameter is out of range
 #define ERR_TRM_COMM_ERR			7	// Communication with TRM failed
 #define ERR_NO_AIR_PRESSURE			8	// Air pressure for power switch too low
+#define ERR_SAFETY					9	// Safety circuite error
 
 #endif // __DEV_OBJ_DIC_H

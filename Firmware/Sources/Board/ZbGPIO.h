@@ -19,7 +19,7 @@ Boolean ZbGPIO_FilterSafetyCircuit(Boolean NewState);
 // Set proper CS output
 void ZbGPIO_CSMux(Int16U SPIDevice);
 
-inline Boolean ZbGPIO_PressureOK()
+inline Boolean ZbGPIO_IsSafetyOk()
 {
 	return !ZwGPIO_ReadPin(PIN_SEN2);
 }

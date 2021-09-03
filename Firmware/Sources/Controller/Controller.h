@@ -23,6 +23,8 @@ typedef enum __DeviceState
 	DS_Ready = 3,
 	DS_Halt = 4,
 	DS_Homing = 5,
+	DS_Clamping = 7,
+	DS_ClampingDone = 8,
 	DS_Sliding = 11
 } DeviceState;
 

@@ -137,11 +137,15 @@
 //--------------------------------------------------------
 #define DELAY_CHANGE_DEV_STATE		200		// in ms
 #define DELAY_OP_COMPLETE			5		// in ms
-typedef enum __CaseType				// in mm
+typedef enum __DevType				// from device contacts to upper adapter in mm
 {
-	SC_Type_1 = 68,
-	SC_Type_2 = 87
-} CaseType;
+	SC_Type_D = 93,
+	SC_Type_F = 144,
+	SC_Type_A2 = 122,
+	SC_Type_B0 = 122,
+	SC_Type_C1 = 122,
+	SC_Type_E = 82
+} DevType;
 //--------------------------------------------------------
 
 #endif // __SYSCONFIG_H
