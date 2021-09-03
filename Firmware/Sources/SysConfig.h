@@ -137,6 +137,11 @@
 //--------------------------------------------------------
 #define DELAY_CHANGE_DEV_STATE		200		// in ms
 #define DELAY_OP_COMPLETE			5		// in ms
+typedef enum __CaseType				// in mm
+{
+	SC_Type_1 = 68,
+	SC_Type_2 = 87
+} CaseType;
 //--------------------------------------------------------
 
 #endif // __SYSCONFIG_H

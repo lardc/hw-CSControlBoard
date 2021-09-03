@@ -19,7 +19,8 @@
 #define ACT_START_CLAMPING			102 // Star clamping
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
 #define ACT_HALT					105 // Abort operation
-// 106 - 107
+#define ACT_ADAPTER_OPEN			106	// To open adapter for changing
+#define ACT_ADAPTER_CLOSE			107	// To close adapter
 #define ACT_SET_TEMPERATURE			108	// Set temperature
 // 109 - 114
 #define ACT_DBG_READ_TRM_TEMP		115	// Read actual temperature value from TRM
@@ -49,7 +50,8 @@
 // ----------------------------------------
 //
 #define REG_CUSTOM_POS				64	// Mannually configured position (in mm)
-#define REG_DEV_HEIGHT				71	// Device height (in mm)
+#define REG_MAX_SPEED				65	// Max speed (in mm/s)
+#define REG_DEV_TYPE				71	// Device type
 #define REG_TEMP_SETPOINT			72	// Temperature setpoint (in C x10)
 #define REG_USE_SLIDING_SYSTEM		73	// Activate sliding system
 //

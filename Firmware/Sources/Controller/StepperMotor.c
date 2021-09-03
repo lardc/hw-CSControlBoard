@@ -275,6 +275,12 @@ void SM_SetOrigin()
 }
 // ----------------------------------------
 
+// Is homing done?
+Boolean SM_IsHomingDone()
+{
+	return !(SM_HomingFlag || SM_OriginFlag);
+}
+
 // Position in um to steps converter
 Int32U SM_PosToSteps(Int32U NewPos)
 {

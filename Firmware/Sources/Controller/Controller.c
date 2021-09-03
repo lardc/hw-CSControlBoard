@@ -190,10 +190,110 @@ static void CONTROL_HandleFanControl()
 }
 // ----------------------------------------
 
+static void CONTROL_HandleClampActions()
+{
+	static Int64U ClampingDoneCounterCopy = 0;
+
+	// Handle quick stop request
+	switch(CONTROL_State)
+	{
+		case DS_Homing:
+		case DS_Position:
+		case DS_Clamping:
+		case DS_ClampingDone:
+		case DS_ClampingUpdate:
+		case DS_ClampingRelease:
+			{
+				if (CLAMP_IsQSPActive())
+				{
+					DINT;
+					CLAMP_CompleteOperation(TRUE);
+					CONTROL_SetDeviceState(DS_Halt);
+					EINT;
+				}
+			}
+			break;
+
+		default:
+			break;
+	}
+
+	// Handle operation modes
+	switch(CONTROL_State)
+	{
+		case DS_Homing:
+			if (SM_IsHomingDone())
+			{
+				CONTROL_SetDeviceState(DS_Ready);
+			}
+			break;
+
+		case DS_Sliding:
+			if (CLAMP_IsTargetReached())
+			{
+				CLAMP_CompleteOperation(TRUE);
+				CONTROL_SetDeviceState(DS_Ready);
+			}
+			break;
+	}
+}
+// ----------------------------------------
+
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
 	switch(ActionID)
 	{
+		case ACT_HOMING:
+			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			{
+					DataTable[REG_PROBLEM] = PROBLEM_NONE;
+					ZbGPIO_SwitchControlConnection(FALSE);
+					SM_Homing();
+					CONTROL_SetDeviceState(DS_Homing);
+			}
+			else *UserError = ERR_OPERATION_BLOCKED;
+			break;
+
+		case ACT_GOTO_POSITION:
+			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			{
+					DataTable[REG_PROBLEM] = PROBLEM_NONE;
+					ZbGPIO_SwitchControlConnection(FALSE);
+					if (SM_GoToPosition(DataTable[REG_CUSTOM_POS]*1000, DataTable[REG_MAX_SPEED]*1000, 0, 0))
+					{
+						CONTROL_SetDeviceState(DS_Sliding);
+					}
+					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
+			}
+			else *UserError = ERR_OPERATION_BLOCKED;
+			break;
+		case ACT_START_CLAMPING:
+			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			{
+					DataTable[REG_PROBLEM] = PROBLEM_NONE;
+					ZbGPIO_SwitchControlConnection(FALSE);
+					Int16U LowSpeedPos = DataTable[REG_CUSTOM_POS]*1000 - CONTROL_DevHeight(DataTable[REG_DEV_TYPE]);
+					if (SM_GoToPosition(DataTable[REG_CUSTOM_POS]*1000, DataTable[REG_MAX_SPEED]*1000, LowSpeedPos, SM_MIN_SPEED))
+					{
+						CONTROL_SetDeviceState(DS_Sliding);
+					}
+					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
+			}
+			else *UserError = ERR_OPERATION_BLOCKED;
+			break;
+		case ACT_RELEASE_CLAMPING:
+			if (CONTROL_State == DS_Halt || CONTROL_State == DS_Sliding)
+			{
+					DataTable[REG_PROBLEM] = PROBLEM_NONE;
+					ZbGPIO_SwitchControlConnection(FALSE);
+					if (SM_GoToPosition(0, DataTable[REG_MAX_SPEED]*1000, 0, 0))
+					{
+						CONTROL_SetDeviceState(DS_Sliding);
+					}
+					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
+			}
+			else *UserError = ERR_OPERATION_BLOCKED;
+			break;
 		case ACT_HALT:
 			{
 				DINT;

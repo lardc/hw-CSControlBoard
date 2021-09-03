@@ -43,6 +43,12 @@ inline void ZbGPIO_SwitchPowerConnection(Boolean State)
 }
 // ----------------------------------------
 
+inline void ZbGPIO_SwitchControlConnection(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_OUT4, State);
+}
+// ----------------------------------------
+
 inline void ZbGPIO_ToggleStep()
 {
 	ZwGPIO_TogglePin(PIN_STPM_STEP);
