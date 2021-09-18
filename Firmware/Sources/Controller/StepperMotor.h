@@ -21,6 +21,9 @@
 #define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
 #define SM_S_TO_US					1000000		// Seconds to us convertation coefficient
 
+// CPU Timer 2 ISR
+ISRCALL Timer1_ISR();
+
 // Functions
 //
 // Next step generate check
@@ -43,6 +46,8 @@ void SM_DownDir();
 void SM_Enable(Boolean State);
 // New position in um, speed in um/s
 Boolean SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosition, Int16U LowSpeed);
+// New position in mm, speed in mm/s
+Boolean SM_GoToPositionFromReg(Int16U NewPosition, Int16U MaxSpeed, Int16U LowSpeedPosition, Int16U LowSpeed);
 // Homing
 void SM_Homing();
 // Set new origin

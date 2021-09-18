@@ -57,6 +57,7 @@ void main()
 	// Setup ISRs
 	BEGIN_ISR_MAP
 		ADD_ISR(TINT2, Timer2_ISR);
+		ADD_ISR(TINT1_XINT13, Timer1_ISR);
 		ADD_ISR(ECAN0INTA, CAN0A_ISR);
 		ADD_ISR(ILLEGAL, IllegalInstruction_ISR);
 	END_ISR_MAP
@@ -74,6 +75,7 @@ void main()
 		ZwSystem_LockDog();
 
 		// Start timers
+		ZwTimer_StartT1();
 		ZwTimer_StartT2();
 	}
 
@@ -123,7 +125,7 @@ void InitializeTimers()
 	// PFM timer
 	ZwTimer_InitT1();
 	ZwTimer_SetT1(TIMER1_PERIOD);
-	ZwTimer_EnableInterruptsT1(TRUE);
+	ZwTimer_EnableInterruptsT1(FALSE);
 }
 // -----------------------------------------
 

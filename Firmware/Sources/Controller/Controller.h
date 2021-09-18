@@ -12,6 +12,7 @@
 #include "ZwDSP.h"
 #include "Global.h"
 #include "DeviceObjectDictionary.h"
+#include "StepperMotor.h"
 
 // Types
 //
@@ -25,7 +26,7 @@ typedef enum __DeviceState
 	DS_Homing = 5,
 	DS_Clamping = 7,
 	DS_ClampingDone = 8,
-	DS_Sliding = 11
+	DS_Moving = 11
 } DeviceState;
 
 // Variables

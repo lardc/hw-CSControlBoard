@@ -140,7 +140,7 @@ Boolean CONTROL_SlidingSensorOK()
 }
 // ----------------------------------------
 
-Int16U CONTROL_DevicePosition(DevTypeId)
+Int16U CONTROL_DevicePosition(Int16U DevTypeId)
 {
 	Int16U DevPos = 0;
 	switch (DevTypeId)
@@ -200,7 +200,7 @@ static void CONTROL_FillWPPartDefault()
 
 static void CONTROL_SetDeviceState(DeviceState NewState)
 {
-	if (NewState == DS_Clamping || NewState == DS_Sliding)
+	if (NewState == DS_Clamping || NewState == DS_Moving)
 		FanTimeout = FAN_TIMEOUT_TCK;
 
 	// Delay before changing device state
@@ -232,7 +232,7 @@ static void CONTROL_HandleClampActions()
 			}
 			break;
 
-		case DS_Sliding:
+		case DS_Moving:
 			if (ZbGPIO_IsSafetyOk())
 			{
 				if (SM_IsSlidingDone())
@@ -278,9 +278,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
-					if (SM_GoToPosition(DataTable[REG_CUSTOM_POS]*1000, DataTable[REG_MAX_SPEED]*1000, 0, 0))
+					if (SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], 0, 0))
 					{
-						CONTROL_SetDeviceState(DS_Sliding);
+						CONTROL_SetDeviceState(DS_Moving);
 					}
 					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
 			}
@@ -295,9 +295,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
 					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_TYPE]);
-					if (SM_GoToPosition(DataTable[REG_CUSTOM_POS]*1000, DataTable[REG_MAX_SPEED]*1000, LowSpeedPos, SM_MIN_SPEED))
+					if (SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], LowSpeedPos, SM_MIN_SPEED))
 					{
-						CONTROL_SetDeviceState(DS_Sliding);
+						CONTROL_SetDeviceState(DS_Moving);
 					}
 					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
 				}
@@ -315,9 +315,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
-					if (SM_GoToPosition(0, DataTable[REG_MAX_SPEED]*1000, 0, 0))
+					if (SM_GoToPositionFromReg(0, DataTable[REG_MAX_SPEED], 0, 0))
 					{
-						CONTROL_SetDeviceState(DS_Sliding);
+						CONTROL_SetDeviceState(DS_Moving);
 					}
 					else *UserError = ERR_PARAMETER_OUT_OF_RNG;
 			}

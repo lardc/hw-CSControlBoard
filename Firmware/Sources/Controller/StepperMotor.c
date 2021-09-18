@@ -7,10 +7,10 @@
 
 // Variables
 //
-static volatile Int16U SM_CycleCounter = 0;
-static volatile Int16U SM_GlobalStepsCounter = 0;							// in steps*2
-static volatile Int16U SM_PrevGlobalStepsCounter = 0;
-static volatile Int16U SM_CyclesToToggle = SM_DEFAULT_CYCLES_TO_TOGGLE;
+volatile Int32U SM_CycleCounter = 0;
+volatile Int16U SM_GlobalStepsCounter = 0;							// in steps*2
+volatile Int16U SM_PrevGlobalStepsCounter = 0;
+volatile Int16U SM_CyclesToToggle = SM_DEFAULT_CYCLES_TO_TOGGLE;
 
 Int16U SM_StartSteps = 0;
 Int16U SM_DestSteps = 0;
@@ -44,12 +44,12 @@ ISRCALL Timer1_ISR(void)
 			SM_GlobalStepsCounter--;
 	}
 	else
-		++SM_CycleCounter;
+		SM_CycleCounter++;
 
 	// Changing position processor
 	if(SM_ChangePositionFlag)
 	{
-		Int16U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
+		Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
 		// First init
 		if(SM_ChangePositionInit)
 		{
@@ -133,15 +133,16 @@ ISRCALL Timer1_ISR(void)
 				}
 				else if(SM_OriginFlag)
 				{
-					SM_SetStopSteps();
 					SM_ChangePositionFlag = FALSE;
 					SM_GlobalStepsCounter = 0;
+					SM_DestSteps = 0;
 					SM_OriginFlag = FALSE;
+					SM_SetStopSteps();
 				}
 				else
 				{
-					SM_SetStopSteps();
 					SM_ChangePositionFlag = FALSE;
+					SM_SetStopSteps();
 				}
 			}
 		}
@@ -193,6 +194,7 @@ Int16U SM_PeriodToCycles(Int16U NewPeriod)
 void SM_SetStartSteps()
 {
 	ZwTimer_EnableInterruptsT1(TRUE);
+	ZwTimer_StartT1();
 }
 // ----------------------------------------
 
@@ -200,6 +202,7 @@ void SM_SetStartSteps()
 void SM_SetStopSteps()
 {
 	ZwTimer_EnableInterruptsT1(FALSE);
+	ZwTimer_StopT1();
 	ZbGPIO_SwitchStep(TRUE);
 }
 // ----------------------------------------
@@ -256,6 +259,12 @@ Boolean SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosi
 	}
 	else
 		return FALSE;
+}
+
+// New position in mm, speed in um/s
+Boolean SM_GoToPositionFromReg(Int16U NewPosition, Int16U MaxSpeed, Int16U LowSpeedPosition, Int16U LowSpeed)
+{
+	return SM_GoToPosition((Int32U)NewPosition*1000, (Int16U)MaxSpeed*1000, (Int32U)LowSpeedPosition*1000, LowSpeed);
 }
 // ----------------------------------------
 
