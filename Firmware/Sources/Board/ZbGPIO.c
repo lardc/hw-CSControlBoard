@@ -42,7 +42,7 @@ void ZbGPIO_Init()
 	// Input pins
 	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);
 	ZwGPIO_PinToInput(PIN_SEN2, TRUE, PQ_Sample6);
-	ZwGPIO_PinToInput(PIN_SEN3, TRUE, PQ_Sample6);
+	ZwGPIO_PinToInput(PIN_HOME, TRUE, PQ_Sample6);
 	ZwGPIO_PinToInput(PIN_SAFETY, TRUE, PQ_Sample6);
 }
 // ----------------------------------------

@@ -19,6 +19,7 @@
 #define SM_HOMING_RESERVE			2000		// Safety area in um from homing detection to origin
 #define SM_SPEED_CHANGE_STEPS		400			// Acceleration in steps
 #define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
+#define SM_MAX_STEPS				(Int16U)SM_FULL_ROUND_STEPS*SM_MAX_POSITION/SM_MOVING_RER_ROUND
 #define SM_S_TO_US					1000000		// Seconds to us convertation coefficient
 
 // CPU Timer 2 ISR

@@ -57,12 +57,12 @@
 #define PIN_STPM_DIR		2
 #define PIN_STPM_STEP		3
 #define PIN_OUT3			4
-#define PIN_SEN3			6
+#define PIN_HOME			22
 #define PIN_STPM_EN			7
 #define PIN_SEN1			8
 #define PIN_SEN2			10
 #define PIN_LED				12
-#define PIN_SAFETY			22
+#define PIN_SAFETY			6
 //
 #define PIN_SPIMUX_A		14
 #define PIN_SPIMUX_B		15

@@ -254,6 +254,16 @@ static void CONTROL_HandleClampActions()
 				CONTROL_SetDeviceState(DS_ClampingDone);
 			}
 			break;
+
+		case DS_Fault:
+		case DS_None:
+			ZbGPIO_SwitchFan(FALSE);
+			break;
+
+		default:
+			ZbGPIO_SwitchFan(TRUE);
+			break;
+
 	}
 }
 // ----------------------------------------
@@ -311,7 +321,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_RELEASE_CLAMPING:
-			if (CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone)
+			if (CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);

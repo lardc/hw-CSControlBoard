@@ -21,6 +21,7 @@ Int16U SM_DestCycles = 0;
 Int16U SM_LowSpeedCycles = 0;
 Int16U SM_MaxCycles = 0;
 Int16U SM_MinCycles = 0;
+Int32U StepsToPos = 1;
 
 static Int16U SM_SpeedChangeDiscrete = 0;
 
@@ -49,10 +50,11 @@ ISRCALL Timer1_ISR(void)
 	// Changing position processor
 	if(SM_ChangePositionFlag)
 	{
-		Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
+		if(StepsToPos > 0) StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
 		// First init
 		if(SM_ChangePositionInit)
 		{
+			StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
 			SM_SpeedChangeDiscrete = (Int16U)(SM_SPEED_CHANGE_STEPS / (SM_MaxCycles - SM_MinCycles));
 			SM_UpdCyclesToToggle(SM_MaxCycles);
 			SM_ChangePositionInit = FALSE;
@@ -118,10 +120,11 @@ ISRCALL Timer1_ISR(void)
 						SM_UpdCyclesToToggle(++SM_CyclesToToggle);
 				}
 			}
-			if(StepsToPos == 0)
+			if((StepsToPos == 0))
 			{
 				if(SM_HomingFlag)
 				{
+					//SM_DestSteps = SM_GlobalStepsCounter;
 					if(ZbGPIO_HomeSensorActuate())
 					{
 						SM_SetStopSteps();
@@ -204,6 +207,7 @@ void SM_SetStopSteps()
 	ZwTimer_EnableInterruptsT1(FALSE);
 	ZwTimer_StopT1();
 	ZbGPIO_SwitchStep(TRUE);
+	SM_Enable(FALSE);
 }
 // ----------------------------------------
 
@@ -236,8 +240,9 @@ Boolean SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosi
 	// validation
 	if((NewPosition <= SM_MAX_POSITION) && (LowSpeedPosition <= SM_MAX_POSITION))
 	{
+		SM_Enable(TRUE);
 		SM_StartSteps = SM_GlobalStepsCounter;
-		SM_LowSpeedSteps = SM_PosToSteps(abs(NewPosition - LowSpeedPosition));
+		SM_LowSpeedSteps = SM_PosToSteps(NewPosition - LowSpeedPosition);
 		SM_DestSteps = SM_PosToSteps(NewPosition);
 
 		if(SM_DestSteps > SM_StartSteps)
@@ -262,9 +267,9 @@ Boolean SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosi
 }
 
 // New position in mm, speed in um/s
-Boolean SM_GoToPositionFromReg(Int16U NewPosition, Int16U MaxSpeed, Int16U LowSpeedPosition, Int16U LowSpeed)
+Boolean SM_GoToPositionFromReg(Int16U NewPositionReg, Int16U MaxSpeedReg, Int16U LowSpeedPositionReg, Int16U LowSpeedReg)
 {
-	return SM_GoToPosition((Int32U)NewPosition*1000, (Int16U)MaxSpeed*1000, (Int32U)LowSpeedPosition*1000, LowSpeed);
+	return SM_GoToPosition((Int32U)NewPositionReg*1000, (Int16U)MaxSpeedReg*1000, (Int32U)LowSpeedPositionReg*1000, (Int16U)LowSpeedReg*1000);
 }
 // ----------------------------------------
 
