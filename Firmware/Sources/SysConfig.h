@@ -139,12 +139,12 @@
 #define DELAY_OP_COMPLETE			5		// in ms
 typedef enum __DevType				// from device contacts to upper adapter in mm
 {
-	SC_Type_D = 93,
-	SC_Type_F = 144,
-	SC_Type_A2 = 122,
-	SC_Type_B0 = 122,
-	SC_Type_C1 = 122,
-	SC_Type_E = 82
+	SC_Type_A2 = 0,
+	SC_Type_B0 = 1,
+	SC_Type_C1 = 2,
+	SC_Type_D = 3,
+	SC_Type_E = 4,
+	SC_Type_F = 5
 } DevType;
 //--------------------------------------------------------
 

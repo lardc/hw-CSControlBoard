@@ -17,19 +17,20 @@
 #define ACT_HOMING					100	// Start homing
 #define ACT_GOTO_POSITION			101 // Go to manually configured position
 #define ACT_START_CLAMPING			102 // Star clamping
+// 103
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
 #define ACT_HALT					105 // Abort operation
 #define ACT_RELEASE_ADAPTER			106	// Release adapter for changing
 #define ACT_HOLD_ADAPTER			107	// Hold adapter
 #define ACT_SET_TEMPERATURE			108	// Set temperature
-// 109 - 114
+// 109 - 112
 #define	ACT_DBG_CONNECT_CONTROL		113	// Connect control circuit to device
 #define	ACT_DBG_DISCONNECT_CONTROL	114	// Disconnect control circuit from device
 #define ACT_DBG_READ_TRM_TEMP		115	// Read actual temperature value from TRM
 #define ACT_DBG_READ_TRM_POWER		116	// Read TRM output power
 #define ACT_DBG_TRM_START			117	// Start TRM operation
 #define ACT_DBG_TRM_STOP			118	// Stop TRM operation
-// 119 - 129
+// 119 - 199
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
@@ -39,6 +40,16 @@
 #define ACT_BOOT_LOADER_REQUEST		320	// Request reboot to bootloader
 
 // REGISTERS
+//
+// ----------------------------------------
+#define REG_CASE_A2_DEF				0	// Case height registers
+#define REG_CASE_B0_DEF				1
+#define REG_CASE_C1_DEF				2
+#define REG_CASE_D_DEF				3
+#define REG_CASE_E_DEF				4
+#define REG_CASE_F_DEF				5
+//
+// ----------------------------------------
 //
 #define REG_USE_HEATING				46	// Enable/disable heating system
 //
@@ -53,7 +64,7 @@
 //
 #define REG_CUSTOM_POS				64	// Mannually configured position (in mm)
 #define REG_MAX_SPEED				65	// Max speed (in mm/s)
-#define REG_DEV_TYPE				71	// Device type
+#define REG_DEV_CASE				71	// Device case
 #define REG_TEMP_SETPOINT			72	// Temperature setpoint (in C x10)
 #define REG_USE_SLIDING_SYSTEM		73	// Activate sliding system
 //

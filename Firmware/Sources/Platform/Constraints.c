@@ -14,12 +14,12 @@
 //
 const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
                                       {
-											   {0, 0, 0},																// 0
-											   {0, 0, 0},																// 1
-											   {0, 0, 0},																// 2
-											   {0, 0, 0},																// 3
-											   {0, 0, 0},																// 4
-											   {0, 0, 0},																// 5
+											   {0, POS_MAX, CASE_A2_DEF},												// 0
+											   {0, POS_MAX, CASE_B0_DEF},												// 1
+											   {0, POS_MAX, CASE_C1_DEF},												// 2
+											   {0, POS_MAX, CASE_D_DEF},												// 3
+											   {0, POS_MAX, CASE_E_DEF},												// 4
+											   {0, POS_MAX, CASE_F_DEF},												// 5
 											   {0, 0, 0},																// 6
 											   {0, 0, 0},																// 7
 											   {0, 0, 0},																// 8
@@ -89,7 +89,7 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {0, 0, 0},																// 68
 											   {0, 0, 0},																// 69
 											   {0, 0, 0},																// 70
-											   {DEV_HEIGHT_MIN, DEV_HEIGHT_MAX, DEV_HEIGHT_DEF},						// 71
+											   {0, 5, 0},																// 71
 											   {TRM_TEMP_MIN, TRM_TEMP_MAX, TRM_TEMP_DEF},								// 72
 											   {NO, YES, NO},															// 73
 											   {0, 0, 0},																// 74

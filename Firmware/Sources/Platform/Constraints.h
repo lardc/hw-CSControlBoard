@@ -27,9 +27,12 @@ typedef struct __TableItemConstraint
 #define SPEED_MIN					(Int16U)SM_MIN_SPEED/1000
 
 // Device parameters
-#define DEV_HEIGHT_MIN				0		// (in mm)
-#define DEV_HEIGHT_MAX				70		// (in mm)
-#define DEV_HEIGHT_DEF				0		// (in mm)
+#define CASE_A2_DEF					122		// (in mm from 0 to device touch)
+#define CASE_B0_DEF					122
+#define CASE_C1_DEF					122
+#define CASE_D_DEF					93
+#define CASE_E_DEF					82
+#define CASE_F_DEF					144
 
 // Device offset
 #define POS_DEV_OFFS_MIN			0		// (in mm)

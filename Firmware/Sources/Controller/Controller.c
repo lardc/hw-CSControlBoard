@@ -145,23 +145,26 @@ Int16U CONTROL_DevicePosition(Int16U DevTypeId)
 	Int16U DevPos = 0;
 	switch (DevTypeId)
 	{
-		case 1:
-			DevPos = SC_Type_A2;
+		case SC_Type_A2:
+			DevPos = DataTable[REG_CASE_A2_DEF];
 			break;
-		case 2:
-			DevPos = SC_Type_B0;
+		case SC_Type_B0:
+			DevPos = DataTable[REG_CASE_B0_DEF];
 			break;
-		case 3:
-			DevPos = SC_Type_C1;
+		case SC_Type_C1:
+			DevPos = DataTable[REG_CASE_C1_DEF];
 			break;
-		case 4:
-			DevPos = SC_Type_D;
+		case SC_Type_D:
+			DevPos = DataTable[REG_CASE_D_DEF];
 			break;
-		case 5:
-			DevPos = SC_Type_E;
+		case SC_Type_E:
+			DevPos = DataTable[REG_CASE_E_DEF];
 			break;
-		case 6:
-			DevPos = SC_Type_F;
+		case SC_Type_F:
+			DevPos = DataTable[REG_CASE_F_DEF];
+			break;
+		default:
+			DevPos = 0;
 			break;
 }
 	return DevPos;
@@ -304,7 +307,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				{
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
-					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_TYPE]);
+					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_CASE]);
 					if (SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], LowSpeedPos, SM_MIN_SPEED))
 					{
 						CONTROL_SetDeviceState(DS_Moving);
