@@ -368,7 +368,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 					if (DataTable[REG_TEMP_SETPOINT] < TRM_TEMP_THR)
 					{
-						TRM_SetTemp(TRM_CH1_ADDR, TRM_ROOM_TEMP, &error);
+						TRM_SetTemp(TRM_CH1_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
 						if (error == TRME_None) TRM_Stop(TRM_CH1_ADDR, &error);
 
 						HeatingActive = FALSE;

@@ -24,6 +24,7 @@ typedef struct __TableItemConstraint
 // Position parameters
 #define POS_MAX						180
 #define SPEED_MAX					(Int16U)SM_MAX_SPEED/1000
+#define SPEED_MIN					(Int16U)SM_MIN_SPEED/1000
 
 // Device parameters
 #define DEV_HEIGHT_MIN				0		// (in mm)
