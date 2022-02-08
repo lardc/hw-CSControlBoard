@@ -6,8 +6,6 @@
 
 
 // Variables
-static volatile Boolean SU_RxFIFOEmpty = TRUE;
-static volatile Boolean SU_TxFIFOEmpty = TRUE;
 static volatile Int64U	CounterValue;
 
 // Functions
