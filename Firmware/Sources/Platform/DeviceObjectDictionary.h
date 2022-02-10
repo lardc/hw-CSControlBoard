@@ -174,6 +174,12 @@
 #define REG_CANB_DIAG_TEC			128	// CAN TEC
 #define REG_CANB_DIAG_REC			129	// CAN REC
 //
+#define REG_CANO_ERR_CODE			130	// CANopen error code
+#define REG_CANO_ERR_INDEX			131	// CANopen error index
+#define REG_CANO_ERR_SUBINDEX		132	// CANopen error subindex
+#define REG_CANO_ERR_DATA			133	// CANopen error data (low bits)
+#define REG_CANO_ERR_DATA_32		134	// CANopen error data (high bits)
+//
 #define REG_SP__3					159
 
 // ENDPOINTS

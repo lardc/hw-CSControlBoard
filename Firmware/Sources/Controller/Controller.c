@@ -228,10 +228,16 @@ void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag)
 }
 // ----------------------------------------
 
-void CONTROL_NotifyCANopenFault()
+void CONTROL_NotifyCANopenFault(CANopenErrCode ErrorCode, Int16U Index, Int16U SubIndex, Int32U Value)
 {
 	DataTable[REG_FAULT_REASON] = FAULT_CANOPEN;
 	CONTROL_SetDeviceState(DS_Fault);
+
+	DataTable[REG_CANO_ERR_CODE] = ErrorCode;
+	DataTable[REG_CANO_ERR_INDEX] = Index;
+	DataTable[REG_CANO_ERR_SUBINDEX] = SubIndex;
+	DataTable[REG_CANO_ERR_DATA] = Value;
+	DataTable[REG_CANO_ERR_DATA_32] = Value >> 16;
 }
 // ----------------------------------------
 
@@ -250,6 +256,12 @@ static void CONTROL_FillWPPartDefault()
 	DataTable[REG_DISABLE_REASON] = DISABLE_NONE;
 	DataTable[REG_WARNING] = WARNING_NONE;
 	DataTable[REG_PROBLEM] = PROBLEM_NONE;
+
+	DataTable[REG_CANO_ERR_CODE] = 0;
+	DataTable[REG_CANO_ERR_INDEX] = 0;
+	DataTable[REG_CANO_ERR_SUBINDEX] = 0;
+	DataTable[REG_CANO_ERR_DATA] = 0;
+	DataTable[REG_CANO_ERR_DATA_32] = 0;
 }
 // ----------------------------------------
 

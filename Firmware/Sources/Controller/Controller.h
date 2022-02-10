@@ -7,6 +7,7 @@
 
 // Include
 #include "OWENProtocol.h"
+#include "CANopenTypes.h"
 #include "stdinc.h"
 //
 #include "ZwDSP.h"
@@ -64,6 +65,6 @@ void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
 // Notify that CANa system fault occurs
 void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
 // Notify about high-level CANopen fault
-void CONTROL_NotifyCANopenFault();
+void CONTROL_NotifyCANopenFault(CANopenErrCode ErrorCode, Int16U Index, Int16U SubIndex, Int32U Value);
 
 #endif // __CONTROLLER_H

@@ -187,7 +187,7 @@ void CANopen_SdoRd(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 		if (Interface->IOConfig->IO_GetTimeStamp() - TimeStamp_Start > CANOPEN_SDO_TICK_TO)
 		{
 			CANopen_FaultFlag = TRUE;
-			Interface->NetworkFail();
+			Interface->NetworkFail(COE_ReadTimeout, Index, SubIndex, 0);
 			return;
 		}
 
@@ -195,7 +195,7 @@ void CANopen_SdoRd(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 		if (!CANopen_SdoRd_GetResponse(Interface, &IndexRd, &SubIndexRd, Value))
 		{
 			CANopen_FaultFlag = TRUE;
-			Interface->NetworkFail();
+			Interface->NetworkFail(COE_ReadBadResponse, Index, SubIndex, 0);
 			return;
 		}
 
@@ -203,7 +203,7 @@ void CANopen_SdoRd(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 		if (Index != IndexRd || SubIndex != SubIndexRd)
 		{
 			CANopen_FaultFlag = TRUE;
-			Interface->NetworkFail();
+			Interface->NetworkFail((Index != IndexRd) ? COE_ReadBadIndex : COE_ReadBadSubIndex, Index, SubIndex, *Value);
 		}
 	}
 }
@@ -284,7 +284,7 @@ void CANopen_SdoWr(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 		if (Interface->IOConfig->IO_GetTimeStamp() - TimeStamp_Start > CANOPEN_SDO_TICK_TO)
 		{
 			CANopen_FaultFlag = TRUE;
-			Interface->NetworkFail();
+			Interface->NetworkFail(COE_WriteTimeout, Index, SubIndex, 0);
 			return;
 		}
 
@@ -292,7 +292,7 @@ void CANopen_SdoWr(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 		if (!CANopen_SdoWr_GetResponse(Interface, &IndexRd, &SubIndexRd))
 		{
 			CANopen_FaultFlag = TRUE;
-			Interface->NetworkFail();
+			Interface->NetworkFail(COE_WriteBadResponse, Index, SubIndex, 0);
 			return;
 		}
 
@@ -300,7 +300,7 @@ void CANopen_SdoWr(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 		if (Index != IndexRd || SubIndex != SubIndexRd)
 		{
 			CANopen_FaultFlag = TRUE;
-			Interface->NetworkFail();
+			Interface->NetworkFail((Index != IndexRd) ? COE_WriteBadIndex : COE_WriteBadSubIndex, Index, SubIndex, 0);
 		}
 	}
 }

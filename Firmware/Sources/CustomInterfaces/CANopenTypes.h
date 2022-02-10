@@ -7,6 +7,18 @@
 #include "ZwDSP.h"
 
 // Types
+// CANopen error code list
+typedef enum __CANopenErrCode
+{
+	COE_ReadTimeout 		= 1,
+	COE_ReadBadResponse 	= 2,
+	COE_ReadBadIndex 		= 3,
+	COE_ReadBadSubIndex 	= 4,
+	COE_WriteTimeout 		= 5,
+	COE_WriteBadResponse 	= 6,
+	COE_WriteBadIndex 		= 7,
+	COE_WriteBadSubIndex 	= 8
+} CANopenErrCode;
 //
 // Pointers for IO functions
 typedef Boolean (*CANopen_FUNC_SendMessage)(Int16U mBox, pCANMessage Data);
@@ -16,7 +28,7 @@ typedef Boolean (*CANopen_FUNC_IsMessageReceived)(Int16U mBox, pBoolean pMessage
 typedef void (*CANopen_FUNC_ConfigMailbox)(Int16U mBox, Int32U MsgID, Boolean Dir, Int16U DataLen, Int32U Flags, Int16U TransmitPriority, Int32U LAM);
 typedef void (*CANopen_FUNC_ClearMailbox)(Int16U mBox);
 //
-typedef void (*CANopen_FUNC_CallbackNetworkFail)();
+typedef void (*CANopen_FUNC_CallbackNetworkFail)(CANopenErrCode ErrorCode, Int16U Index, Int16U SubIndex, Int32U Value);
 //
 // IO configuration
 typedef struct __CANopen_IOConfig

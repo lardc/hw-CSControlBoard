@@ -57,7 +57,7 @@ static volatile Boolean *MaskChangesFlag;
 
 // Forward functions
 //
-void DEVPROFILE_CANopen_NetworkFail();
+void DEVPROFILE_CANopen_NetworkFail(CANopenErrCode ErrorCode, Int16U Index, Int16U SubIndex, Int32U Value);
 static void DEVPROFILE_FillWRPartDefault();
 static Boolean DEVPROFILE_Validate32(Int16U Address, Int32U Data);
 static Boolean DEVPROFILE_Validate16(Int16U Address, Int16U Data);
@@ -188,9 +188,9 @@ void DEVPROFILE_ResetEPReadState()
 }
 // ----------------------------------------
 
-void DEVPROFILE_CANopen_NetworkFail()
+void DEVPROFILE_CANopen_NetworkFail(CANopenErrCode ErrorCode, Int16U Index, Int16U SubIndex, Int32U Value)
 {
-	CONTROL_NotifyCANopenFault();
+	CONTROL_NotifyCANopenFault(ErrorCode, Index, SubIndex, Value);
 }
 // ----------------------------------------
 
