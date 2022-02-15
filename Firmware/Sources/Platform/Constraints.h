@@ -47,7 +47,7 @@ typedef struct __TableItemConstraint
 #define HOMING_SEARCH_SPEED_DEF		100		// (in unit/s)
 
 // Homing offset
-#define HOMING_OFFSET_MIN			100		// (in units)
+#define HOMING_OFFSET_MIN			1		// (in units)
 #define HOMING_OFFSET_MAX			10000	// (in units)
 #define HOMING_OFFSET_DEF			2000	// (in units)
 
@@ -97,7 +97,7 @@ typedef struct __TableItemConstraint
 #define POS_RLS_OFFS_DEF			20		// (in mm)
 
 // Position parameters
-#define POS_MAX						110
+#define POS_MAX						INT16U_MAX
 
 // Device parameters
 #define DEV_HEIGHT_MIN				0		// (in mm)
