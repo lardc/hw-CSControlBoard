@@ -82,8 +82,8 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 
 const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START] =
                                       {
-											   {0, POS_MAX, 0},															// 64
-											   {0, 0, 0},																// 65
+											   {0, INT16U_MAX, 0},														// 64
+											   {0, INT16U_MAX, 0},														// 65
 											   {0, 0, 0},																// 66
 											   {0, 0, 0},																// 67
 											   {0, 0, 0},																// 68

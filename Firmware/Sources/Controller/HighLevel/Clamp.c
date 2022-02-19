@@ -172,10 +172,11 @@ void CLAMP_HomingRefMLimit(Int16U Torque)
 }
 // ----------------------------------------
 
-void CLAMP_GoToPosition(Int32U Position)
+void CLAMP_GoToPosition(Int32S Position)
 {
 	// Exclude zero input
 	Position = (Position) ? Position : 1;
+	Int32U uPosition = (Int32U)Position;
 
 	// Send PDO
 	MemZero16(PDOMessage, 8);
@@ -183,16 +184,16 @@ void CLAMP_GoToPosition(Int32U Position)
 	PDOMessage[0] = 0x33;
 	PDOMessage[1] = 0x01;
 	//
-	PDOMessage[4] = Position & 0xff;
-	PDOMessage[5] = (Position >> 8) & 0xff;
-	PDOMessage[6] = (Position >> 16) & 0xff;
-	PDOMessage[7] = (Position >> 24) & 0xff;
+	PDOMessage[4] = uPosition & 0xff;
+	PDOMessage[5] = (uPosition >> 8) & 0xff;
+	PDOMessage[6] = (uPosition >> 16) & 0xff;
+	PDOMessage[7] = (uPosition >> 24) & 0xff;
 	//
 	CANopen_PdoWr(&DEVICE_CANopen_Interface, PDOMessage);
 }
 // ----------------------------------------
 
-void CLAMP_GoToPosition_mm(Boolean EnableController, Int32U Position)
+void CLAMP_GoToPosition_mm(Boolean EnableController, Int32S Position)
 {
 	// Enable controller
 	if (EnableController) CLAMP_EnableController(TRUE);

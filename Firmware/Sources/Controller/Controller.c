@@ -468,15 +468,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				}
 				else
 				{
-					if (DataTable[REG_CUSTOM_POS] <= DataTable[REG_ALLOWED_MOVE])
-					{
-						DataTable[REG_PROBLEM] = PROBLEM_NONE;
-						CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
-						CLAMP_GoToPosition_mm(TRUE, DataTable[REG_CUSTOM_POS]);
-						CONTROL_SetDeviceState(DS_Position);
-					}
-					else
-						*UserError = ERR_PARAMETER_OUT_OF_RNG;
+					Int32U Position = ((Int32U)DataTable[REG_CUSTOM_POS_32] << 16) | DataTable[REG_CUSTOM_POS];
+
+					DataTable[REG_PROBLEM] = PROBLEM_NONE;
+					CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
+					CLAMP_GoToPosition_mm(TRUE, (Int32S)Position);
+					CONTROL_SetDeviceState(DS_Position);
 				}
 			}
 			else

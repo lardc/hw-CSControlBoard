@@ -117,7 +117,8 @@
 //
 // ----------------------------------------
 //
-#define REG_CUSTOM_POS				64	// Mannually configured position (in mm)
+#define REG_CUSTOM_POS				64	// Mannually configured position (in increments)
+#define REG_CUSTOM_POS_32			65
 #define REG_FORCE_VAL				70	// Force value (in kN x10)
 #define REG_DEV_HEIGHT				71	// Device height (in mm)
 #define REG_TEMP_SETPOINT			72	// Temperature setpoint (in C x10)

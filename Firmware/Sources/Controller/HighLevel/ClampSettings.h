@@ -4,7 +4,7 @@
 // Definitions
 //
 #define NEUTON_TO_INCREMENT		_IQ(10.0f)			// Approximate force conversion factor (N) to (increment)
-#define MM_TO_INCREMENT			100l				// Approximate movement conversion factor (mm) to (increment)
+#define MM_TO_INCREMENT			1l					// Approximate movement conversion factor (mm) to (increment)
 #define STOP_DETECTION_TICKS	1000				// Detect clamping contact (in ticks)
 #define FORCE_AVG_SAMPLES		40
 //
