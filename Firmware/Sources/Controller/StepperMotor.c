@@ -50,7 +50,8 @@ ISRCALL Timer1_ISR(void)
 	// Changing position processor
 	if(SM_ChangePositionFlag)
 	{
-		if(StepsToPos > 0) StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
+		if(StepsToPos > 0)
+			StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
 		// First init
 		if(SM_ChangePositionInit)
 		{
@@ -160,7 +161,8 @@ ISRCALL Timer1_ISR(void)
 // Next step generate check
 Boolean SM_IsGenerateNextStep()
 {
-	return (((abs(SM_GlobalStepsCounter - SM_StartSteps) % SM_SpeedChangeDiscrete) == 0) && (SM_PrevGlobalStepsCounter != SM_GlobalStepsCounter));
+	return (((abs(SM_GlobalStepsCounter - SM_StartSteps) % SM_SpeedChangeDiscrete) == 0)
+			&& (SM_PrevGlobalStepsCounter != SM_GlobalStepsCounter));
 }
 // ----------------------------------------
 
@@ -267,9 +269,11 @@ Boolean SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosi
 }
 
 // New position in mm, speed in um/s
-Boolean SM_GoToPositionFromReg(Int16U NewPositionReg, Int16U MaxSpeedReg, Int16U LowSpeedPositionReg, Int16U LowSpeedReg)
+Boolean SM_GoToPositionFromReg(Int16U NewPositionReg, Int16U MaxSpeedReg, Int16U LowSpeedPositionReg,
+		Int16U LowSpeedReg)
 {
-	return SM_GoToPosition((Int32U)NewPositionReg*1000, (Int16U)MaxSpeedReg*1000, (Int32U)LowSpeedPositionReg*1000, (Int16U)LowSpeedReg*1000);
+	return SM_GoToPosition((Int32U)NewPositionReg * 1000, (Int16U)MaxSpeedReg * 1000,
+			(Int32U)LowSpeedPositionReg * 1000, (Int16U)LowSpeedReg * 1000);
 }
 // ----------------------------------------
 
@@ -298,7 +302,7 @@ Boolean SM_IsHomingDone()
 
 Boolean SM_IsSlidingDone()
 {
-	return ! SM_ChangePositionFlag;
+	return !SM_ChangePositionFlag;
 }
 // ----------------------------------------
 
