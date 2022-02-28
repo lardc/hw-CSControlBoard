@@ -52,6 +52,7 @@ static void CONTROL_HandleClampActions();
 static void CONTROL_SetDeviceState(DeviceState NewState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
+void CONTROL_SwitchToFault(Int16U Reason);
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
 
@@ -246,7 +247,7 @@ static void CONTROL_HandleClampActions()
 			else
 			{
 				SM_SetStopSteps();
-				CONTROL_SetDeviceState(DS_Fault);
+				CONTROL_SwitchToFault(FAULT_SAFETY);
 			}
 			break;
 
@@ -316,7 +317,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				}
 				else
 				{
-					CONTROL_SetDeviceState(DS_Fault);
+					CONTROL_SwitchToFault(FAULT_POWER_CON);
 					*UserError = ERR_SLIDING_SYSTEM;
 				}
 			}
@@ -386,9 +387,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 					if (error != TRME_None)
 					{
+						CONTROL_SwitchToFault(FAULT_TRM);
+
 						DataTable[REG_TRM_ERROR] = error;
-						DataTable[REG_FAULT_REASON] = FAULT_TRM;
-						CONTROL_SetDeviceState(DS_Fault);
 						*UserError = ERR_TRM_COMM_ERR;
 					}
 
@@ -532,4 +533,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 }
 // ----------------------------------------
 
-// No more.
+void CONTROL_SwitchToFault(Int16U Reason)
+{
+	CONTROL_SetDeviceState(DS_Fault);
+	DataTable[REG_FAULT_REASON] = Reason;
+}
+// ----------------------------------------

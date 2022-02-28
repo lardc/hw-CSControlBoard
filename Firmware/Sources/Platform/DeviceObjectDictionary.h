@@ -121,6 +121,9 @@
 #define FAULT_TRM					4	// TRM communication fault
 #define FAULT_PRESSURE				5	// Pressure is low
 #define FAULT_SLIDING				6	// Sliding system fault
+//
+#define FAULT_SAFETY				7
+#define FAULT_POWER_CON				8
 
 // PROBLEM CODES
 //
