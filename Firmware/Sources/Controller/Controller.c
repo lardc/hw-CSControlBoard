@@ -279,7 +279,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_HOMING:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				DataTable[REG_PROBLEM] = PROBLEM_NONE;
 				ZbGPIO_SwitchControlConnection(FALSE);
 				SM_Homing();
 				CONTROL_SetDeviceState(DS_Homing);
@@ -291,12 +290,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_GOTO_POSITION:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				DataTable[REG_PROBLEM] = PROBLEM_NONE;
 				ZbGPIO_SwitchControlConnection(FALSE);
 				if(SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], 0, 0))
-				{
 					CONTROL_SetDeviceState(DS_Moving);
-				}
 				else
 					*UserError = ERR_PARAMETER_OUT_OF_RNG;
 			}
@@ -309,14 +305,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				if(!ZbGPIO_GetPowerConnectionState())
 				{
-					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					ZbGPIO_SwitchControlConnection(FALSE);
 					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_CASE]);
-					if(SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], LowSpeedPos,
-							SM_MIN_SPEED))
-					{
+					if(SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], LowSpeedPos,	SM_MIN_SPEED))
 						CONTROL_SetDeviceState(DS_Moving);
-					}
 					else
 						*UserError = ERR_PARAMETER_OUT_OF_RNG;
 				}
@@ -333,12 +325,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_RELEASE_CLAMPING:
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				DataTable[REG_PROBLEM] = PROBLEM_NONE;
 				ZbGPIO_SwitchControlConnection(FALSE);
 				if(SM_GoToPositionFromReg(0, DataTable[REG_MAX_SPEED], 0, 0))
-				{
 					CONTROL_SetDeviceState(DS_Moving);
-				}
 				else
 					*UserError = ERR_PARAMETER_OUT_OF_RNG;
 			}
@@ -355,18 +344,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_RELEASE_ADAPTER:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
-			{
 				ZbGPIO_SwitchPowerConnection(FALSE);
-			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 			
 		case ACT_HOLD_ADAPTER:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
-			{
 				ZbGPIO_SwitchPowerConnection(TRUE);
-			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -413,14 +398,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				else if(CONTROL_State == DS_Disabled)
 					*UserError = ERR_OPERATION_BLOCKED;
 				
-				DataTable[REG_PROBLEM] = PROBLEM_NONE;
-				DataTable[REG_WARNING] = WARNING_NONE;
 				DataTable[REG_FAULT_REASON] = FAULT_NONE;
 			}
 			break;
 			
 		case ACT_CLR_WARNING:
-			DataTable[REG_PROBLEM] = PROBLEM_NONE;
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 			
