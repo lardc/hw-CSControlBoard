@@ -5,8 +5,14 @@
 // Header
 #include "StepperMotor.h"
 
+// Types
+//
+typedef void (*xTimerAlterHandler)();
+
 // Variables
 //
+xTimerAlterHandler DiagHandler = NULL;
+
 volatile Int32U SM_CycleCounter = 0;
 volatile Int16U SM_GlobalStepsCounter = 0;							// in steps*2
 volatile Int16U SM_PrevGlobalStepsCounter = 0;
@@ -31,8 +37,30 @@ Boolean SM_OriginFlag = FALSE;
 Boolean SM_ChangePositionFlag = FALSE;
 Boolean SM_ChangePositionInit = FALSE;
 
+// Forward functions
+//
+void SM_LogicHandler();
+
+// Functions
+//
 // Timer 1 ISR
-ISRCALL Timer1_ISR(void)
+ISRCALL Timer1_ISR()
+{
+	if(DiagHandler)
+	{
+		xTimerAlterHandler DiagHandleCopy = DiagHandler;
+		DiagHandleCopy();
+	}
+	else
+		SM_LogicHandler();
+
+	// no PIE
+	TIMER1_ISR_DONE;
+}
+// -----------------------------------------
+
+// Main logic handler
+void SM_LogicHandler()
 {
 	// Steps generator
 	if(SM_CycleCounter >= SM_CyclesToToggle)
@@ -151,13 +179,9 @@ ISRCALL Timer1_ISR(void)
 			}
 		}
 	}
-	// no PIE
-	TIMER1_ISR_DONE;
 }
 // -----------------------------------------
 
-// Functions
-//
 // Next step generate check
 Boolean SM_IsGenerateNextStep()
 {
