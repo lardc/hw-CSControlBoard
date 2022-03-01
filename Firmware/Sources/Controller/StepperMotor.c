@@ -11,7 +11,7 @@ typedef void (*xTimerAlterHandler)();
 
 // Variables
 //
-xTimerAlterHandler DiagHandler = NULL;
+xTimerAlterHandler AlterHandler = NULL;
 
 volatile Int32U SM_CycleCounter = 0;
 volatile Int16U SM_GlobalStepsCounter = 0;							// in steps*2
@@ -46,10 +46,10 @@ void SM_LogicHandler();
 // Timer 1 ISR
 ISRCALL Timer1_ISR()
 {
-	if(DiagHandler)
+	if(AlterHandler)
 	{
-		xTimerAlterHandler DiagHandleCopy = DiagHandler;
-		DiagHandleCopy();
+		xTimerAlterHandler AlterHandlerCopy = AlterHandler;
+		AlterHandlerCopy();
 	}
 	else
 		SM_LogicHandler();
@@ -58,6 +58,13 @@ ISRCALL Timer1_ISR()
 	TIMER1_ISR_DONE;
 }
 // -----------------------------------------
+
+// Connect alter handler for timer processing
+void SM_ConnectAlterHandler(void *Handler)
+{
+	AlterHandler = (xTimerAlterHandler)Handler;
+}
+// ----------------------------------------
 
 // Main logic handler
 void SM_LogicHandler()
@@ -256,7 +263,7 @@ void SM_DownDir()
 // Steps Enable
 void SM_Enable(Boolean State)
 {
-	ZbGPIO_SwitchEnable(State);
+	ZbGPIO_SwitchEnable(!State);
 }
 // ----------------------------------------
 

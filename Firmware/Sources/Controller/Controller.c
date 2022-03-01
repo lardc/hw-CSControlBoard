@@ -17,6 +17,7 @@
 #include "DeviceProfile.h"
 #include "TRM101.h"
 #include "StepperMotor.h"
+#include "StepperMotorDiag.h"
 //
 
 // Types
@@ -483,6 +484,16 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			ZbGPIO_SwitchControlConnection(FALSE);
 			break;
 			
+		case ACT_DBG_MOTOR_START:
+			SM_Enable(TRUE);
+			SM_SetStartSteps();
+			SMD_ConnectHandler();
+			break;
+			
+		case ACT_DBG_MOTOR_STOP:
+			SMD_RequstStop();
+			break;
+
 		default:
 			return FALSE;
 	}

@@ -30,7 +30,9 @@
 #define ACT_DBG_READ_TRM_POWER		116	// Read TRM output power
 #define ACT_DBG_TRM_START			117	// Start TRM operation
 #define ACT_DBG_TRM_STOP			118	// Stop TRM operation
-// 119 - 199
+#define ACT_DBG_MOTOR_START			119	// Запуск отладочного вращения моторов
+#define ACT_DBG_MOTOR_STOP			120	// Остановка отладочного вращения моторов
+// 121 - 199
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
@@ -71,6 +73,8 @@
 #define REG_DBG_TEMP_CH_INDEX		82	// Channel select
 #define REG_DBG_TRM_ADDRESS			84	// TRM address
 #define REG_DBG_PAUSE_T_FEEDBACK	85	// Deactivate temperature feedback
+//
+#define REG_DBG_STEP_DIV			90	// Коэффициент деления шагов в отладочном режиме
 //
 #define REG_PWD_1					91	// Unlock password location 1
 #define REG_PWD_2					92	// Unlock password location 2

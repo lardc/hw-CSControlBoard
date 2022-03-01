@@ -27,6 +27,8 @@ ISRCALL Timer1_ISR();
 
 // Functions
 //
+// Connect alter handler for timer processing
+void SM_ConnectAlterHandler(void *Handler);
 // Next step generate check
 Boolean SM_IsGenerateNextStep();
 // Update steps period in us
