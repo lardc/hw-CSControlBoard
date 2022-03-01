@@ -29,12 +29,6 @@ ISRCALL Timer1_ISR();
 //
 // Connect alter handler for timer processing
 void SM_ConnectAlterHandler(void *Handler);
-// Next step generate check
-Boolean SM_IsGenerateNextStep();
-// Update steps period in us
-Boolean SM_UpdPeriod(Int16U NewPeriod);
-// Update steps in cycles to toggle
-Boolean SM_UpdCyclesToToggle(Int16U NewCyclesToTogle);
 // Period to cycles to toggle converter
 Int16U SM_PeriodToCycles(Int16U NewPeriod);
 // Start Steps

@@ -11,14 +11,15 @@
 
 // Variables
 //
-Boolean TickHigh = FALSE, RequestStop = FALSE;
-Int16U StepDivisorLimit = 0;
+static Boolean RequestStop = FALSE;
+static Int16U StepDivisorLimit = 0;
 
 // Funcions
 //
 // Main logic handler
 void SMD_LogicHandler()
 {
+	static Boolean TickHigh = FALSE;
 	static Int16U StepDivisorTicks = 0;
 
 	if(++StepDivisorTicks >= StepDivisorLimit)

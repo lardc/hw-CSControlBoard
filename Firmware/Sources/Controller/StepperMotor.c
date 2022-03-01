@@ -1,21 +1,20 @@
-// -----------------------------------------
+// ----------------------------------------
 // SM driver module
 // ----------------------------------------
 
 // Header
 #include "StepperMotor.h"
 
+// Definitions
+#define SPEED_TO_CYCL_RAW(a)	(SM_S_TO_US * SM_MOVING_RER_ROUND / (2 * (a) * SM_FULL_ROUND_STEPS * TIMER1_PERIOD))
+
 // Types
-//
 typedef void (*xTimerAlterHandler)();
 
 // Variables
-//
-xTimerAlterHandler AlterHandler = NULL;
+static xTimerAlterHandler AlterHandler = NULL;
 
-volatile Int32U SM_CycleCounter = 0;
-volatile Int16U SM_GlobalStepsCounter = 0;							// in steps*2
-volatile Int16U SM_PrevGlobalStepsCounter = 0;
+Int32S SM_GlobalStepsCounter = 0;
 volatile Int16U SM_CyclesToToggle = SM_DEFAULT_CYCLES_TO_TOGGLE;
 
 Int16U SM_StartSteps = 0;
@@ -34,8 +33,6 @@ static Int16U SM_SpeedChangeDiscrete = 0;
 Boolean SM_IsCurrentDirUp = TRUE;
 Boolean SM_HomingFlag = FALSE;
 Boolean SM_OriginFlag = FALSE;
-Boolean SM_ChangePositionFlag = FALSE;
-Boolean SM_ChangePositionInit = FALSE;
 
 // Forward functions
 //
@@ -69,119 +66,82 @@ void SM_ConnectAlterHandler(void *Handler)
 // Main logic handler
 void SM_LogicHandler()
 {
-	// Steps generator
-	if(SM_CycleCounter >= SM_CyclesToToggle)
-	{
-		ZbGPIO_ToggleStep();
-		SM_CycleCounter = 0;
-		if(SM_IsCurrentDirUp)
-			SM_GlobalStepsCounter++;
-		else
-			SM_GlobalStepsCounter--;
-	}
-	else
-		SM_CycleCounter++;
+	static Boolean TickHigh = FALSE;
+	static Int16U SM_CycleCounter = 0;
 
-	// Changing position processor
-	if(SM_ChangePositionFlag)
+	if(!SM_IsSlidingDone())
 	{
-		if(StepsToPos > 0)
-			StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
-		// First init
-		if(SM_ChangePositionInit)
+		// √енератор шагов
+		if(++SM_CycleCounter >= SM_CyclesToToggle)
 		{
-			StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
-			SM_SpeedChangeDiscrete = (Int16U)(SM_SPEED_CHANGE_STEPS / (SM_MaxCycles - SM_MinCycles));
-			SM_UpdCyclesToToggle(SM_MaxCycles);
-			SM_ChangePositionInit = FALSE;
-		}
-		else
-		{
-			// 1. acceleration to Vmax
-			if(StepsToPos > 2 * SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
+			SM_CycleCounter = 0;
+			ZbGPIO_SwitchStep(TickHigh = !TickHigh);
+
+			// —чЄт по нарастающему фронту тиков
+			if(TickHigh)
 			{
-				if(SM_IsGenerateNextStep())
+				SM_GlobalStepsCounter += (SM_IsCurrentDirUp) ? 1 : -1;
+				Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
+
+				// 1. acceleration to Vmax
+				if(StepsToPos > 2 * SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
 				{
-					SM_PrevGlobalStepsCounter = SM_GlobalStepsCounter;
 					if(SM_CyclesToToggle > SM_MinCycles)
-						SM_UpdCyclesToToggle(--SM_CyclesToToggle);
+						--SM_CyclesToToggle;
 				}
-			}
-			// 2. stable Vmax or acceleration to Vmax
-			else if(StepsToPos > SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
-			{
-				if(SM_CyclesToToggle != SM_MinCycles)
+
+				// 2. stable Vmax or acceleration to Vmax
+				else if(StepsToPos > SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
 				{
-					if(SM_IsGenerateNextStep())
-					{
-						SM_PrevGlobalStepsCounter = SM_GlobalStepsCounter;
-						if(SM_CyclesToToggle > SM_MinCycles)
-							SM_UpdCyclesToToggle(--SM_CyclesToToggle);
-					}
+					if(SM_CyclesToToggle > SM_MinCycles)
+						--SM_CyclesToToggle;
 				}
-			}
-			// 3. acceleration or deceleration to Vend
-			else if(StepsToPos
-					> SM_SPEED_CHANGE_STEPS * (SM_MinCycles / SM_LowSpeedCycles) + SM_LowSpeedSteps + SM_STEPS_RESERVE)
-			{
-				if(SM_IsGenerateNextStep())
+
+				// 3. acceleration or deceleration to Vend
+				else if(StepsToPos > SM_SPEED_CHANGE_STEPS * (SM_MinCycles / SM_LowSpeedCycles) + SM_LowSpeedSteps + SM_STEPS_RESERVE)
 				{
-					SM_PrevGlobalStepsCounter = SM_GlobalStepsCounter;
 					if(SM_CyclesToToggle < SM_LowSpeedCycles)
-						SM_UpdCyclesToToggle(++SM_CyclesToToggle);
+						++SM_CyclesToToggle;
 					else if(SM_CyclesToToggle > SM_LowSpeedCycles)
-						SM_UpdCyclesToToggle(--SM_CyclesToToggle);
+						--SM_CyclesToToggle;
 				}
-			}
-			// 4. stable Vend or acceleration to Vend
-			else if(StepsToPos > SM_SPEED_CHANGE_STEPS * (SM_MinCycles / SM_LowSpeedCycles) + SM_STEPS_RESERVE)
-			{
-				if(SM_CyclesToToggle != SM_LowSpeedCycles)
+
+				// 4. stable Vend or acceleration to Vend
+				else if(StepsToPos > SM_SPEED_CHANGE_STEPS * (SM_MinCycles / SM_LowSpeedCycles) + SM_STEPS_RESERVE)
 				{
-					if(SM_IsGenerateNextStep())
-					{
-						SM_PrevGlobalStepsCounter = SM_GlobalStepsCounter;
-						if(SM_CyclesToToggle > SM_LowSpeedCycles)
-							SM_UpdCyclesToToggle(--SM_CyclesToToggle);
-					}
+					if(SM_CyclesToToggle > SM_LowSpeedCycles)
+						--SM_CyclesToToggle;
 				}
-			}
-			// 5. deceleration to Vmin
-			else if(StepsToPos > SM_STEPS_RESERVE)
-			{
-				if(SM_IsGenerateNextStep())
+
+				// 5. deceleration to Vmin
+				else if(StepsToPos > SM_STEPS_RESERVE)
 				{
-					SM_PrevGlobalStepsCounter = SM_GlobalStepsCounter;
 					if(SM_CyclesToToggle < SM_MaxCycles)
-						SM_UpdCyclesToToggle(++SM_CyclesToToggle);
+						++SM_CyclesToToggle;
 				}
-			}
-			if((StepsToPos == 0))
-			{
-				if(SM_HomingFlag)
+
+				if(StepsToPos == 0)
 				{
-					//SM_DestSteps = SM_GlobalStepsCounter;
-					if(ZbGPIO_HomeSensorActuate())
+					if(SM_HomingFlag)
 					{
-						SM_SetStopSteps();
-						SM_ChangePositionFlag = FALSE;
-						SM_GlobalStepsCounter = 0;
-						SM_HomingFlag = FALSE;
-						SM_SetOrigin();
+						//SM_DestSteps = SM_GlobalStepsCounter;
+						if(ZbGPIO_HomeSensorActuate())
+						{
+							SM_SetStopSteps();
+							SM_GlobalStepsCounter = 0;
+							SM_HomingFlag = FALSE;
+							SM_SetOrigin();
+						}
 					}
-				}
-				else if(SM_OriginFlag)
-				{
-					SM_ChangePositionFlag = FALSE;
-					SM_GlobalStepsCounter = 0;
-					SM_DestSteps = 0;
-					SM_OriginFlag = FALSE;
-					SM_SetStopSteps();
-				}
-				else
-				{
-					SM_ChangePositionFlag = FALSE;
-					SM_SetStopSteps();
+					else if(SM_OriginFlag)
+					{
+						SM_GlobalStepsCounter = 0;
+						SM_DestSteps = 0;
+						SM_OriginFlag = FALSE;
+						SM_SetStopSteps();
+					}
+					else
+						SM_SetStopSteps();
 				}
 			}
 		}
@@ -189,35 +149,13 @@ void SM_LogicHandler()
 }
 // -----------------------------------------
 
-// Next step generate check
-Boolean SM_IsGenerateNextStep()
+void SM_PreparePosChange()
 {
-	return (((abs(SM_GlobalStepsCounter - SM_StartSteps) % SM_SpeedChangeDiscrete) == 0)
-			&& (SM_PrevGlobalStepsCounter != SM_GlobalStepsCounter));
+	StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
+	SM_SpeedChangeDiscrete = (Int16U)(SM_SPEED_CHANGE_STEPS / (SM_MaxCycles - SM_MinCycles));
+	SM_CyclesToToggle = 10;
 }
-// ----------------------------------------
-
-// Update steps period in us
-Boolean SM_UpdPeriod(Int16U NewPeriod)
-{
-	Int16U NewCyclesToTogle = SM_PeriodToCycles(NewPeriod);
-	return SM_UpdCyclesToToggle(NewCyclesToTogle);
-}
-// ----------------------------------------
-
-// Update steps in cycles to toggle
-Boolean SM_UpdCyclesToToggle(Int16U NewCyclesToTogle)
-{
-	if(NewCyclesToTogle <= 1)
-		return FALSE;
-	else
-	{
-		SM_CyclesToToggle = NewCyclesToTogle;
-		SM_CycleCounter = 0;
-		return TRUE;
-	}
-}
-// ----------------------------------------
+// -----------------------------------------
 
 // Period to cycles to toggle converter
 Int16U SM_PeriodToCycles(Int16U NewPeriod)
@@ -289,9 +227,7 @@ Boolean SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosi
 		SM_LowSpeedCycles = SM_SpeedToCycles(LowSpeed);
 		SM_MaxCycles = SM_SpeedToCycles(SM_MIN_SPEED);
 
-		SM_ChangePositionFlag = TRUE;
-		SM_ChangePositionInit = TRUE;
-
+		SM_PreparePosChange();
 		SM_SetStartSteps();
 		return TRUE;
 	}
@@ -333,7 +269,7 @@ Boolean SM_IsHomingDone()
 
 Boolean SM_IsSlidingDone()
 {
-	return !SM_ChangePositionFlag;
+	return (SM_DestSteps == SM_GlobalStepsCounter);
 }
 // ----------------------------------------
 
@@ -347,16 +283,12 @@ Int32U SM_PosToSteps(Int32U NewPos)
 // Speed in um/s to cycles to toggle converter
 Int16U SM_SpeedToCycles(Int16U NewSpeed)
 {
-	if(NewSpeed <= SM_MIN_SPEED)
-	{
-		return (Int16U)(SM_S_TO_US * SM_MOVING_RER_ROUND / (2 * SM_MIN_SPEED * SM_FULL_ROUND_STEPS * TIMER1_PERIOD));
-	}
+	if(NewSpeed < SM_MIN_SPEED)
+		return SPEED_TO_CYCL_RAW(SM_MIN_SPEED);
 	else if(NewSpeed < SM_MAX_SPEED)
-	{
-		return (Int16U)(SM_S_TO_US * SM_MOVING_RER_ROUND / (2 * NewSpeed * SM_FULL_ROUND_STEPS * TIMER1_PERIOD));
-	}
+		return SPEED_TO_CYCL_RAW(NewSpeed);
 	else
-		return (Int16U)(SM_S_TO_US * SM_MOVING_RER_ROUND / (2 * SM_MAX_SPEED * SM_FULL_ROUND_STEPS * TIMER1_PERIOD));
+		return SPEED_TO_CYCL_RAW(SM_MAX_SPEED);
 }
 // ----------------------------------------
 
@@ -366,5 +298,3 @@ Int32U SM_GetPosition()
 	return (Int32U)(SM_MOVING_RER_ROUND * SM_GlobalStepsCounter / (2 * SM_FULL_ROUND_STEPS));
 }
 // ----------------------------------------
-
-// No more
