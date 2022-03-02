@@ -1,4 +1,4 @@
-// -----------------------------------------
+// ----------------------------------------
 // Device object dictionary
 // ----------------------------------------
 
@@ -64,7 +64,7 @@
 // ----------------------------------------
 //
 #define REG_CUSTOM_POS				64	// Mannually configured position (in mm)
-#define REG_MAX_SPEED				65	// Max speed (in mm/s)
+
 #define REG_DEV_CASE				71	// Device case
 #define REG_TEMP_SETPOINT			72	// Temperature setpoint (in C x10)
 #define REG_USE_SLIDING_SYSTEM		73	// Activate sliding system
@@ -122,7 +122,7 @@
 // FAULT CODES
 //
 #define FAULT_NONE					0	// No fault
-// 1
+//
 #define FAULT_THERMOSYSTEM			2	// Thermosystem fault
 #define FAULT_TRM					4	// TRM communication fault
 #define FAULT_PRESSURE				5	// Pressure is low
@@ -138,13 +138,11 @@
 // DISABLE CODES
 //
 #define DISABLE_NONE				0	// No fault
-//
 #define DISABLE_BAD_CLOCK			1001	// Problem with main oscillator
 
 // WARNING CODES
 //
 #define WARNING_NONE				0	// No warning
-//
 #define WARNING_WATCHDOG_RESET		1001	// System has been reseted by WD
 
 // USER ERROR CODES
@@ -154,10 +152,7 @@
 #define ERR_OPERATION_BLOCKED		2	// Operation can't be done due to current device state
 #define ERR_DEVICE_NOT_READY		3	// Device isn't ready to switch state
 #define ERR_WRONG_PWD				4	// Wrong password - unlock failed
-#define ERR_SLIDING_SYSTEM			5	// Sliding system not ready
 //
 #define ERR_TRM_COMM_ERR			7	// Communication with TRM failed
-#define ERR_NO_AIR_PRESSURE			8	// Air pressure for power switch too low
-#define ERR_SAFETY					9	// Safety circuite error
 
 #endif // __DEV_OBJ_DIC_H
