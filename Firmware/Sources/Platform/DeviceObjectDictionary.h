@@ -154,7 +154,7 @@
 #define ERR_DEVICE_NOT_READY		3	// Device isn't ready to switch state
 #define ERR_WRONG_PWD				4	// Wrong password - unlock failed
 #define ERR_SLIDING_SYSTEM			5	// Sliding system not ready
-#define ERR_PARAMETER_OUT_OF_RNG	6	// Configured parameter is out of range
+//
 #define ERR_TRM_COMM_ERR			7	// Communication with TRM failed
 #define ERR_NO_AIR_PRESSURE			8	// Air pressure for power switch too low
 #define ERR_SAFETY					9	// Safety circuite error

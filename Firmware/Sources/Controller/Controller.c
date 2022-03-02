@@ -232,28 +232,16 @@ static void CONTROL_HandleClampActions()
 	{
 		case DS_Homing:
 			if(SM_IsHomingDone())
-			{
 				CONTROL_SetDeviceState(DS_Ready);
-			}
 			break;
 			
 		case DS_Moving:
-			if(ZbGPIO_IsSafetyOk())
-			{
-				if(SM_IsSlidingDone())
-				{
-					CONTROL_SetDeviceState(DS_Ready);
-				}
-			}
-			else
-			{
-				SM_SetStopSteps();
-				CONTROL_SwitchToFault(FAULT_SAFETY);
-			}
+			if(SM_IsPositioningDone())
+				CONTROL_SetDeviceState(DS_Ready);
 			break;
 			
 		case DS_Clamping:
-			if(SM_IsSlidingDone())
+			if(SM_IsPositioningDone())
 			{
 				ZbGPIO_SwitchControlConnection(TRUE);
 				CONTROL_SetDeviceState(DS_ClampingDone);
@@ -292,10 +280,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				if(SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], 0, 0))
-					CONTROL_SetDeviceState(DS_Moving);
-				else
-					*UserError = ERR_PARAMETER_OUT_OF_RNG;
+				SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], 0, 0);
+				CONTROL_SetDeviceState(DS_Moving);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -308,10 +294,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
 					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_CASE]);
-					if(SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], LowSpeedPos,	SM_MIN_SPEED))
-						CONTROL_SetDeviceState(DS_Moving);
-					else
-						*UserError = ERR_PARAMETER_OUT_OF_RNG;
+					SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_MAX_SPEED], LowSpeedPos, SM_MIN_SPEED);
+					CONTROL_SetDeviceState(DS_Moving);
 				}
 				else
 				{
@@ -327,20 +311,15 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				if(SM_GoToPositionFromReg(0, DataTable[REG_MAX_SPEED], 0, 0))
-					CONTROL_SetDeviceState(DS_Moving);
-				else
-					*UserError = ERR_PARAMETER_OUT_OF_RNG;
+				SM_GoToPositionFromReg(0, DataTable[REG_MAX_SPEED], 0, 0);
+				CONTROL_SetDeviceState(DS_Moving);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 			
 		case ACT_HALT:
-			{
-				SM_SetStopSteps();
-				CONTROL_SetDeviceState(DS_Halt);
-			}
+			CONTROL_SetDeviceState(DS_Halt);
 			break;
 			
 		case ACT_RELEASE_ADAPTER:
@@ -485,8 +464,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 			
 		case ACT_DBG_MOTOR_START:
-			SM_Enable(TRUE);
-			SM_SetStartSteps();
 			SMD_ConnectHandler();
 			break;
 			

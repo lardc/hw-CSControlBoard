@@ -125,7 +125,7 @@ void InitializeTimers()
 	// PFM timer
 	ZwTimer_InitT1();
 	ZwTimer_SetT1(TIMER1_PERIOD);
-	ZwTimer_EnableInterruptsT1(FALSE);
+	ZwTimer_EnableInterruptsT1(TRUE);
 }
 // -----------------------------------------
 
