@@ -12,7 +12,7 @@
 // Variables
 //
 static Boolean RequestStop = FALSE;
-static Int16U StepDivisorLimit = 0;
+static Int16U StepDivisorLimit = 0, TicksMaxCounter = 0;
 
 // Funcions
 //
@@ -20,7 +20,7 @@ static Int16U StepDivisorLimit = 0;
 void SMD_LogicHandler()
 {
 	static Boolean TickHigh = FALSE;
-	static Int16U StepDivisorTicks = 0;
+	static Int16U StepDivisorTicks = 0, TicksCounter = 0;
 
 	if(++StepDivisorTicks >= StepDivisorLimit)
 	{
@@ -28,10 +28,16 @@ void SMD_LogicHandler()
 		ZbGPIO_SwitchStep(TickHigh = !TickHigh);
 	}
 
-	if(!TickHigh && RequestStop)
+	if(!TickHigh)
 	{
-		RequestStop = FALSE;
-		SM_ConnectAlterHandler(NULL);
+		++TicksCounter;
+
+		if(RequestStop || (TicksMaxCounter != 0 && TicksCounter >= TicksMaxCounter))
+		{
+			TicksCounter = 0;
+			RequestStop = FALSE;
+			SM_ConnectAlterHandler(NULL);
+		}
 	}
 }
 // ----------------------------------------
@@ -46,6 +52,8 @@ void SMD_RequstStop()
 void SMD_ConnectHandler()
 {
 	StepDivisorLimit = DataTable[REG_DBG_STEP_DIV];
+	TicksMaxCounter = DataTable[REG_DBG_STEPS_MAX];
+
 	SM_ConnectAlterHandler(&SMD_LogicHandler);
 }
 // ----------------------------------------

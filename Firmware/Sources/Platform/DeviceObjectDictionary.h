@@ -75,6 +75,7 @@
 #define REG_DBG_PAUSE_T_FEEDBACK	85	// Deactivate temperature feedback
 //
 #define REG_DBG_STEP_DIV			90	// Коэффициент деления шагов в отладочном режиме
+#define REG_DBG_STEPS_MAX			91	// Количество шагов для поворота в отладочном режиме
 //
 #define REG_PWD_1					91	// Unlock password location 1
 #define REG_PWD_2					92	// Unlock password location 2
