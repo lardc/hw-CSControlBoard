@@ -133,19 +133,4 @@
 #define FAN_TIMEOUT_TCK		((CS_MONITORING_FREQ * FAN_TIMEOUT) / 1000)
 //--------------------------------------------------------
 
-// Clamp
-//--------------------------------------------------------
-#define DELAY_CHANGE_DEV_STATE		200		// in ms
-#define DELAY_OP_COMPLETE			5		// in ms
-typedef enum __DevType				// from device contacts to upper adapter in mm
-{
-	SC_Type_A2 = 0,
-	SC_Type_B0 = 1,
-	SC_Type_C1 = 2,
-	SC_Type_D = 3,
-	SC_Type_E = 4,
-	SC_Type_F = 5
-} DevType;
-//--------------------------------------------------------
-
 #endif // __SYSCONFIG_H

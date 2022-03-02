@@ -1,4 +1,4 @@
-// -----------------------------------------
+// ----------------------------------------
 // Controller logic
 // ----------------------------------------
 
@@ -54,8 +54,7 @@ static void CONTROL_SetDeviceState(DeviceState NewState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_SwitchToFault(Int16U Reason);
-Boolean CONTROL_SlidingSensorOK();
-Boolean CONTROL_PressureOK();
+Boolean CONTROL_IsToolingSensorOK();
 
 // Functions
 //
@@ -119,12 +118,11 @@ void CONTROL_Init(Boolean BadClockDetected)
 void CONTROL_Idle()
 {
 	DEVPROFILE_ProcessRequests();
-	
-	// Update CAN bus status
 	DEVPROFILE_UpdateCANDiagStatus();
 	
-	// Read sliding system state
-	DataTable[REG_SLIDING_SENSOR] = CONTROL_SlidingSensorOK();
+	DataTable[REG_SAFETY_SENSOR] = ZbGPIO_IsSafetySensorOk();
+	DataTable[REG_TOOLING_SENSOR] = ZbGPIO_IsToolingSensorOk();
+	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
 	
 	// Process deferred procedures
 	if(DPCDelegate)
@@ -136,9 +134,9 @@ void CONTROL_Idle()
 }
 // ----------------------------------------
 
-Boolean CONTROL_SlidingSensorOK()
+Boolean CONTROL_IsToolingSensorOK()
 {
-	return (DataTable[REG_USE_SLIDING_SENSOR]) ? ZbGPIO_GetPowerConnectionState() : TRUE;
+	return (DataTable[REG_USE_TOOLING_SENSOR]) ? ZbGPIO_IsToolingSensorOk() : TRUE;
 }
 // ----------------------------------------
 
@@ -148,22 +146,22 @@ Int16U CONTROL_DevicePosition(Int16U DevTypeId)
 	switch(DevTypeId)
 	{
 		case SC_Type_A2:
-			DevPos = DataTable[REG_CASE_A2_DEF];
+			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_A2];
 			break;
 		case SC_Type_B0:
-			DevPos = DataTable[REG_CASE_B0_DEF];
+			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_B0];
 			break;
 		case SC_Type_C1:
-			DevPos = DataTable[REG_CASE_C1_DEF];
+			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_C1];
 			break;
 		case SC_Type_D:
-			DevPos = DataTable[REG_CASE_D_DEF];
+			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_D];
 			break;
 		case SC_Type_E:
-			DevPos = DataTable[REG_CASE_E_DEF];
+			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_E];
 			break;
 		case SC_Type_F:
-			DevPos = DataTable[REG_CASE_F_DEF];
+			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_F];
 			break;
 		default:
 			DevPos = 0;
@@ -208,9 +206,6 @@ static void CONTROL_SetDeviceState(DeviceState NewState)
 	if(NewState == DS_Clamping || NewState == DS_Moving)
 		FanTimeout = FAN_TIMEOUT_TCK;
 	
-	// Delay before changing device state
-	DELAY_US(1000L * DELAY_CHANGE_DEV_STATE);
-	
 	// Set new state
 	CONTROL_State = NewState;
 	DataTable[REG_DEV_STATE] = NewState;
@@ -232,9 +227,20 @@ static void CONTROL_HandleClampActions()
 	{
 		case DS_Homing:
 			if(SM_IsHomingDone())
-				CONTROL_SetDeviceState(DS_Ready);
+			{
+				SM_GoToPositionFromReg(DataTable[REG_HOMING_OFFSET], DataTable[REG_HOMING_SPEED], 0, 0);
+				CONTROL_SetDeviceState(DS_HomingOffset);
+			}
 			break;
 			
+		case DS_HomingOffset:
+			if(SM_IsPositioningDone())
+			{
+				SM_ResetZeroPoint();
+				CONTROL_SetDeviceState(DS_Ready);
+			}
+			break;
+
 		case DS_Moving:
 			if(SM_IsPositioningDone())
 				CONTROL_SetDeviceState(DS_Ready);
@@ -269,7 +275,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				SM_Homing();
+				SM_Homing(DataTable[REG_HOMING_SPEED]);
 				CONTROL_SetDeviceState(DS_Homing);
 			}
 			else
@@ -288,9 +294,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 			
 		case ACT_START_CLAMPING:
-			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_Ready)
 			{
-				if(!ZbGPIO_GetPowerConnectionState())
+				if(CONTROL_IsToolingSensorOK())
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
 					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_CASE]);

@@ -1,4 +1,4 @@
-// -----------------------------------------
+// ----------------------------------------
 // SM driver module
 // ----------------------------------------
 
@@ -29,7 +29,8 @@ void SM_Enable(Boolean State);
 void SM_GoToPositionFromReg(Int16U NewPosition, Int16U MaxSpeed, Int16U LowSpeedPosition, Int16U LowSpeed);
 Boolean SM_IsPositioningDone();
 // Homing
-void SM_Homing();
+void SM_Homing(Int16U HomingSpeed);
 Boolean SM_IsHomingDone();
+void SM_ResetZeroPoint();
 
 #endif // __STEPPER_MOTOR_H

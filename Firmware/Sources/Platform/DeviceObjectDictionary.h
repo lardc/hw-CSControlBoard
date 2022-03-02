@@ -8,59 +8,58 @@
 
 // ACTIONS
 //
-#define ACT_ENABLE_POWER			1	// Enable
-#define ACT_DISABLE_POWER			2	// Disable
 #define ACT_CLR_FAULT				3	// Clear fault
 #define ACT_CLR_WARNING				4	// Clear warning
 #define ACT_CLR_HALT				5	// Clear halt state
-// 6 - 99
+
 #define ACT_HOMING					100	// Start homing
 #define ACT_GOTO_POSITION			101 // Go to manually configured position
 #define ACT_START_CLAMPING			102 // Star clamping
 // 103
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
 #define ACT_HALT					105 // Abort operation
-#define ACT_RELEASE_ADAPTER			106	// Release adapter for changing
-#define ACT_HOLD_ADAPTER			107	// Hold adapter
+// 106 - 107
 #define ACT_SET_TEMPERATURE			108	// Set temperature
-// 109 - 112
-#define	ACT_DBG_CONNECT_CONTROL		113	// Connect control circuit to device
-#define	ACT_DBG_DISCONNECT_CONTROL	114	// Disconnect control circuit from device
+#define ACT_RELEASE_ADAPTER			109	// Release adapter for changing
+#define ACT_HOLD_ADAPTER			110	// Hold adapter
+
 #define ACT_DBG_READ_TRM_TEMP		115	// Read actual temperature value from TRM
 #define ACT_DBG_READ_TRM_POWER		116	// Read TRM output power
 #define ACT_DBG_TRM_START			117	// Start TRM operation
 #define ACT_DBG_TRM_STOP			118	// Stop TRM operation
-#define ACT_DBG_MOTOR_START			119	// Запуск отладочного вращения моторов
-#define ACT_DBG_MOTOR_STOP			120	// Остановка отладочного вращения моторов
-// 121 - 199
+#define	ACT_DBG_CONNECT_CONTROL		119	// Connect control circuit to device
+#define	ACT_DBG_DISCONNECT_CONTROL	120	// Disconnect control circuit from device
+#define ACT_DBG_MOTOR_START			121	// Запуск отладочного вращения моторов
+#define ACT_DBG_MOTOR_STOP			122	// Остановка отладочного вращения моторов
+
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
 #define ACT_LOCK_NV_AREA			203	// Lock modifications of parameters area
 #define ACT_UNLOCK_NV_AREA			204	// Unlock modifications of parameters area (password-protected)
-//
+
 #define ACT_BOOT_LOADER_REQUEST		320	// Request reboot to bootloader
 
 // REGISTERS
 //
-// ----------------------------------------
-#define REG_CASE_A2_DEF				0	// Case height registers
-#define REG_CASE_B0_DEF				1
-#define REG_CASE_C1_DEF				2
-#define REG_CASE_D_DEF				3
-#define REG_CASE_E_DEF				4
-#define REG_CASE_F_DEF				5
-//
-// ----------------------------------------
-//
-#define REG_USE_HEATING				46	// Enable/disable heating system
-//
-#define REG_USE_SLIDING_SENSOR		53	// Enable/disable sliding system sensor
-//
-#define REG_POWER_SW_DELAY			59	// Time to close power switch (in ms) (must be a multiple of 50ms @ 20 Hz TIMER2)
-#define REG_USE_AIR_CONTROL			60	// Use air pressure monitoring system
-//
-#define REG_SP__1					63
+#define REG_CLAMP_HEIGHT_CASE_A2	0	// Высота подъёма столика для корпуса А2 (мм)
+#define REG_CLAMP_HEIGHT_CASE_B0	1	// Высота подъёма столика для корпуса B0 (мм)
+#define REG_CLAMP_HEIGHT_CASE_C1	2	// Высота подъёма столика для корпуса C1 (мм)
+#define REG_CLAMP_HEIGHT_CASE_D		3	// Высота подъёма столика для корпуса D (мм)
+#define REG_CLAMP_HEIGHT_CASE_E		4	// Высота подъёма столика для корпуса E (мм)
+#define REG_CLAMP_HEIGHT_CASE_F		5	// Высота подъёма столика для корпуса F (мм)
+
+#define REG_POS_MIN_SPEED			10	// Минимальная скорость перемещения при позиционировании (мм/сек)
+#define REG_POS_MED_SPEED			11	// Промежуточная скорость перемещения при позиционировании (мм/сек)
+#define REG_POS_MAX_SPEED			12	// Максимальная скорость перемещения при позиционировании (мм/сек)
+#define REG_SLOW_DOWN_DIST			13	// Расстояние от таргетной точки для начала замедления (мм)
+#define REG_HOMING_SPEED			14	// Скорость хоуминга (мм/сек)
+#define REG_HOMING_OFFSET			15	// Оффсет хоуминга (мм)
+#define REG_HOMING_TIMEOUT			16	// Таймаут выполнения хоуминга (сек)
+
+#define REG_USE_HEATING				20	// Включение/выключение обработки команд системы нагрева
+#define REG_USE_SAFETY_SENSOR		21	// Включение/выключение обработки датчика безопасности
+#define REG_USE_TOOLING_SENSOR		22	// Включение/выключение обработки датчика оснастки
 //
 // ----------------------------------------
 //
@@ -91,12 +90,14 @@
 #define REG_DISABLE_REASON			98	// Fault reason in the case DeviceState -> DISABLED
 #define REG_WARNING					99	// Warning if present
 #define REG_PROBLEM					100	// Problem if present
-//
 #define REG_TEMP_CH1				101	// Sampled temperature on channel 1
-//
+
 #define REG_TRM_DATA				103	// Data read from TRM
 #define REG_TRM_ERROR				104	// TRM error value
-#define REG_SLIDING_SENSOR			105	// Sliding sensor current state
+
+#define REG_SAFETY_SENSOR			106	// Состояние датчика безопасности
+#define REG_TOOLING_SENSOR			107	// Состояние датчика фиксации оснастки
+#define REG_HOMING_SENSOR			108	// Состояние датчика хоуминга
 //
 #define REG_CANA_BUSOFF_COUNTER		120 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			121	// CAN status register (32 bit)

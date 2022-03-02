@@ -154,10 +154,10 @@ void SM_GoToPositionFromReg(Int16U NewPositionReg, Int16U MaxSpeedReg, Int16U Lo
 // ----------------------------------------
 
 // Homing
-void SM_Homing()
+void SM_Homing(Int16U HomingSpeed)
 {
 	SM_HomingFlag = TRUE;
-	SM_CyclesToToggle = 10;
+	SM_CyclesToToggle = SM_SpeedToCycles(HomingSpeed * 1000);
 }
 // ----------------------------------------
 
@@ -198,5 +198,11 @@ Int16U SM_SpeedToCyclesRaw(Int16U Value)
 {
 	Int32U res = 1000000ul / TIMER1_PERIOD * SM_MOVING_RER_ROUND / SM_FULL_ROUND_STEPS / Value;
 	return (res == 0) ? 1 : res;
+}
+// ----------------------------------------
+
+void SM_ResetZeroPoint()
+{
+	SM_GlobalStepsCounter = 0;
 }
 // ----------------------------------------

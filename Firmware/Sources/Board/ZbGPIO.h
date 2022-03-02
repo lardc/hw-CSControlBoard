@@ -19,7 +19,7 @@ Boolean ZbGPIO_FilterSafetyCircuit(Boolean NewState);
 // Set proper CS output
 void ZbGPIO_CSMux(Int16U SPIDevice);
 
-inline Boolean ZbGPIO_IsSafetyOk()
+inline Boolean ZbGPIO_IsSafetySensorOk()
 {
 	return !ZwGPIO_ReadPin(PIN_SAFETY);
 }
@@ -31,7 +31,7 @@ inline Boolean ZbGPIO_HomeSensorActuate()
 }
 // ----------------------------------------
 
-inline Boolean ZbGPIO_GetPowerConnectionState()
+inline Boolean ZbGPIO_IsToolingSensorOk()
 {
 	return ZwGPIO_ReadPin(PIN_SEN1);
 }
