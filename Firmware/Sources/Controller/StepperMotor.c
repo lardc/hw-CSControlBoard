@@ -32,7 +32,6 @@ static Int16U SM_SpeedChangeDiscrete = 0;
 
 Boolean SM_IsCurrentDirUp = TRUE;
 Boolean SM_HomingFlag = FALSE;
-Boolean SM_OriginFlag = FALSE;
 
 // Forward functions
 //
@@ -69,7 +68,7 @@ void SM_LogicHandler()
 	static Boolean TickHigh = FALSE;
 	static Int16U SM_CycleCounter = 0;
 
-	if(!SM_IsSlidingDone())
+	if(!SM_IsSlidingDone() || SM_HomingFlag)
 	{
 		// Генератор шагов
 		if(++SM_CycleCounter >= SM_CyclesToToggle)
@@ -77,71 +76,60 @@ void SM_LogicHandler()
 			SM_CycleCounter = 0;
 			ZbGPIO_SwitchStep(TickHigh = !TickHigh);
 
-			// Счёт по нарастающему фронту тиков
+			// Счёт для перемещения по нарастающему фронту тиков
 			if(TickHigh)
 			{
-				SM_GlobalStepsCounter += (SM_IsCurrentDirUp) ? 1 : -1;
-				Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
-
-				// 1. acceleration to Vmax
-				if(StepsToPos > 2 * SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
+				if(SM_HomingFlag)
 				{
-					if(SM_CyclesToToggle > SM_MinCycles)
-						--SM_CyclesToToggle;
-				}
-
-				// 2. stable Vmax or acceleration to Vmax
-				else if(StepsToPos > SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
-				{
-					if(SM_CyclesToToggle > SM_MinCycles)
-						--SM_CyclesToToggle;
-				}
-
-				// 3. acceleration or deceleration to Vend
-				else if(StepsToPos > SM_SPEED_CHANGE_STEPS * (SM_MinCycles / SM_LowSpeedCycles) + SM_LowSpeedSteps + SM_STEPS_RESERVE)
-				{
-					if(SM_CyclesToToggle < SM_LowSpeedCycles)
-						++SM_CyclesToToggle;
-					else if(SM_CyclesToToggle > SM_LowSpeedCycles)
-						--SM_CyclesToToggle;
-				}
-
-				// 4. stable Vend or acceleration to Vend
-				else if(StepsToPos > SM_SPEED_CHANGE_STEPS * (SM_MinCycles / SM_LowSpeedCycles) + SM_STEPS_RESERVE)
-				{
-					if(SM_CyclesToToggle > SM_LowSpeedCycles)
-						--SM_CyclesToToggle;
-				}
-
-				// 5. deceleration to Vmin
-				else if(StepsToPos > SM_STEPS_RESERVE)
-				{
-					if(SM_CyclesToToggle < SM_MaxCycles)
-						++SM_CyclesToToggle;
-				}
-
-				if(StepsToPos == 0)
-				{
-					if(SM_HomingFlag)
+					// Условие завершения хоуминга
+					if(ZbGPIO_HomeSensorActuate())
 					{
-						//SM_DestSteps = SM_GlobalStepsCounter;
-						if(ZbGPIO_HomeSensorActuate())
-						{
-							SM_SetStopSteps();
-							SM_GlobalStepsCounter = 0;
-							SM_HomingFlag = FALSE;
-							SM_SetOrigin();
-						}
+						SM_HomingFlag = FALSE;
+						SM_DestSteps = SM_GlobalStepsCounter = 0;
 					}
-					else if(SM_OriginFlag)
+				}
+				else
+				{
+					// Проверка условия позиционирования
+					SM_GlobalStepsCounter += (SM_IsCurrentDirUp) ? 1 : -1;
+					Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
+
+					// 1. acceleration to Vmax
+					if(StepsToPos > 2 * SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
 					{
-						SM_GlobalStepsCounter = 0;
-						SM_DestSteps = 0;
-						SM_OriginFlag = FALSE;
-						SM_SetStopSteps();
+						if(SM_CyclesToToggle > SM_MinCycles)
+							--SM_CyclesToToggle;
 					}
+
+					// 2. stable Vmax or acceleration to Vmax
+					else if(StepsToPos > SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
+					{
+						if(SM_CyclesToToggle > SM_MinCycles)
+							--SM_CyclesToToggle;
+					}
+
+					// 3. acceleration or deceleration to Vend
+					else if(StepsToPos > (Int32U)SM_SPEED_CHANGE_STEPS * SM_MinCycles / SM_LowSpeedCycles + SM_LowSpeedSteps + SM_STEPS_RESERVE)
+					{
+						if(SM_CyclesToToggle < SM_LowSpeedCycles)
+							++SM_CyclesToToggle;
+						else if(SM_CyclesToToggle > SM_LowSpeedCycles)
+							--SM_CyclesToToggle;
+					}
+
+					// 4. stable Vend or acceleration to Vend
+					else if(StepsToPos > (Int32U)SM_SPEED_CHANGE_STEPS * SM_MinCycles / SM_LowSpeedCycles + SM_STEPS_RESERVE)
+					{
+						if(SM_CyclesToToggle > SM_LowSpeedCycles)
+							--SM_CyclesToToggle;
+					}
+
+					// 5. deceleration to Vmin
 					else
-						SM_SetStopSteps();
+					{
+						if(SM_CyclesToToggle < SM_MaxCycles)
+							++SM_CyclesToToggle;
+					}
 				}
 			}
 		}
@@ -255,7 +243,6 @@ void SM_Homing()
 // Set new origin
 void SM_SetOrigin()
 {
-	SM_OriginFlag = TRUE;
 	SM_GoToPosition(SM_HOMING_RESERVE, SM_HOMING_SPEED, 0, 0);
 }
 // ----------------------------------------
@@ -263,13 +250,13 @@ void SM_SetOrigin()
 // Is homing done?
 Boolean SM_IsHomingDone()
 {
-	return !(SM_HomingFlag || SM_OriginFlag);
+	return !SM_HomingFlag && SM_IsSlidingDone();
 }
 // ----------------------------------------
 
 Boolean SM_IsSlidingDone()
 {
-	return (SM_DestSteps == SM_GlobalStepsCounter);
+	return SM_DestSteps == SM_GlobalStepsCounter;
 }
 // ----------------------------------------
 
