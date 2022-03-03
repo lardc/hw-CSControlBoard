@@ -61,9 +61,9 @@ inline void ZbGPIO_SwitchStep(Boolean State)
 }
 // ----------------------------------------
 
-inline void ZbGPIO_SwitchDir(Boolean State)
+inline void ZbGPIO_SwitchUpDir(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_STPM_DIR, State);
+	ZwGPIO_WritePin(PIN_STPM_DIR, !State);
 }
 // ----------------------------------------
 

@@ -107,7 +107,7 @@ void SM_LogicHandler()
 // Up or down direction
 void SM_UpDirection(Boolean State)
 {
-	ZbGPIO_SwitchDir(SM_IsCurrentDirUp = State);
+	ZbGPIO_SwitchUpDir(SM_IsCurrentDirUp = State);
 }
 // ----------------------------------------
 
@@ -136,6 +136,7 @@ void SM_GoToPosition(pSM_Config Config)
 void SM_Homing(Int16U HomingSpeed)
 {
 	SM_HomingFlag = TRUE;
+	SM_UpDirection(FALSE);
 	SM_CyclesToToggle = SM_SpeedToCycles(HomingSpeed);
 }
 // ----------------------------------------
@@ -170,7 +171,7 @@ Int16U SM_SpeedToCycles(Int16U Speed)
 
 void SM_ResetZeroPoint()
 {
-	SM_GlobalStepsCounter = 0;
+	SM_DestSteps = SM_GlobalStepsCounter = 0;
 }
 // ----------------------------------------
 
