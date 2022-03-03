@@ -363,7 +363,7 @@ static void CONTROL_HandleClampActions()
 		case DS_Position:
 			if (CLAMP_IsTargetReached())
 			{
-				CLAMP_CompleteOperation(TRUE);
+				CLAMP_CompleteOperation(FALSE);
 				CONTROL_SetDeviceState(DS_Ready);
 			}
 			break;
@@ -556,12 +556,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_HALT:
-			{
-				DINT;
-				CLAMP_CompleteOperation(TRUE);
-				CONTROL_SetDeviceState(DS_Halt);
-				EINT;
-			}
+			CONTROL_SetDeviceState(DS_Halt);
+		case ACT_INHIBIT:
+			DINT;
+			CLAMP_CompleteOperation(TRUE);
+			EINT;
 			break;
 
 		case ACT_SLIDING_PUSH_OUT:

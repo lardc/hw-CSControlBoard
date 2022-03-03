@@ -23,6 +23,7 @@
 #define ACT_SLIDING_PUSH_OUT		106	// Push out sliding system
 #define ACT_SLIDING_PUSH_IN			107	// Push in sliding system
 #define ACT_SET_TEMPERATURE			108	// Set temperature
+#define ACT_INHIBIT					109	// Inhibit motor
 //
 #define ACT_DBG_READ_LENZE_REG		110	// Read Lenze register
 #define ACT_DBG_WRITE_DAC_RAW		111	// Write raw value to DAC channel
