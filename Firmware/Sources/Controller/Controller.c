@@ -46,6 +46,10 @@ static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_SwitchToFault(Int16U Reason);
 Boolean CONTROL_IsToolingSensorOK();
+void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
+		Int16U MaxSpeed, Int16U LowSpeed, Int16U MinSpeed);
+void CONTROL_PreparePositioning();
+void CONTROL_PrepareHomingOffset();
 
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
@@ -218,7 +222,7 @@ static void CONTROL_HandleClampActions()
 		case DS_Homing:
 			if(SM_IsHomingDone())
 			{
-				SM_GoToPositionFromReg(DataTable[REG_HOMING_OFFSET], DataTable[REG_HOMING_SPEED], 0, 0);
+				CONTROL_PrepareHomingOffset();
 				CONTROL_SetDeviceState(DS_HomingOffset);
 			}
 			break;
@@ -269,7 +273,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_POS_MAX_SPEED], 0, 0);
+				CONTROL_PreparePositioning(DataTable[REG_CUSTOM_POS]);
 				CONTROL_SetDeviceState(DS_Moving);
 			}
 			else
@@ -283,7 +287,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
 					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_CASE]);
-					SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_POS_MAX_SPEED], LowSpeedPos, SM_MIN_SPEED);
+					//SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_POS_MAX_SPEED], LowSpeedPos, SM_MIN_SPEED);
 					CONTROL_SetDeviceState(DS_Moving);
 				}
 			}
@@ -295,7 +299,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				SM_GoToPositionFromReg(0, DataTable[REG_POS_MAX_SPEED], 0, 0);
+				//SM_GoToPositionFromReg(0, DataTable[REG_POS_MAX_SPEED], 0, 0);
 				CONTROL_SetDeviceState(DS_Moving);
 			}
 			else
@@ -467,5 +471,33 @@ void CONTROL_SwitchToFault(Int16U Reason)
 {
 	CONTROL_SetDeviceState(DS_Fault);
 	DataTable[REG_FAULT_REASON] = Reason;
+}
+// ----------------------------------------
+
+void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
+		Int16U MaxSpeed, Int16U LowSpeed, Int16U MinSpeed)
+{
+	SM_Config Config;
+	Config.NewPosition = NewPosition;
+	Config.SlowDownDistance = SlowDownDistance;
+	Config.MaxSpeed = MaxSpeed;
+	Config.LowSpeed = LowSpeed;
+	Config.MinSpeed = MinSpeed;
+
+	SM_GoToPosition(&Config);
+}
+// ----------------------------------------
+
+void CONTROL_PreparePositioning()
+{
+	CONTROL_PreparePositioningX(DataTable[REG_CUSTOM_POS], DataTable[REG_SLOW_DOWN_DIST],
+			DataTable[REG_POS_MAX_SPEED], DataTable[REG_POS_LOW_SPEED], DataTable[REG_POS_MIN_SPEED]);
+}
+// ----------------------------------------
+
+void CONTROL_PrepareHomingOffset()
+{
+	CONTROL_PreparePositioningX(DataTable[REG_HOMING_OFFSET], 0,
+			DataTable[REG_HOMING_SPEED], DataTable[REG_HOMING_SPEED], DataTable[REG_HOMING_SPEED]);
 }
 // ----------------------------------------

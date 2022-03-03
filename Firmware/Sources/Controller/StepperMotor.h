@@ -6,16 +6,17 @@
 #define __STEPPER_MOTOR_H
 
 // Include
-#include "Global.h"
 #include "ZbBoard.h"
-#include "SysConfig.h"
 
-// Definitions
-//
-#define SM_MIN_SPEED				100			// in um/s
-#define SM_MAX_SPEED				50000		// in um/s
-#define SM_SPEED_CHANGE_STEPS		400			// Acceleration in steps
-#define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
+// Types
+typedef struct __SM_Config
+{
+	Int16U NewPosition;
+	Int16U SlowDownDistance;
+	Int16U MaxSpeed;
+	Int16U LowSpeed;
+	Int16U MinSpeed;
+} SM_Config, *pSM_Config;
 
 // Functions
 //
@@ -26,7 +27,7 @@ void SM_ConnectAlterHandler(void *Handler);
 // Steps Enable
 void SM_Enable(Boolean State);
 // New position in mm, speed in mm/s
-void SM_GoToPositionFromReg(Int16U NewPosition, Int16U MaxSpeed, Int16U LowSpeedPosition, Int16U LowSpeed);
+void SM_GoToPosition(pSM_Config Config);
 Boolean SM_IsPositioningDone();
 // Homing
 void SM_Homing(Int16U HomingSpeed);

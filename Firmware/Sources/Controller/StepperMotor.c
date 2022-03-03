@@ -5,6 +5,13 @@
 // Header
 #include "StepperMotor.h"
 
+// Includes
+#include "SysConfig.h"
+
+// Definitions
+#define SM_SPEED_CHANGE_STEPS		400			// Acceleration in steps
+#define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
+
 // Types
 typedef void (*xTimerAlterHandler)();
 
@@ -17,11 +24,10 @@ static Boolean SM_IsCurrentDirUp, SM_HomingFlag;
 
 // Forward functions
 void SM_LogicHandler();
-Int16U SM_SpeedToCyclesRaw(Int16U Value);
-Int16U SM_SpeedToCycles(Int16U NewSpeed);
-Int32U SM_PosToSteps(Int32U NewPos);
+Int16U SM_SpeedToCycles(Int16U Speed);
+Int32U SM_PosToSteps(Int16U NewPos);
 void SM_UpDirection(Boolean State);
-void SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosition, Int16U LowSpeed);
+void SM_ToggleCyclesToTarget(Int16U Target);
 
 // Functions
 //
@@ -82,33 +88,15 @@ void SM_LogicHandler()
 
 					// 1-2. acceleration to Vmax or running at Vmax
 					if(StepsToPos > SM_SPEED_CHANGE_STEPS + SM_LowSpeedSteps + SM_STEPS_RESERVE)
-					{
-						if(SM_CyclesToToggle > SM_MinCycles)
-							--SM_CyclesToToggle;
-					}
+						SM_ToggleCyclesToTarget(SM_MinCycles);
 
-					// 3. acceleration or deceleration to Vend
-					else if(StepsToPos > (Int32U)SM_SPEED_CHANGE_STEPS * SM_MinCycles / SM_LowSpeedCycles + SM_LowSpeedSteps + SM_STEPS_RESERVE)
-					{
-						if(SM_CyclesToToggle < SM_LowSpeedCycles)
-							++SM_CyclesToToggle;
-						else if(SM_CyclesToToggle > SM_LowSpeedCycles)
-							--SM_CyclesToToggle;
-					}
-
-					// 4. stable Vend or acceleration to Vend
+					// 3-4. acceleration or deceleration to Vend
 					else if(StepsToPos > (Int32U)SM_SPEED_CHANGE_STEPS * SM_MinCycles / SM_LowSpeedCycles + SM_STEPS_RESERVE)
-					{
-						if(SM_CyclesToToggle > SM_LowSpeedCycles)
-							--SM_CyclesToToggle;
-					}
+						SM_ToggleCyclesToTarget(SM_LowSpeedCycles);
 
 					// 5. deceleration to Vmin
 					else
-					{
-						if(SM_CyclesToToggle < SM_MaxCycles)
-							++SM_CyclesToToggle;
-					}
+						SM_ToggleCyclesToTarget(SM_MaxCycles);
 				}
 			}
 		}
@@ -130,26 +118,17 @@ void SM_Enable(Boolean State)
 }
 // ----------------------------------------
 
-// New position in um, speed in um/s
-void SM_GoToPosition(Int32U NewPosition, Int16U MaxSpeed, Int32U LowSpeedPosition, Int16U LowSpeed)
+// New position in mm, speed in mm/s
+void SM_GoToPosition(pSM_Config Config)
 {
-	SM_LowSpeedSteps = SM_PosToSteps(NewPosition - LowSpeedPosition);
-	SM_DestSteps = SM_PosToSteps(NewPosition);
+	SM_LowSpeedSteps = SM_PosToSteps(Config->SlowDownDistance);
+	SM_DestSteps = SM_PosToSteps(Config->NewPosition);
 
 	SM_UpDirection(SM_DestSteps > SM_GlobalStepsCounter);
 
-	SM_MinCycles = SM_SpeedToCycles(MaxSpeed);
-	SM_LowSpeedCycles = SM_SpeedToCycles(LowSpeed);
-	SM_CyclesToToggle = SM_MaxCycles = SM_SpeedToCycles(SM_MIN_SPEED);
-}
-// ----------------------------------------
-
-// New position in mm, speed in um/s
-void SM_GoToPositionFromReg(Int16U NewPositionReg, Int16U MaxSpeedReg, Int16U LowSpeedPositionReg,
-		Int16U LowSpeedReg)
-{
-	SM_GoToPosition((Int32U)NewPositionReg * 1000, MaxSpeedReg,
-			(Int32U)LowSpeedPositionReg * 1000, (Int16U)LowSpeedReg * 1000);
+	SM_MinCycles = SM_SpeedToCycles(Config->MaxSpeed);
+	SM_LowSpeedCycles = SM_SpeedToCycles(Config->LowSpeed);
+	SM_CyclesToToggle = SM_MaxCycles = SM_SpeedToCycles(Config->MinSpeed);
 }
 // ----------------------------------------
 
@@ -157,7 +136,7 @@ void SM_GoToPositionFromReg(Int16U NewPositionReg, Int16U MaxSpeedReg, Int16U Lo
 void SM_Homing(Int16U HomingSpeed)
 {
 	SM_HomingFlag = TRUE;
-	SM_CyclesToToggle = SM_SpeedToCycles(HomingSpeed * 1000);
+	SM_CyclesToToggle = SM_SpeedToCycles(HomingSpeed);
 }
 // ----------------------------------------
 
@@ -174,29 +153,17 @@ Boolean SM_IsPositioningDone()
 }
 // ----------------------------------------
 
-// Position in um to steps converter
-Int32U SM_PosToSteps(Int32U NewPos)
+// Position in mm to steps converter
+Int32U SM_PosToSteps(Int16U NewPos)
 {
-	return NewPos * SM_FULL_ROUND_STEPS / SM_MOVING_RER_ROUND;
+	return 1000ul * NewPos * SM_FULL_ROUND_STEPS / SM_MOVING_RER_ROUND;
 }
 // ----------------------------------------
 
-// Speed in um/s to cycles to toggle converter
-Int16U SM_SpeedToCycles(Int16U NewSpeed)
+// Speed in mm/s to cycles to toggle raw converter
+Int16U SM_SpeedToCycles(Int16U Speed)
 {
-	if(NewSpeed < SM_MIN_SPEED)
-		return SM_SpeedToCyclesRaw(SM_MIN_SPEED);
-	else if(NewSpeed < SM_MAX_SPEED)
-		return SM_SpeedToCyclesRaw(NewSpeed);
-	else
-		return SM_SpeedToCyclesRaw(SM_MAX_SPEED);
-}
-// ----------------------------------------
-
-// Speed in um/s to cycles to toggle raw converter
-Int16U SM_SpeedToCyclesRaw(Int16U Value)
-{
-	Int32U res = 1000000ul / TIMER1_PERIOD * SM_MOVING_RER_ROUND / SM_FULL_ROUND_STEPS / Value;
+	Int32U res = 1000ul * SM_MOVING_RER_ROUND / TIMER1_PERIOD / SM_FULL_ROUND_STEPS / Speed;
 	return (res == 0) ? 1 : res;
 }
 // ----------------------------------------
@@ -204,5 +171,14 @@ Int16U SM_SpeedToCyclesRaw(Int16U Value)
 void SM_ResetZeroPoint()
 {
 	SM_GlobalStepsCounter = 0;
+}
+// ----------------------------------------
+
+void SM_ToggleCyclesToTarget(Int16U Target)
+{
+	if(SM_CyclesToToggle < Target)
+		++SM_CyclesToToggle;
+	else if(SM_CyclesToToggle > Target)
+		--SM_CyclesToToggle;
 }
 // ----------------------------------------

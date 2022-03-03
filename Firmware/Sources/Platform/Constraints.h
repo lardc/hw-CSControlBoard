@@ -34,7 +34,7 @@ typedef struct __TableItemConstraint
 #define CASE_F_DEF					144
 
 // Расстояние замедления (мм)
-#define SLOW_DOWN_MIN				1
+#define SLOW_DOWN_MIN				0
 #define SLOW_DOWN_MAX				50
 #define SLOW_DOWN_DEF				10
 

@@ -57,12 +57,6 @@
 #define DBG_COUNTER_PERIOD	(CS_MONITORING_FREQ / (DBG_FREQ * 2))
 //--------------------------------------------------------
 
-// Temperature feedback
-//--------------------------------------------------------
-#define TEMPFB_CONV_TIME	100			// in ms
-#define TEMPFB_CONV_TICKS	((CS_MONITORING_FREQ * TEMPFB_CONV_TIME) / 1000)
-//--------------------------------------------------------
-
 // TRM
 //--------------------------------------------------------
 #define TRM_CH1_ADDR		1
