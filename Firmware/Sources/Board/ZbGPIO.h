@@ -27,7 +27,7 @@ inline Boolean ZbGPIO_IsSafetySensorOk()
 
 inline Boolean ZbGPIO_HomeSensorActuate()
 {
-	return !ZwGPIO_ReadPin(PIN_HOME);
+	return ZwGPIO_ReadPin(PIN_HOME);
 }
 // ----------------------------------------
 
