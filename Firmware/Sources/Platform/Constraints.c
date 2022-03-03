@@ -1,10 +1,12 @@
-// -----------------------------------------
+// ----------------------------------------
 // Global definitions
 // ----------------------------------------
 
 // Header
 #include "Constraints.h"
-#include "Global.h"
+
+// Include
+#include "Controller.h"
 #include "DeviceObjectDictionary.h"
 
 #define NO		0	// equal to FALSE
@@ -14,29 +16,29 @@
 //
 const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
                                       {
-											   {0, POS_MAX, CASE_A2_DEF},												// 0
-											   {0, POS_MAX, CASE_B0_DEF},												// 1
-											   {0, POS_MAX, CASE_C1_DEF},												// 2
-											   {0, POS_MAX, CASE_D_DEF},												// 3
-											   {0, POS_MAX, CASE_E_DEF},												// 4
-											   {0, POS_MAX, CASE_F_DEF},												// 5
+											   {CASE_MIN, CASE_MAX, CASE_A2_DEF},										// 0
+											   {CASE_MIN, CASE_MAX, CASE_B0_DEF},										// 1
+											   {CASE_MIN, CASE_MAX, CASE_C1_DEF},										// 2
+											   {CASE_MIN, CASE_MAX, CASE_D_DEF},										// 3
+											   {CASE_MIN, CASE_MAX, CASE_E_DEF},										// 4
+											   {CASE_MIN, CASE_MAX, CASE_F_DEF},										// 5
 											   {0, 0, 0},																// 6
 											   {0, 0, 0},																// 7
 											   {0, 0, 0},																// 8
 											   {0, 0, 0},																// 9
-											   {0, 0, 0},																// 10
-											   {1, 0, 0},																// 11
-											   {0, 0, 0},																// 12
-											   {0, 0, 0},																// 13
-											   {0, 0, 0},																// 14
-											   {0, 0, 0},																// 15
+											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 10
+											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 11
+											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 12
+											   {SLOW_DOWN_MIN, SLOW_DOWN_MAX, SLOW_DOWN_DEF},							// 13
+											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 14
+											   {HOMING_OFFS_MIN, HOMING_OFFS_MAX, HOMING_OFFS_DEF},						// 15
 											   {0, 0, 0},																// 16
 											   {0, 0, 0},																// 17
 											   {0, 0, 0},																// 18
 											   {0, 0, 0},																// 19
-											   {0, 0, 0},																// 20
-											   {0, 0, 0},																// 21
-											   {0, 0, 0},																// 22
+											   {NO, YES, YES},															// 20
+											   {NO, YES, YES},															// 21
+											   {NO, YES, YES},															// 22
 											   {0, 0, 0},																// 23
 											   {0, 0, 0},																// 24
 											   {0, 0, 0},																// 25
@@ -60,21 +62,21 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {0, 0, 0},																// 43
 											   {0, 0, 0},																// 44
 											   {0, 0, 0},																// 45
-											   {NO, YES, YES},															// 46
+											   {0, 0, 0},																// 46
 											   {0, 0, 0},																// 47
 											   {0, 0, 0},																// 48
 											   {0, 0, 0},																// 49
 											   {0, 0, 0},																// 50
 											   {0, 0, 0},																// 51
 											   {0, 0, 0},																// 52
-											   {NO, YES, YES},															// 53
+											   {0, 0, 0},																// 53
 											   {0, 0, 0},																// 54
 											   {0, 0, 0},																// 55
 											   {0, 0, 0},																// 56
 											   {0, 0, 0},																// 57
 											   {0, 0, 0},																// 58
-											   {0, INT16U_MAX, 0},														// 59
-											   {NO, YES, YES},															// 60
+											   {0, 0, 0},																// 59
+											   {0, 0, 0},																// 60
 											   {0, 0, 0},																// 61
 											   {0, 0, 0},																// 62
                                     		   {INT16U_MAX, 0, 0}														// 63
@@ -83,15 +85,15 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START] =
                                       {
 											   {0, POS_MAX, 0},															// 64
-											   {0, INT16U_MAX, SPEED_MIN},												// 65
+											   {0, 0, 0},																// 65
 											   {0, 0, 0},																// 66
 											   {0, 0, 0},																// 67
 											   {0, 0, 0},																// 68
 											   {0, 0, 0},																// 69
 											   {0, 0, 0},																// 70
-											   {0, 5, 0},																// 71
+											   {SC_Type_A2, SC_Type_F, SC_Type_E},										// 71
 											   {TRM_TEMP_MIN, TRM_TEMP_MAX, TRM_TEMP_DEF},								// 72
-											   {NO, YES, NO},															// 73
+											   {0, 0, 0},																// 73
 											   {0, 0, 0},																// 74
 											   {0, 0, 0},																// 75
 											   {0, 0, 0},																// 76
@@ -100,10 +102,10 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {0, 0, 0},																// 79
 											   {0, 0, 0},																// 80
 											   {0, 0, 0},																// 81
-											   {1, 2, 1},																// 82
-											   {0, INT16U_MAX, 0},														// 83
+											   {0, 0, 0},																// 82
+											   {0, 0, 0},																// 83
 											   {0, 255, 0},																// 84
-											   {NO, YES, NO},															// 85
+											   {0, 0, 0},																// 85
 											   {0, 0, 0},																// 86
 											   {0, 0, 0},																// 87
 											   {0, 0, 0},																// 88
