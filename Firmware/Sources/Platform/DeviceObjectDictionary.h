@@ -97,7 +97,9 @@
 #define REG_SAFETY_SENSOR			106	// Состояние датчика безопасности
 #define REG_TOOLING_SENSOR			107	// Состояние датчика фиксации оснастки
 #define REG_HOMING_SENSOR			108	// Состояние датчика хоуминга
-//
+
+#define REG_DEV_SUBSTATE			110	// Device substate
+
 #define REG_CANA_BUSOFF_COUNTER		120 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			121	// CAN status register (32 bit)
 #define REG_CANA_STATUS_REG_32		122

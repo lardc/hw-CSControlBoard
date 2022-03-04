@@ -27,9 +27,21 @@ typedef enum __DeviceState
 	DS_Position = 6,
 	DS_Clamping = 7,
 	DS_ClampingDone = 8,
-	DS_ClampingRelease = 10,
-	DS_HomingOffset = 12
+	DS_ClampingRelease = 10
 } DeviceState;
+
+typedef enum __DeviceSubState
+{
+	DSS_None = 0,
+
+	DSS_HomingStart = 10,
+	DSS_HomingReleaseControl = 11,
+	DSS_HomingSearchSensor = 12,
+	DSS_HomingMakeOffset = 13,
+
+	DSS_ClampingMoving = 20,
+	DSS_ClampingConnectControl = 21
+} DeviceSubState;
 
 typedef enum __DevType
 {

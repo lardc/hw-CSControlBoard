@@ -27,6 +27,7 @@ static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 volatile Int64U CONTROL_TimeCounter = 0, Timeout;
 volatile Int32U FanTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
+volatile DeviceSubState CONTROL_SubState = DSS_None;
 
 #pragma DATA_SECTION(CONTROL_Values_1, "data_mem");
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
@@ -41,7 +42,7 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 // Forward functions
 static void CONTROL_HandleFanControl();
 static void CONTROL_HandleClampActions();
-static void CONTROL_SetDeviceState(DeviceState NewState);
+static void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_SwitchToFault(Int16U Reason);
@@ -105,7 +106,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 	{
 		CycleActive = TRUE;
 		DataTable[REG_DISABLE_REASON] = DISABLE_BAD_CLOCK;
-		CONTROL_SetDeviceState(DS_Disabled);
+		CONTROL_SetDeviceState(DS_Disabled, DSS_None);
 	}
 }
 // ----------------------------------------
@@ -166,14 +167,16 @@ static void CONTROL_FillWPPartDefault()
 }
 // ----------------------------------------
 
-static void CONTROL_SetDeviceState(DeviceState NewState)
+static void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
 {
 	if(NewState == DS_Clamping || NewState == DS_Position)
 		FanTimeout = FAN_TIMEOUT_TCK;
 	
-	// Set new state
 	CONTROL_State = NewState;
 	DataTable[REG_DEV_STATE] = NewState;
+
+	CONTROL_SubState = NewSubState;
+	DataTable[REG_DEV_SUBSTATE] = NewSubState;
 }
 // ----------------------------------------
 
@@ -191,30 +194,39 @@ static void CONTROL_HandleClampActions()
 	switch(CONTROL_State)
 	{
 		case DS_Homing:
-			if(SM_IsHomingDone())
+			switch(CONTROL_SubState)
 			{
-				CONTROL_PrepareHomingOffset();
-				CONTROL_SetDeviceState(DS_HomingOffset);
+				case DSS_HomingSearchSensor:
+					if(SM_IsHomingDone())
+					{
+						CONTROL_PrepareHomingOffset();
+						CONTROL_SetDeviceState(DS_Homing, DSS_HomingMakeOffset);
+					}
+					break;
+
+				case DSS_HomingMakeOffset:
+					if(SM_IsPositioningDone())
+					{
+						SM_ResetZeroPoint();
+						CONTROL_SetDeviceState(DS_Ready, DSS_None);
+					}
+
+				default:
+					break;
 			}
 			break;
 
 		case DS_Position:
 		case DS_ClampingRelease:
-		case DS_HomingOffset:
 			if(SM_IsPositioningDone())
-			{
-				if(CONTROL_State == DS_HomingOffset)
-					SM_ResetZeroPoint();
-				
-				CONTROL_SetDeviceState(DS_Ready);
-			}
+				CONTROL_SetDeviceState(DS_Ready, DSS_None);
 			break;
 			
 		case DS_Clamping:
 			if(SM_IsPositioningDone())
 			{
 				ZbGPIO_SwitchControlConnection(TRUE);
-				CONTROL_SetDeviceState(DS_ClampingDone);
+				CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
 			}
 			break;
 			
@@ -233,7 +245,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
 				SM_Homing(DataTable[REG_HOMING_SPEED]);
-				CONTROL_SetDeviceState(DS_Homing);
+				CONTROL_SetDeviceState(DS_Homing, DSS_HomingSearchSensor);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -244,7 +256,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
 				CONTROL_PreparePositioning();
-				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_SetDeviceState(DS_Position, DSS_None);
 			}
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
@@ -257,7 +269,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
 					CONTROL_PrepareClamping(TRUE);
-					CONTROL_SetDeviceState(DS_Clamping);
+					CONTROL_SetDeviceState(DS_Clamping, DSS_None);
 				}
 				else
 					*UserError = ERR_OPERATION_BLOCKED;
@@ -271,14 +283,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
 				CONTROL_PrepareClamping(FALSE);
-				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_SetDeviceState(DS_Position, DSS_None);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 			
 		case ACT_HALT:
-			CONTROL_SetDeviceState(DS_Halt);
+			CONTROL_SetDeviceState(DS_Halt, DSS_None);
 			break;
 			
 		case ACT_RELEASE_ADAPTER:
@@ -333,7 +345,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_CLR_FAULT:
 			{
 				if(CONTROL_State == DS_Fault)
-					CONTROL_SetDeviceState(DS_None);
+					CONTROL_SetDeviceState(DS_None, DSS_None);
 				else if(CONTROL_State == DS_Disabled)
 					*UserError = ERR_OPERATION_BLOCKED;
 				
@@ -347,7 +359,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_CLR_HALT:
 			if(CONTROL_State == DS_Halt)
-				CONTROL_SetDeviceState(DS_Ready);
+				CONTROL_SetDeviceState(DS_Ready, DSS_None);
 			break;
 			
 		case ACT_DBG_READ_TRM_TEMP:
@@ -440,7 +452,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 void CONTROL_SwitchToFault(Int16U Reason)
 {
-	CONTROL_SetDeviceState(DS_Fault);
+	CONTROL_SetDeviceState(DS_Fault, DSS_None);
 	DataTable[REG_FAULT_REASON] = Reason;
 }
 // ----------------------------------------
