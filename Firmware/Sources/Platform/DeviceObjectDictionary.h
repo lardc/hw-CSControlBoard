@@ -49,12 +49,15 @@
 #define REG_CLAMP_HEIGHT_CASE_E		4	// Высота подъёма столика для корпуса E (мм)
 #define REG_CLAMP_HEIGHT_CASE_F		5	// Высота подъёма столика для корпуса F (мм)
 
-#define REG_POS_MIN_SPEED			10	// Минимальная скорость перемещения при позиционировании (мм/сек)
-#define REG_POS_LOW_SPEED			11	// Пониженная скорость перемещения при позиционировании (мм/сек)
-#define REG_POS_MAX_SPEED			12	// Максимальная скорость перемещения при позиционировании (мм/сек)
+#define REG_POS_SPEED_MIN			10	// Минимальная скорость перемещения при позиционировании (мм/сек)
+#define REG_POS_SPEED_LOW			11	// Пониженная скорость перемещения при позиционировании (мм/сек)
+#define REG_POS_SPEED_MAX			12	// Максимальная скорость перемещения при позиционировании (мм/сек)
 #define REG_SLOW_DOWN_DIST			13	// Расстояние от таргетной точки для начала замедления (мм)
 #define REG_HOMING_SPEED			14	// Скорость хоуминга (мм/сек)
 #define REG_HOMING_OFFSET			15	// Оффсет хоуминга (мм)
+#define REG_CLAMP_SPEED_MIN			16	// Минимальная скорость перемещения при позиционировании (мм/сек)
+#define REG_CLAMP_SPEED_LOW			17	// Пониженная скорость перемещения при позиционировании (мм/сек)
+#define REG_CLAMP_SPEED_MAX			18	// Максимальная скорость перемещения при позиционировании (мм/сек)
 
 #define REG_USE_HEATING				20	// Включение/выключение обработки команд системы нагрева
 #define REG_USE_SAFETY_SENSOR		21	// Включение/выключение обработки датчика безопасности
@@ -64,10 +67,10 @@
 //
 #define REG_CUSTOM_POS				64	// Mannually configured position (in mm)
 
-#define REG_DEV_CASE				71	// Device case
-#define REG_TEMP_SETPOINT			72	// Temperature setpoint (in C x10)
+#define REG_DEV_CASE				71	// Код корпуса прибора
+#define REG_TEMP_SETPOINT			72	// Уставка температуры (С х10)
 //
-#define REG_DBG_TRM_ADDRESS			84	// TRM address
+#define REG_DBG_TRM_ADDRESS			84	// адрес ТРМ по RS485
 //
 #define REG_DBG_STEP_DIV			90	// Коэффициент деления шагов в отладочном режиме
 #define REG_DBG_STEPS_MAX			91	// Количество шагов для поворота в отладочном режиме

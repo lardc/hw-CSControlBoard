@@ -50,6 +50,7 @@ void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
 		Int16U MaxSpeed, Int16U LowSpeed, Int16U MinSpeed);
 void CONTROL_PreparePositioning();
 void CONTROL_PrepareHomingOffset();
+void CONTROL_PrepareClamping(Boolean Clamp);
 
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
@@ -133,36 +134,6 @@ Boolean CONTROL_IsToolingSensorOK()
 	return (DataTable[REG_USE_TOOLING_SENSOR]) ? ZbGPIO_IsToolingSensorOk() : TRUE;
 }
 // ----------------------------------------
-
-Int16U CONTROL_DevicePosition(Int16U DevTypeId)
-{
-	Int16U DevPos = 0;
-	switch(DevTypeId)
-	{
-		case SC_Type_A2:
-			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_A2];
-			break;
-		case SC_Type_B0:
-			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_B0];
-			break;
-		case SC_Type_C1:
-			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_C1];
-			break;
-		case SC_Type_D:
-			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_D];
-			break;
-		case SC_Type_E:
-			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_E];
-			break;
-		case SC_Type_F:
-			DevPos = DataTable[REG_CLAMP_HEIGHT_CASE_F];
-			break;
-		default:
-			DevPos = 0;
-			break;
-	}
-	return DevPos;
-}
 
 #ifdef BOOT_FROM_FLASH
 #pragma CODE_SECTION(CONTROL_UpdateLow, "ramfuncs");
@@ -273,7 +244,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				CONTROL_PreparePositioning(DataTable[REG_CUSTOM_POS]);
+				CONTROL_PreparePositioning();
 				CONTROL_SetDeviceState(DS_Moving);
 			}
 			else
@@ -286,10 +257,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(CONTROL_IsToolingSensorOK())
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
-					Int16U LowSpeedPos = CONTROL_DevicePosition(DataTable[REG_DEV_CASE]);
-					//SM_GoToPositionFromReg(DataTable[REG_CUSTOM_POS], DataTable[REG_POS_MAX_SPEED], LowSpeedPos, SM_MIN_SPEED);
+					CONTROL_PrepareClamping(TRUE);
 					CONTROL_SetDeviceState(DS_Moving);
 				}
+				else
+					*UserError = ERR_OPERATION_BLOCKED;
 			}
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
@@ -299,7 +271,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
-				//SM_GoToPositionFromReg(0, DataTable[REG_POS_MAX_SPEED], 0, 0);
+				CONTROL_PrepareClamping(FALSE);
 				CONTROL_SetDeviceState(DS_Moving);
 			}
 			else
@@ -488,10 +460,21 @@ void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
 }
 // ----------------------------------------
 
+void CONTROL_PrepareClamping(Boolean Clamp)
+{
+	if(Clamp)
+		CONTROL_PreparePositioningX(DataTable[DataTable[REG_DEV_CASE]], DataTable[REG_SLOW_DOWN_DIST],
+				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
+	else
+		CONTROL_PreparePositioningX(0, 0,
+				DataTable[REG_POS_SPEED_MAX], DataTable[REG_POS_SPEED_LOW], DataTable[REG_POS_SPEED_MIN]);
+}
+// ----------------------------------------
+
 void CONTROL_PreparePositioning()
 {
 	CONTROL_PreparePositioningX(DataTable[REG_CUSTOM_POS], DataTable[REG_SLOW_DOWN_DIST],
-			DataTable[REG_POS_MAX_SPEED], DataTable[REG_POS_LOW_SPEED], DataTable[REG_POS_MIN_SPEED]);
+			DataTable[REG_POS_SPEED_MAX], DataTable[REG_POS_SPEED_LOW], DataTable[REG_POS_SPEED_MIN]);
 }
 // ----------------------------------------
 
