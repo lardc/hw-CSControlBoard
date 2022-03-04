@@ -24,10 +24,11 @@ typedef enum __DeviceState
 	DS_Ready = 3,
 	DS_Halt = 4,
 	DS_Homing = 5,
-	DS_HomingOffset = 6,
+	DS_Position = 6,
 	DS_Clamping = 7,
 	DS_ClampingDone = 8,
-	DS_Moving = 11
+	DS_ClampingRelease = 10,
+	DS_HomingOffset = 12
 } DeviceState;
 
 typedef enum __DevType

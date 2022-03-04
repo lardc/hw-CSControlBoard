@@ -168,7 +168,7 @@ static void CONTROL_FillWPPartDefault()
 
 static void CONTROL_SetDeviceState(DeviceState NewState)
 {
-	if(NewState == DS_Clamping || NewState == DS_Moving)
+	if(NewState == DS_Clamping || NewState == DS_Position)
 		FanTimeout = FAN_TIMEOUT_TCK;
 	
 	// Set new state
@@ -197,18 +197,17 @@ static void CONTROL_HandleClampActions()
 				CONTROL_SetDeviceState(DS_HomingOffset);
 			}
 			break;
-			
+
+		case DS_Position:
+		case DS_ClampingRelease:
 		case DS_HomingOffset:
 			if(SM_IsPositioningDone())
 			{
-				SM_ResetZeroPoint();
+				if(CONTROL_State == DS_HomingOffset)
+					SM_ResetZeroPoint();
+				
 				CONTROL_SetDeviceState(DS_Ready);
 			}
-			break;
-
-		case DS_Moving:
-			if(SM_IsPositioningDone())
-				CONTROL_SetDeviceState(DS_Ready);
 			break;
 			
 		case DS_Clamping:
@@ -245,7 +244,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
 				CONTROL_PreparePositioning();
-				CONTROL_SetDeviceState(DS_Moving);
+				CONTROL_SetDeviceState(DS_Position);
 			}
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
@@ -258,7 +257,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
 					CONTROL_PrepareClamping(TRUE);
-					CONTROL_SetDeviceState(DS_Moving);
+					CONTROL_SetDeviceState(DS_Clamping);
 				}
 				else
 					*UserError = ERR_OPERATION_BLOCKED;
@@ -268,11 +267,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 			
 		case ACT_RELEASE_CLAMPING:
-			if(CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready)
 			{
 				ZbGPIO_SwitchControlConnection(FALSE);
 				CONTROL_PrepareClamping(FALSE);
-				CONTROL_SetDeviceState(DS_Moving);
+				CONTROL_SetDeviceState(DS_Position);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
