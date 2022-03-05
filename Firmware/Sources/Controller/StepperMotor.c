@@ -20,7 +20,7 @@ static xTimerAlterHandler AlterHandler = NULL;
 
 static Int32S SM_GlobalStepsCounter = 0, SM_DestSteps = 0;
 static Int16U SM_LowSpeedSteps, SM_CyclesToToggle, SM_LowSpeedCycles, SM_MinCycles, SM_MaxCycles;
-static Boolean SM_HomingFlag, SM_RequestStopFlag = FALSE;
+static Boolean SM_HomingFlag = FALSE, SM_RequestStopFlag = FALSE;
 
 // Forward functions
 void SM_LogicHandler();
@@ -188,6 +188,7 @@ Int16U SM_SpeedToCycles(Int16U Speed)
 
 void SM_ResetZeroPoint()
 {
+	SM_HomingFlag = FALSE;
 	SM_DestSteps = SM_GlobalStepsCounter = 0;
 }
 // ----------------------------------------

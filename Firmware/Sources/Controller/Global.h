@@ -31,7 +31,7 @@
 #define PNEUMATIC_PAUSE				1000		// in ms
 
 // Stepper motors system config
-#define SM_FULL_ROUND_STEPS			200ul		// steps/round
+#define SM_FULL_ROUND_STEPS			1600ul		// steps/round
 #define SM_MOVING_RER_ROUND			5000ul		// in um/round
 #define SM_MAX_POSITION				180000ul	// in um
 

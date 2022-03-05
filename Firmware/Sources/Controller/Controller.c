@@ -24,8 +24,7 @@ typedef void (*FUNC_AsyncDelegate)();
 static volatile Boolean CycleActive = FALSE, HeatingActive = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 
-volatile Int64U CONTROL_TimeCounter = 0, Timeout;
-volatile Int32U FanTimeout = 0;
+volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout;
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
@@ -84,6 +83,9 @@ void CONTROL_Init(Boolean BadClockDetected)
 	// Reset control values
 	DEVPROFILE_ResetControlSection();
 	
+	SM_ResetZeroPoint();
+	ZwTimer_StartT1();
+
 	// Sliding system init
 	if(!BadClockDetected)
 	{
@@ -164,7 +166,7 @@ static void CONTROL_FillWPPartDefault()
 static void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState)
 {
 	if(NewState == DS_Clamping || NewState == DS_Position)
-		FanTimeout = FAN_TIMEOUT_TCK;
+		FanTimeout = CONTROL_TimeCounter + FAN_TIMEOUT;
 	
 	CONTROL_State = NewState;
 	DataTable[REG_DEV_STATE] = NewState;
@@ -176,15 +178,13 @@ static void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubSt
 
 static void CONTROL_HandleFanControl()
 {
-	ZbGPIO_SwitchFan((FanTimeout > 0 || HeatingActive) ? TRUE : FALSE);
-	if(FanTimeout > 0)
-		--FanTimeout;
+	ZbGPIO_SwitchFan((FanTimeout > CONTROL_TimeCounter) || HeatingActive);
 }
 // ----------------------------------------
 
 static void CONTROL_HandleClampActions()
 {
-	static Int16U Delay = 0;
+	static Int64U Timeout = 0;
 
 	switch(CONTROL_State)
 	{
@@ -192,7 +192,7 @@ static void CONTROL_HandleClampActions()
 		case DS_Position:
 		case DS_Clamping:
 		case DS_ClampingRelease:
-			if(DataTable[REG_USE_SAFETY_SENSOR] && ZbGPIO_IsSafetySensorOk())
+			if(DataTable[REG_USE_SAFETY_SENSOR] && !ZbGPIO_IsSafetySensorOk())
 				CONTROL_Halt();
 			break;
 	}
@@ -203,7 +203,7 @@ static void CONTROL_HandleClampActions()
 		case DSS_Com_CheckControl:
 			if(ZbGPIO_IsControlConnected())
 			{
-				Delay = PNEUMATIC_PAUSE;
+				Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
 				ZbGPIO_SwitchControlConnection(FALSE);
 				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
 			}
@@ -212,10 +212,8 @@ static void CONTROL_HandleClampActions()
 			break;
 
 		case DSS_Com_ControlRelease:
-			if(Delay == 0)
+			if(CONTROL_TimeCounter > Timeout)
 				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ReleaseDone);
-			else
-				--Delay;
 			break;
 	}
 
@@ -274,16 +272,14 @@ static void CONTROL_HandleClampActions()
 					if(SM_IsPositioningDone())
 					{
 						ZbGPIO_SwitchControlConnection(TRUE);
-						Delay = PNEUMATIC_PAUSE;
+						Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
 						CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
 					}
 					break;
 
 				case DSS_ClampingConnectControl:
-					if(Delay == 0)
+					if(CONTROL_TimeCounter > Timeout)
 						CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
-					else
-						--Delay;
 					break;
 			}
 			break;
@@ -327,7 +323,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_CLAMPING:
 			if(CONTROL_State == DS_Ready)
 			{
-				if(DataTable[REG_USE_TOOLING_SENSOR] && ZbGPIO_IsToolingSensorOk())
+				if(!DataTable[REG_USE_TOOLING_SENSOR] || ZbGPIO_IsToolingSensorOk())
 					CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
 				else
 					*UserError = ERR_OPERATION_BLOCKED;

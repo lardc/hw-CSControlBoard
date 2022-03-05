@@ -115,10 +115,6 @@
 // 258 - 259
 #define REG_FWINFO_STR_LEN			260	// Length of the information string record
 #define REG_FWINFO_STR_BEGIN		261	// Begining of the information string record
-//
-
-// ENDPOINTS
-//
 
 // FAULT CODES
 //

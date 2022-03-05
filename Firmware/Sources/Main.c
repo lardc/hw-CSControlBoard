@@ -75,7 +75,6 @@ void main()
 		ZwSystem_LockDog();
 
 		// Start timers
-		ZwTimer_StartT1();
 		ZwTimer_StartT2();
 	}
 
@@ -213,7 +212,7 @@ ISRCALL Timer2_ISR(void)
 	}
 
 	++dbgCounter;
-	if(dbgCounter == DBG_COUNTER_PERIOD)
+	if(dbgCounter == CS_MONITORING_TICK)
 	{
 		ZbGPIO_ToggleLED();
 		dbgCounter = 0;

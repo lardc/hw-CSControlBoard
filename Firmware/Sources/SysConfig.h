@@ -46,12 +46,11 @@
 
 // TIMERs
 //--------------------------------------------------------
-#define CS_REALTIME_FREQ	50000L		// in Hz
-#define CS_MONITORING_FREQ	10L			// in Hz
+#define CS_MONITORING_FREQ	2			// in Hz
+#define CS_MONITORING_TICK	(1000000 / TIMER2_PERIOD / CS_MONITORING_FREQ)
 
-
-#define TIMER2_PERIOD		(1000000L / CS_MONITORING_FREQ)
-#define TIMER1_PERIOD		100L		// in us
+#define TIMER2_PERIOD		1000ul		// in us
+#define TIMER1_PERIOD		100ul		// in us
 
 #define DBG_FREQ			2			// 2 Hz
 #define DBG_COUNTER_PERIOD	(CS_MONITORING_FREQ / (DBG_FREQ * 2))
@@ -124,7 +123,6 @@
 // Fan
 //--------------------------------------------------------
 #define FAN_TIMEOUT			30000			// in ms
-#define FAN_TIMEOUT_TCK		((CS_MONITORING_FREQ * FAN_TIMEOUT) / 1000)
 //--------------------------------------------------------
 
 #endif // __SYSCONFIG_H
