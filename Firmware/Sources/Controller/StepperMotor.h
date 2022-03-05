@@ -33,5 +33,6 @@ Boolean SM_IsPositioningDone();
 void SM_Homing(Int16U HomingSpeed);
 Boolean SM_IsHomingDone();
 void SM_ResetZeroPoint();
+void SM_RequestStop();
 
 #endif // __STEPPER_MOTOR_H

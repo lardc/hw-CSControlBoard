@@ -34,14 +34,19 @@ typedef enum __DeviceSubState
 {
 	DSS_None = 0,
 
-	DSS_HomingRequest = 1,
-	DSS_HomingReleaseControl = 2,
-	DSS_HomingStart = 3,
-	DSS_HomingSearchSensor = 4,
-	DSS_HomingMakeOffset = 5,
+	DSS_Com_CheckControl = 1,
+	DSS_Com_ControlRelease = 2,
+	DSS_Com_ReleaseDone = 3,
 
-	DSS_ClampingMoving = 10,
-	DSS_ClampingConnectControl = 11
+	DSS_HomingSearchSensor = 10,
+	DSS_HomingMakeOffset = 11,
+
+	DSS_PositionOperating = 20,
+
+	DSS_ClampingOperating = 30,
+	DSS_ClampingConnectControl = 31,
+
+	DSS_ClampingReleaseOperating = 40
 } DeviceSubState;
 
 typedef enum __DevType

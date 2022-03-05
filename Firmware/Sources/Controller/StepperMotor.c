@@ -20,7 +20,7 @@ static xTimerAlterHandler AlterHandler = NULL;
 
 static Int32S SM_GlobalStepsCounter = 0, SM_DestSteps = 0;
 static Int16U SM_LowSpeedSteps, SM_CyclesToToggle, SM_LowSpeedCycles, SM_MinCycles, SM_MaxCycles;
-static Boolean SM_HomingFlag;
+static Boolean SM_HomingFlag, SM_RequestStopFlag = FALSE;
 
 // Forward functions
 void SM_LogicHandler();
@@ -99,6 +99,14 @@ void SM_LogicHandler()
 						SM_ToggleCyclesToTarget(SM_MaxCycles);
 				}
 			}
+
+			// По спаду фронта обработка запросов на остановку
+			else if(SM_RequestStopFlag)
+			{
+				SM_RequestStopFlag = FALSE;
+				SM_HomingFlag = FALSE;
+				SM_DestSteps = SM_GlobalStepsCounter;
+			}
 		}
 	}
 }
@@ -121,6 +129,8 @@ void SM_Enable(Boolean State)
 // New position in mm, speed in mm/s
 void SM_GoToPosition(pSM_Config Config)
 {
+	SM_RequestStopFlag = FALSE;
+
 	SM_LowSpeedSteps = SM_PosToSteps(Config->SlowDownDistance);
 	SM_DestSteps = SM_PosToSteps(Config->NewPosition);
 
@@ -135,6 +145,7 @@ void SM_GoToPosition(pSM_Config Config)
 // Homing
 void SM_Homing(Int16U HomingSpeed)
 {
+	SM_RequestStopFlag = FALSE;
 	SM_HomingFlag = TRUE;
 	SM_UpDirection(FALSE);
 	SM_CyclesToToggle = SM_SpeedToCycles(HomingSpeed);
@@ -151,6 +162,12 @@ Boolean SM_IsHomingDone()
 Boolean SM_IsPositioningDone()
 {
 	return SM_DestSteps == SM_GlobalStepsCounter;
+}
+// ----------------------------------------
+
+void SM_RequestStop()
+{
+	SM_RequestStopFlag = TRUE;
 }
 // ----------------------------------------
 

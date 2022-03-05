@@ -46,12 +46,12 @@ static void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubSt
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 void CONTROL_SwitchToFault(Int16U Reason);
-Boolean CONTROL_IsToolingSensorOK();
 void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
 		Int16U MaxSpeed, Int16U LowSpeed, Int16U MinSpeed);
 void CONTROL_PreparePositioning();
 void CONTROL_PrepareHomingOffset();
 void CONTROL_PrepareClamping(Boolean Clamp);
+void CONTROL_Halt();
 
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
@@ -130,12 +130,6 @@ void CONTROL_Idle()
 }
 // ----------------------------------------
 
-Boolean CONTROL_IsToolingSensorOK()
-{
-	return (DataTable[REG_USE_TOOLING_SENSOR]) ? ZbGPIO_IsToolingSensorOk() : TRUE;
-}
-// ----------------------------------------
-
 #ifdef BOOT_FROM_FLASH
 #pragma CODE_SECTION(CONTROL_UpdateLow, "ramfuncs");
 #endif
@@ -192,40 +186,55 @@ static void CONTROL_HandleClampActions()
 {
 	static Int16U Delay = 0;
 
-	// Handle operation modes
+	switch(CONTROL_State)
+	{
+		case DS_Homing:
+		case DS_Position:
+		case DS_Clamping:
+		case DS_ClampingRelease:
+			if(DataTable[REG_USE_SAFETY_SENSOR] && ZbGPIO_IsSafetySensorOk())
+				CONTROL_Halt();
+			break;
+	}
+
+	// Обработка общей логики отключения управления
+	switch(CONTROL_SubState)
+	{
+		case DSS_Com_CheckControl:
+			if(ZbGPIO_IsControlConnected())
+			{
+				Delay = PNEUMATIC_PAUSE;
+				ZbGPIO_SwitchControlConnection(FALSE);
+				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
+			}
+			else
+				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ReleaseDone);
+			break;
+
+		case DSS_Com_ControlRelease:
+			if(Delay == 0)
+				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ReleaseDone);
+			else
+				--Delay;
+			break;
+	}
+
+	// Обработка машины подсостояний
 	switch(CONTROL_State)
 	{
 		case DS_Homing:
 			switch(CONTROL_SubState)
 			{
-				case DSS_HomingRequest:
-					if(ZbGPIO_IsControlConnected())
-					{
-						Delay = PNEUMATIC_PAUSE;
-						ZbGPIO_SwitchControlConnection(FALSE);
-						CONTROL_SetDeviceState(DS_Homing, DSS_HomingReleaseControl);
-					}
-					else
-						CONTROL_SetDeviceState(DS_Homing, DSS_HomingStart);
-					break;
-
-				case DSS_HomingReleaseControl:
-					if(Delay == 0)
-						CONTROL_SetDeviceState(DS_Homing, DSS_HomingStart);
-					else
-						--Delay;
-					break;
-
-				case DSS_HomingStart:
+				case DSS_Com_ReleaseDone:
 					SM_Homing(DataTable[REG_HOMING_SPEED]);
-					CONTROL_SetDeviceState(DS_Homing, DSS_HomingSearchSensor);
+					CONTROL_SetDeviceState(CONTROL_State, DSS_HomingSearchSensor);
 					break;
 
 				case DSS_HomingSearchSensor:
 					if(SM_IsHomingDone())
 					{
 						CONTROL_PrepareHomingOffset();
-						CONTROL_SetDeviceState(DS_Homing, DSS_HomingMakeOffset);
+						CONTROL_SetDeviceState(CONTROL_State, DSS_HomingMakeOffset);
 					}
 					break;
 
@@ -235,27 +244,63 @@ static void CONTROL_HandleClampActions()
 						SM_ResetZeroPoint();
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
-
-				default:
-					break;
 			}
 			break;
 
 		case DS_Position:
-		case DS_ClampingRelease:
-			if(SM_IsPositioningDone())
-				CONTROL_SetDeviceState(DS_Ready, DSS_None);
-			break;
-			
-		case DS_Clamping:
-			if(SM_IsPositioningDone())
+			switch(CONTROL_SubState)
 			{
-				ZbGPIO_SwitchControlConnection(TRUE);
-				CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
+				case DSS_Com_ReleaseDone:
+					CONTROL_PreparePositioning();
+					CONTROL_SetDeviceState(CONTROL_State, DSS_PositionOperating);
+					break;
+
+				case DSS_PositionOperating:
+					if(SM_IsPositioningDone())
+						CONTROL_SetDeviceState(DS_Ready, DSS_None);
+					break;
 			}
 			break;
-			
-		default:
+
+		case DS_Clamping:
+			switch(CONTROL_SubState)
+			{
+				case DSS_Com_ReleaseDone:
+					CONTROL_PrepareClamping(TRUE);
+					CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingOperating);
+					break;
+
+				case DSS_ClampingOperating:
+					if(SM_IsPositioningDone())
+					{
+						ZbGPIO_SwitchControlConnection(TRUE);
+						Delay = PNEUMATIC_PAUSE;
+						CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
+					}
+					break;
+
+				case DSS_ClampingConnectControl:
+					if(Delay == 0)
+						CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
+					else
+						--Delay;
+					break;
+			}
+			break;
+
+		case DS_ClampingRelease:
+			switch(CONTROL_SubState)
+			{
+				case DSS_Com_ReleaseDone:
+					CONTROL_PrepareClamping(FALSE);
+					CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingReleaseOperating);
+					break;
+
+				case DSS_ClampingReleaseOperating:
+					if(SM_IsPositioningDone())
+						CONTROL_SetDeviceState(DS_Ready, DSS_None);
+					break;
+			}
 			break;
 	}
 }
@@ -267,18 +312,14 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_HOMING:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
-				CONTROL_SetDeviceState(DS_Homing, DSS_HomingRequest);
+				CONTROL_SetDeviceState(DS_Homing, DSS_Com_CheckControl);
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 			
 		case ACT_GOTO_POSITION:
 			if(CONTROL_State == DS_Ready)
-			{
-				ZbGPIO_SwitchControlConnection(FALSE);
-				CONTROL_PreparePositioning();
-				CONTROL_SetDeviceState(DS_Position, DSS_None);
-			}
+				CONTROL_SetDeviceState(DS_Position, DSS_Com_CheckControl);
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
 			break;
@@ -286,12 +327,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_CLAMPING:
 			if(CONTROL_State == DS_Ready)
 			{
-				if(CONTROL_IsToolingSensorOK())
-				{
-					ZbGPIO_SwitchControlConnection(FALSE);
-					CONTROL_PrepareClamping(TRUE);
-					CONTROL_SetDeviceState(DS_Clamping, DSS_None);
-				}
+				if(DataTable[REG_USE_TOOLING_SENSOR] && ZbGPIO_IsToolingSensorOk())
+					CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
 				else
 					*UserError = ERR_OPERATION_BLOCKED;
 			}
@@ -301,17 +338,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_RELEASE_CLAMPING:
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready)
-			{
-				ZbGPIO_SwitchControlConnection(FALSE);
-				CONTROL_PrepareClamping(FALSE);
-				CONTROL_SetDeviceState(DS_Position, DSS_None);
-			}
+				CONTROL_SetDeviceState(DS_ClampingRelease, DSS_Com_CheckControl);
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 			
 		case ACT_HALT:
-			CONTROL_SetDeviceState(DS_Halt, DSS_None);
+			CONTROL_Halt();
 			break;
 			
 		case ACT_RELEASE_ADAPTER:
@@ -468,6 +501,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	}
 	
 	return TRUE;
+}
+// ----------------------------------------
+
+void CONTROL_Halt()
+{
+	SM_RequestStop();
+	CONTROL_SetDeviceState(DS_Halt, DSS_None);
 }
 // ----------------------------------------
 
