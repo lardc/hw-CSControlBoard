@@ -49,6 +49,12 @@ inline void ZbGPIO_SwitchControlConnection(Boolean State)
 }
 // ----------------------------------------
 
+inline Boolean ZbGPIO_IsControlConnected()
+{
+	return ZwGPIO_ReadPin(PIN_OUT4);
+}
+// ----------------------------------------
+
 inline void ZbGPIO_ToggleStep()
 {
 	ZwGPIO_TogglePin(PIN_STPM_STEP);
@@ -64,6 +70,12 @@ inline void ZbGPIO_SwitchStep(Boolean State)
 inline void ZbGPIO_SwitchUpDir(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_STPM_DIR, !State);
+}
+// ----------------------------------------
+
+inline Boolean ZbGPIO_IsDirUp()
+{
+	return !ZwGPIO_ReadPin(PIN_STPM_DIR);
 }
 // ----------------------------------------
 

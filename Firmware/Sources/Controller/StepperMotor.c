@@ -20,7 +20,7 @@ static xTimerAlterHandler AlterHandler = NULL;
 
 static Int32S SM_GlobalStepsCounter = 0, SM_DestSteps = 0;
 static Int16U SM_LowSpeedSteps, SM_CyclesToToggle, SM_LowSpeedCycles, SM_MinCycles, SM_MaxCycles;
-static Boolean SM_IsCurrentDirUp, SM_HomingFlag;
+static Boolean SM_HomingFlag;
 
 // Forward functions
 void SM_LogicHandler();
@@ -83,7 +83,7 @@ void SM_LogicHandler()
 				else
 				{
 					// Проверка условия позиционирования
-					SM_GlobalStepsCounter += (SM_IsCurrentDirUp) ? 1 : -1;
+					SM_GlobalStepsCounter += (ZbGPIO_IsDirUp()) ? 1 : -1;
 					Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
 
 					// 1-2. acceleration to Vmax or running at Vmax
@@ -107,7 +107,7 @@ void SM_LogicHandler()
 // Up or down direction
 void SM_UpDirection(Boolean State)
 {
-	ZbGPIO_SwitchUpDir(SM_IsCurrentDirUp = State);
+	ZbGPIO_SwitchUpDir(State);
 }
 // ----------------------------------------
 
