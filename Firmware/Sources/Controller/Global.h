@@ -29,6 +29,7 @@
 #define VALUES_XLOG_x_SIZE			1000
 
 #define PNEUMATIC_PAUSE				1000		// in ms
+#define HOMING_PAUSE				500			// in ms
 
 // Stepper motors system config
 #define SM_FULL_ROUND_STEPS			1600ul		// steps/round

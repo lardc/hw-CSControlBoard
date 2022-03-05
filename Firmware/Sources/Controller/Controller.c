@@ -231,6 +231,14 @@ static void CONTROL_HandleClampActions()
 				case DSS_HomingSearchSensor:
 					if(SM_IsHomingDone())
 					{
+						Timeout = CONTROL_TimeCounter + HOMING_PAUSE;
+						CONTROL_SetDeviceState(CONTROL_State, DSS_HomingPause);
+					}
+					break;
+
+				case DSS_HomingPause:
+					if(CONTROL_TimeCounter > Timeout)
+					{
 						CONTROL_PrepareHomingOffset();
 						CONTROL_SetDeviceState(CONTROL_State, DSS_HomingMakeOffset);
 					}

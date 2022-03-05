@@ -39,7 +39,8 @@ typedef enum __DeviceSubState
 	DSS_Com_ReleaseDone = 3,
 
 	DSS_HomingSearchSensor = 10,
-	DSS_HomingMakeOffset = 11,
+	DSS_HomingPause = 11,
+	DSS_HomingMakeOffset = 12,
 
 	DSS_PositionOperating = 20,
 
