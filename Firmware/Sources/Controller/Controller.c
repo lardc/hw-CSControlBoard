@@ -190,12 +190,37 @@ static void CONTROL_HandleFanControl()
 
 static void CONTROL_HandleClampActions()
 {
+	static Int16U Delay = 0;
+
 	// Handle operation modes
 	switch(CONTROL_State)
 	{
 		case DS_Homing:
 			switch(CONTROL_SubState)
 			{
+				case DSS_HomingRequest:
+					if(ZbGPIO_IsControlConnected())
+					{
+						Delay = PNEUMATIC_PAUSE;
+						ZbGPIO_SwitchControlConnection(FALSE);
+						CONTROL_SetDeviceState(DS_Homing, DSS_HomingReleaseControl);
+					}
+					else
+						CONTROL_SetDeviceState(DS_Homing, DSS_HomingStart);
+					break;
+
+				case DSS_HomingReleaseControl:
+					if(Delay == 0)
+						CONTROL_SetDeviceState(DS_Homing, DSS_HomingStart);
+					else
+						--Delay;
+					break;
+
+				case DSS_HomingStart:
+					SM_Homing(DataTable[REG_HOMING_SPEED]);
+					CONTROL_SetDeviceState(DS_Homing, DSS_HomingSearchSensor);
+					break;
+
 				case DSS_HomingSearchSensor:
 					if(SM_IsHomingDone())
 					{
@@ -242,11 +267,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_HOMING:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
-			{
-				ZbGPIO_SwitchControlConnection(FALSE);
-				SM_Homing(DataTable[REG_HOMING_SPEED]);
-				CONTROL_SetDeviceState(DS_Homing, DSS_HomingSearchSensor);
-			}
+				CONTROL_SetDeviceState(DS_Homing, DSS_HomingRequest);
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;

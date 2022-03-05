@@ -18,20 +18,17 @@
 #define UNLOCK_PWD_2				1
 #define UNLOCK_PWD_3				1
 #define UNLOCK_PWD_4				1
-//
+
 #define DT_EPROM_ADDRESS			0
 #define	SCCI_TIMEOUT_TICKS  		1000
 #define SC_FILTER_T					100
-//
+
 #define EP_COUNT_16					1
 #define EP_COUNT_32					1
 #define VALUES_x_SIZE				500
 #define VALUES_XLOG_x_SIZE			1000
 
-// Sliding system config
-#define SLS_PUSH_UP_TO_OUT_PAUSE	200			// in ms
-#define SLS_PUSH_IN_TIMEOUT			10000		// in ms
-#define SLS_BOUNCE_COUNTER			10
+#define PNEUMATIC_PAUSE				1000		// in ms
 
 // Stepper motors system config
 #define SM_FULL_ROUND_STEPS			200ul		// steps/round
