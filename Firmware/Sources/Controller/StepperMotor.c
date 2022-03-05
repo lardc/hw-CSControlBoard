@@ -7,9 +7,11 @@
 
 // Includes
 #include "SysConfig.h"
+#include "Global.h"
 
 // Definitions
-#define SM_SPEED_CHANGE_STEPS		400			// Acceleration in steps
+#define SM_TOGGLE_ACCELERATION		100
+#define SM_SPEED_CHANGE_STEPS		(2 * SM_FULL_ROUND_STEPS)	// Acceleration in steps
 #define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
 
 // Types
@@ -195,9 +197,16 @@ void SM_ResetZeroPoint()
 
 void SM_ToggleCyclesToTarget(Int16U Target)
 {
-	if(SM_CyclesToToggle < Target)
-		++SM_CyclesToToggle;
-	else if(SM_CyclesToToggle > Target)
-		--SM_CyclesToToggle;
+	static Int16U EnableCounter = 0;
+
+	if(++EnableCounter > SM_TOGGLE_ACCELERATION)
+	{
+		EnableCounter = 0;
+
+		if(SM_CyclesToToggle < Target)
+			++SM_CyclesToToggle;
+		else if(SM_CyclesToToggle > Target)
+			--SM_CyclesToToggle;
+	}
 }
 // ----------------------------------------
