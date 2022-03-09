@@ -279,9 +279,14 @@ static void CONTROL_HandleClampActions()
 				case DSS_ClampingOperating:
 					if(SM_IsPositioningDone())
 					{
-						ZbGPIO_SwitchControlConnection(TRUE);
-						Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
-						CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
+						if(DataTable[REG_DEV_CASE] == SC_Type_C1 || DataTable[REG_DEV_CASE] == SC_Type_F)
+							CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
+						else
+						{
+							ZbGPIO_SwitchControlConnection(TRUE);
+							Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
+							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
+						}
 					}
 					break;
 
