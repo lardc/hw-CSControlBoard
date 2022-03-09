@@ -557,7 +557,7 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
 	else
 		CONTROL_PreparePositioningX(0, 0,
-				DataTable[REG_POS_SPEED_MAX], DataTable[REG_POS_SPEED_LOW], DataTable[REG_POS_SPEED_MIN]);
+				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
 }
 // ----------------------------------------
 
