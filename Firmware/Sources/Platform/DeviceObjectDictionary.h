@@ -95,8 +95,9 @@
 #define REG_TRM_ERROR				104	// TRM error value
 
 #define REG_SAFETY_SENSOR			106	// Состояние датчика безопасности
-#define REG_TOOLING_SENSOR			107	// Состояние датчика фиксации оснастки
-#define REG_HOMING_SENSOR			108	// Состояние датчика хоуминга
+#define REG_HOMING_SENSOR			107	// Состояние датчика хоуминга
+#define REG_BUS_TOOLING_SENSOR		108	// Состояние датчика фиксации шины оснастки
+#define REG_ADAPTER_TOOLING_SENSOR	109	// Состояние датчика фиксации адаптера оснастки
 
 #define REG_DEV_SUBSTATE			110	// Device substate
 
@@ -120,13 +121,10 @@
 //
 #define FAULT_NONE					0	// No fault
 //
-#define FAULT_THERMOSYSTEM			2	// Thermosystem fault
 #define FAULT_TRM					4	// TRM communication fault
-#define FAULT_PRESSURE				5	// Pressure is low
-#define FAULT_SLIDING				6	// Sliding system fault
 //
-#define FAULT_SAFETY				7
-#define FAULT_POWER_CON				8
+#define FAULT_BUS_SEN				7	// Ошибка сигнала с датчика поджатия шин
+#define FAULT_ADAPTER_SEN			8	// Ошибка сигнала с датчика поджатия адаптера
 
 // PROBLEM CODES
 //

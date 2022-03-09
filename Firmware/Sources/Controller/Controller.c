@@ -119,8 +119,9 @@ void CONTROL_Idle()
 	DEVPROFILE_UpdateCANDiagStatus();
 	
 	DataTable[REG_SAFETY_SENSOR] = ZbGPIO_IsSafetySensorOk();
-	DataTable[REG_TOOLING_SENSOR] = ZbGPIO_IsToolingSensorOk();
 	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
+	DataTable[REG_BUS_TOOLING_SENSOR] = ZbGPIO_IsBusToolingSensorOk();
+	DataTable[REG_ADAPTER_TOOLING_SENSOR] = ZbGPIO_IsAdapterToolingSensorOk();
 	
 	// Process deferred procedures
 	if(DPCDelegate)
@@ -272,8 +273,18 @@ static void CONTROL_HandleClampActions()
 			switch(CONTROL_SubState)
 			{
 				case DSS_Com_ReleaseDone:
-					CONTROL_PrepareClamping(TRUE);
-					CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingOperating);
+					{
+						Boolean IsBusOk = ZbGPIO_IsBusToolingSensorOk();
+						Boolean IsAdapterOk = ZbGPIO_IsAdapterToolingSensorOk();
+
+						if(!DataTable[REG_USE_TOOLING_SENSOR] || (IsBusOk && IsAdapterOk))
+						{
+							CONTROL_PrepareClamping(TRUE);
+							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingOperating);
+						}
+						else
+							CONTROL_SwitchToFault(IsBusOk ? FAULT_ADAPTER_SEN : FAULT_BUS_SEN);
+					}
 					break;
 
 				case DSS_ClampingOperating:
@@ -336,10 +347,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_CLAMPING:
 			if(CONTROL_State == DS_Ready)
 			{
-				if(!DataTable[REG_USE_TOOLING_SENSOR] || ZbGPIO_IsToolingSensorOk())
-					CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
+				ZbGPIO_SwitchPowerConnection(TRUE);
+				CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
 			}
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
