@@ -275,7 +275,7 @@ static void CONTROL_HandleClampActions()
 				case DSS_Com_ReleaseDone:
 					{
 						Boolean IsBusOk = ZbGPIO_IsBusToolingSensorOk();
-						Boolean IsAdapterOk = ZbGPIO_IsAdapterToolingSensorOk();
+						Boolean IsAdapterOk = !ZbGPIO_IsAdapterToolingSensorOk();
 
 						if(!DataTable[REG_USE_TOOLING_SENSOR] || (IsBusOk && IsAdapterOk))
 						{
