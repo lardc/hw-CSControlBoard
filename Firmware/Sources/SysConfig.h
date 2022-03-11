@@ -49,11 +49,8 @@
 #define CS_MONITORING_FREQ	2			// in Hz
 #define CS_MONITORING_TICK	(1000000 / TIMER2_PERIOD / CS_MONITORING_FREQ)
 
-#define TIMER2_PERIOD		1000ul		// in us
-#define TIMER1_PERIOD		100ul		// in us
-
-#define DBG_FREQ			2			// 2 Hz
-#define DBG_COUNTER_PERIOD	(CS_MONITORING_FREQ / (DBG_FREQ * 2))
+#define TIMER2_PERIOD		1000ul		// System timer (in us)
+#define TIMER1_PERIOD		100ul		// High priority step-motor tick timer (in us)
 //--------------------------------------------------------
 
 // TRM
@@ -62,7 +59,7 @@
 #define TRM_TEMP_THR		500			// in C x10
 #define TRM_ROOM_TEMP		250			// in C x10
 #define TRM_READ_TIMEOUT	100			// in ms
-#define TRM_TIMEOUT_TICKS	((CS_MONITORING_FREQ * TRM_READ_TIMEOUT) / 1000)
+#define TRM_TIMEOUT_TICKS	TRM_READ_TIMEOUT
 //--------------------------------------------------------
 
 // SPI mux
