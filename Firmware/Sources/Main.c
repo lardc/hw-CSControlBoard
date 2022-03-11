@@ -132,7 +132,7 @@ void InitializeTimers()
 void InitializeSCI()
 {
 	// Initialize and prepare SCI modules
-	ZwSCIa_Init(SCIA_BR, SCIA_DB, SCIA_PARITY, SCIA_SB, FALSE);
+	ZwSCIa_Init(SCIA_BR, SCIA_DB, SCIA_PARITY, SCIA_SB, TRUE);
 	ZwSCIa_InitFIFO(16, 0);
 	ZwSCIa_EnableInterrupts(FALSE, FALSE);
 	//
