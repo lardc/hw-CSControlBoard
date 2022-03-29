@@ -20,6 +20,7 @@ void CLAMP_CompleteOperation(Boolean InhibitController)
 {
 	// Send PDO
 	MemZero16(PDOMessage, 8);
+	PDOMessage[0] = 0x33;
 	CANopen_PdoWr(&DEVICE_CANopen_Interface, PDOMessage);
 
 	// Enable controller
@@ -29,14 +30,20 @@ void CLAMP_CompleteOperation(Boolean InhibitController)
 
 void CLAMP_BrakeAutoControl(Boolean Flag)
 {
+	/*
+	 * ”правление тормозом игнорируетс€
 	if (Flag) CLAMP_BrakeManualRelease(FALSE);
 	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x55eb, 0, Flag ? 12 : 11);
+	 */
 }
 // ----------------------------------------
 
 void CLAMP_BrakeManualRelease(Boolean Flag)
 {
+	/*
+	 * ”правление тормозом игнорируетс€
 	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5e29, 1, Flag ? 1 : 0);
+	 */
 }
 // ----------------------------------------
 
