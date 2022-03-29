@@ -57,13 +57,13 @@ typedef struct __TableItemConstraint
 #define HOMING_TORQUE_DEF			15		// (in %)
 
 // Position speed
-#define POSITION_SPEED_MIN			10		// (in %)
-#define POSITION_SPEED_MAX			150		// (in %)
+#define POSITION_SPEED_MIN			1		// (in %)
+#define POSITION_SPEED_MAX			199		// (in %)
 #define POSITION_SPEED_DEF			150		// (in %)
 
 // Position torque
-#define POSITION_TORQUE_MIN			10		// (in %)
-#define POSITION_TORQUE_MAX			100		// (in %)
+#define POSITION_TORQUE_MIN			1		// (in %)
+#define POSITION_TORQUE_MAX			199		// (in %)
 #define POSITION_TORQUE_DEF			50		// (in %)
 
 // Clamp error
