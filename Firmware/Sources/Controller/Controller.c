@@ -118,7 +118,7 @@ void CONTROL_Idle()
 	DEVPROFILE_ProcessRequests();
 	DEVPROFILE_UpdateCANDiagStatus();
 	
-	DataTable[REG_SAFETY_SENSOR] = ZbGPIO_IsSafetySensorOk();
+	DataTable[REG_SAFETY_SENSOR] = !ZbGPIO_IsSafetySensorOk();
 	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
 	DataTable[REG_BUS_TOOLING_SENSOR] = !ZbGPIO_IsBusToolingSensorOk();
 	DataTable[REG_ADAPTER_TOOLING_SENSOR] = ZbGPIO_IsAdapterToolingSensorOk();
@@ -193,7 +193,7 @@ static void CONTROL_HandleClampActions()
 		case DS_Position:
 		case DS_Clamping:
 		case DS_ClampingRelease:
-			if(DataTable[REG_USE_SAFETY_SENSOR] && !ZbGPIO_IsSafetySensorOk())
+			if(DataTable[REG_USE_SAFETY_SENSOR] && ZbGPIO_IsSafetySensorOk())
 				CONTROL_Halt();
 			break;
 	}
