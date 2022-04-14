@@ -46,9 +46,9 @@
 #define REG_CLAMP_HEIGHT_CASE_A2	0	// Высота подъёма столика для корпуса А2 (мм)
 #define REG_CLAMP_HEIGHT_CASE_B0	1	// Высота подъёма столика для корпуса B0 (мм)
 #define REG_CLAMP_HEIGHT_CASE_C1	2	// Высота подъёма столика для корпуса C1 (мм)
-#define REG_CLAMP_HEIGHT_CASE_D		3	// Высота подъёма столика для корпуса D (мм)
-#define REG_CLAMP_HEIGHT_CASE_E		4	// Высота подъёма столика для корпуса E (мм)
-#define REG_CLAMP_HEIGHT_CASE_F		5	// Высота подъёма столика для корпуса F (мм)
+#define REG_CLAMP_HEIGHT_CASE_D0	3	// Высота подъёма столика для корпуса D0 (мм)
+#define REG_CLAMP_HEIGHT_CASE_E0	4	// Высота подъёма столика для корпуса E0 (мм)
+#define REG_CLAMP_HEIGHT_CASE_F1	5	// Высота подъёма столика для корпуса F1 (мм)
 
 #define REG_POS_SPEED_MIN			10	// Минимальная скорость перемещения при позиционировании (мм/сек)
 #define REG_POS_SPEED_LOW			11	// Пониженная скорость перемещения при позиционировании (мм/сек)

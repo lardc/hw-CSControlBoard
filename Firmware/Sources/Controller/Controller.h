@@ -52,12 +52,12 @@ typedef enum __DeviceSubState
 
 typedef enum __DevType
 {
-	SC_Type_A2 = 0,
-	SC_Type_B0 = 1,
-	SC_Type_C1 = 2,
-	SC_Type_D = 3,
-	SC_Type_E = 4,
-	SC_Type_F = 5
+	SC_Type_A2 = 1001,
+	SC_Type_B1 = 1006,
+	SC_Type_C1 = 1002,
+	SC_Type_D0 = 1005,
+	SC_Type_E0 = 1003,
+	SC_Type_F1 = 1004
 } DevType;
 
 // Variables

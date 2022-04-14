@@ -290,7 +290,7 @@ static void CONTROL_HandleClampActions()
 				case DSS_ClampingOperating:
 					if(SM_IsPositioningDone())
 					{
-						if(DataTable[REG_DEV_CASE] == SC_Type_C1 || DataTable[REG_DEV_CASE] == SC_Type_F)
+						if(DataTable[REG_DEV_CASE] == SC_Type_C1 || DataTable[REG_DEV_CASE] == SC_Type_F1)
 							CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
 						else
 						{
@@ -570,8 +570,33 @@ void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
 void CONTROL_PrepareClamping(Boolean Clamp)
 {
 	if(Clamp)
-		CONTROL_PreparePositioningX(DataTable[DataTable[REG_DEV_CASE]], DataTable[REG_SLOW_DOWN_DIST],
+	{
+		Int16U Reg = 0;
+		switch(DataTable[REG_DEV_CASE])
+		{
+			case SC_Type_A2:
+				Reg = 0;
+				break;
+			case SC_Type_B1:
+				Reg = 1;
+				break;
+			case SC_Type_C1:
+				Reg = 2;
+				break;
+			case SC_Type_D0:
+				Reg = 3;
+				break;
+			case SC_Type_E0:
+				Reg = 4;
+				break;
+			case SC_Type_F1:
+				Reg = 5;
+				break;
+		}
+
+		CONTROL_PreparePositioningX(DataTable[Reg], DataTable[REG_SLOW_DOWN_DIST],
 				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
+	}
 	else
 		CONTROL_PreparePositioningX(0, 0,
 				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
