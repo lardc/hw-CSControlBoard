@@ -202,10 +202,15 @@ static void CONTROL_HandleClampActions()
 	switch(CONTROL_SubState)
 	{
 		case DSS_Com_CheckControl:
-			if(ZbGPIO_IsControlConnected())
+			if(ZbGPIO_IsControlConnected() || !ZbGPIO_IsPowerConnected())
 			{
+				if(ZbGPIO_IsControlConnected())
+					ZbGPIO_SwitchControlConnection(FALSE);
+
+				if(!ZbGPIO_IsPowerConnected())
+					ZbGPIO_SwitchPowerConnection(TRUE);
+
 				Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
-				ZbGPIO_SwitchControlConnection(FALSE);
 				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
 			}
 			else
@@ -346,10 +351,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_START_CLAMPING:
 			if(CONTROL_State == DS_Ready)
-			{
-				ZbGPIO_SwitchPowerConnection(TRUE);
 				CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
-			}
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
 			break;

@@ -49,6 +49,12 @@ inline void ZbGPIO_SwitchPowerConnection(Boolean State)
 }
 // ----------------------------------------
 
+inline Boolean ZbGPIO_IsPowerConnected()
+{
+	return ZwGPIO_ReadPin(PIN_OUT3);
+}
+// ----------------------------------------
+
 inline void ZbGPIO_SwitchControlConnection(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_OUT4, State);
