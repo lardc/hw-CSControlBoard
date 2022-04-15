@@ -202,19 +202,22 @@ static void CONTROL_HandleClampActions()
 	switch(CONTROL_SubState)
 	{
 		case DSS_Com_CheckControl:
-			if(ZbGPIO_IsControlConnected() || !ZbGPIO_IsPowerConnected())
 			{
-				if(ZbGPIO_IsControlConnected())
-					ZbGPIO_SwitchControlConnection(FALSE);
+				Boolean HandlePowerCon = !ZbGPIO_IsPowerConnected() && CONTROL_State == DS_Clamping;
+				if(ZbGPIO_IsControlConnected() || HandlePowerCon)
+				{
+					if(ZbGPIO_IsControlConnected())
+						ZbGPIO_SwitchControlConnection(FALSE);
 
-				if(!ZbGPIO_IsPowerConnected())
-					ZbGPIO_SwitchPowerConnection(TRUE);
+					if(HandlePowerCon)
+						ZbGPIO_SwitchPowerConnection(TRUE);
 
-				Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
-				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
+					Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
+					CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
+				}
+				else
+					CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ReleaseDone);
 			}
-			else
-				CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ReleaseDone);
 			break;
 
 		case DSS_Com_ControlRelease:
