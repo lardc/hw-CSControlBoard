@@ -90,7 +90,7 @@
 #define REG_DISABLE_REASON			98	// Fault reason in the case DeviceState -> DISABLED
 #define REG_WARNING					99	// Warning if present
 #define REG_PROBLEM					100	// Problem if present
-#define REG_TEMP_CH1				101	// Sampled temperature on channel 1
+#define REG_TEMP_CH1				102	// Sampled temperature on channel 1
 
 #define REG_TRM_DATA				103	// Data read from TRM
 #define REG_TRM_ERROR				104	// TRM error value
