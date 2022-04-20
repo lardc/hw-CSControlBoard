@@ -597,6 +597,9 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 			case SC_Type_F1:
 				Reg = 5;
 				break;
+			case SC_Type_ADAP:
+				Reg = 6;
+				break;
 		}
 
 		CONTROL_PreparePositioningX(DataTable[Reg], DataTable[REG_SLOW_DOWN_DIST],

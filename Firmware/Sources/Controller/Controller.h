@@ -57,7 +57,8 @@ typedef enum __DevType
 	SC_Type_C1 = 1002,
 	SC_Type_D0 = 1005,
 	SC_Type_E0 = 1003,
-	SC_Type_F1 = 1004
+	SC_Type_F1 = 1004,
+	SC_Type_ADAP = 1007,
 } DevType;
 
 // Variables
