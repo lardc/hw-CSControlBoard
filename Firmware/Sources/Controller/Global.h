@@ -28,7 +28,8 @@
 #define VALUES_x_SIZE				500
 #define VALUES_XLOG_x_SIZE			1000
 
-#define PNEUMATIC_PAUSE				1000		// in ms
+#define PNEUMATIC_CTRL_PAUSE		1000		// in ms
+#define PNEUMATIC_POWER_PAUSE		2000		// in ms
 #define HOMING_PAUSE				500			// in ms
 
 // Stepper motors system config

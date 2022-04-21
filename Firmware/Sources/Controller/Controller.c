@@ -212,7 +212,7 @@ static void CONTROL_HandleClampActions()
 					if(HandlePowerCon)
 						ZbGPIO_SwitchPowerConnection(TRUE);
 
-					Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
+					Timeout = CONTROL_TimeCounter + HandlePowerCon ? PNEUMATIC_POWER_PAUSE : PNEUMATIC_CTRL_PAUSE;
 					CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
 				}
 				else
@@ -303,7 +303,7 @@ static void CONTROL_HandleClampActions()
 						else
 						{
 							ZbGPIO_SwitchControlConnection(TRUE);
-							Timeout = CONTROL_TimeCounter + PNEUMATIC_PAUSE;
+							Timeout = CONTROL_TimeCounter + PNEUMATIC_CTRL_PAUSE;
 							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
 						}
 					}
