@@ -33,13 +33,13 @@ inline Boolean ZbGPIO_HomeSensorActuate()
 
 inline Boolean ZbGPIO_IsBusToolingSensorOk()
 {
-	return !ZwGPIO_ReadPin(PIN_SEN1);
+	return ZwGPIO_ReadPin(PIN_SEN1);
 }
 // ----------------------------------------
 
 inline Boolean ZbGPIO_IsAdapterToolingSensorOk()
 {
-	return ZwGPIO_ReadPin(PIN_SEN2);
+	return !ZwGPIO_ReadPin(PIN_SEN2);
 }
 // ----------------------------------------
 
