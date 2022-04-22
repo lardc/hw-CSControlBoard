@@ -196,7 +196,7 @@ static void CONTROL_HandleClampActions()
 		case DS_Position:
 		case DS_Clamping:
 		case DS_ClampingRelease:
-			if(DataTable[REG_USE_SAFETY_SENSOR] && ZbGPIO_IsSafetySensorOk())
+			if(DataTable[REG_USE_SAFETY_SENSOR] && !ZbGPIO_IsSafetySensorOk())
 				CONTROL_Halt();
 			break;
 	}
