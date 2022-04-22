@@ -31,6 +31,7 @@
 #define PNEUMATIC_CTRL_PAUSE		1000		// in ms
 #define PNEUMATIC_POWER_PAUSE		2000		// in ms
 #define HOMING_PAUSE				500			// in ms
+#define TRM_READ_PAUSE				1000		// in ms
 
 // Stepper motors system config
 #define SM_FULL_ROUND_STEPS			400ul		// steps/round

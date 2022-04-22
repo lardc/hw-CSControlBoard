@@ -51,6 +51,7 @@ void CONTROL_PreparePositioning();
 void CONTROL_PrepareHomingOffset();
 void CONTROL_PrepareClamping(Boolean Clamp);
 void CONTROL_Halt();
+void CONTROL_UpdateTRMTemperature();
 
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
@@ -118,6 +119,8 @@ void CONTROL_Idle()
 	DEVPROFILE_ProcessRequests();
 	DEVPROFILE_UpdateCANDiagStatus();
 	
+	CONTROL_UpdateTRMTemperature();
+
 	DataTable[REG_SAFETY_SENSOR] = !ZbGPIO_IsSafetySensorOk();
 	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
 	DataTable[REG_BUS_TOOLING_SENSOR] = !ZbGPIO_IsBusToolingSensorOk();
@@ -440,20 +443,19 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 			
 		case ACT_DBG_READ_EXT_TEMP:
-
-		{
-			if(DataTable[REG_USE_HEATING])
 			{
-				TRMError error;
-				DataTable[REG_TRM_DATA] = TRM_ReadTemp(DataTable[REG_DBG_TRM_ADDRESS], &error);
-				DataTable[REG_TRM_ERROR] = error;
+				if(DataTable[REG_USE_HEATING])
+				{
+					TRMError error;
+					DataTable[REG_TRM_DATA] = TRM_ReadTemp(DataTable[REG_DBG_TRM_ADDRESS], &error);
+					DataTable[REG_TRM_ERROR] = error;
 
-				if(error != TRME_None)
-				*UserError = ERR_TRM_COMM_ERR;
+					if(error != TRME_None)
+					*UserError = ERR_TRM_COMM_ERR;
+				}
+				else
+					*UserError = ERR_OPERATION_BLOCKED;
 			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
-		}
 			break;
 
 		case ACT_DBG_READ_TRM_TEMP:
@@ -461,7 +463,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
-					DataTable[REG_TEMP_CH1] = TRM_ReadTemp(DataTable[REG_DBG_TRM_ADDRESS], &error);
+					DataTable[REG_TRM_DATA] = TRM_ReadTemp(DataTable[REG_DBG_TRM_ADDRESS], &error);
 					DataTable[REG_TRM_ERROR] = error;
 					
 					if(error != TRME_None)
@@ -622,5 +624,28 @@ void CONTROL_PrepareHomingOffset()
 {
 	CONTROL_PreparePositioningX(DataTable[REG_HOMING_OFFSET], 0,
 			DataTable[REG_HOMING_SPEED], DataTable[REG_HOMING_SPEED], DataTable[REG_HOMING_SPEED]);
+}
+// ----------------------------------------
+
+void CONTROL_UpdateTRMTemperature()
+{
+	static Int64U ReadTimeout = 0;
+	static TRMError error = TRME_None;
+
+	// Условие разрешения считывания температуры
+	if(DataTable[REG_USE_HEATING] && error == TRME_None && CONTROL_State != DS_Fault && CONTROL_TimeCounter > ReadTimeout)
+	{
+		DataTable[REG_TEMP_CH1] = TRM_ReadTemp(TRM_CH1_ADDR, &error);
+		ReadTimeout = CONTROL_TimeCounter + TRM_READ_PAUSE;
+	}
+
+	// Фолт при ошибке срабатывает только после завершения операции зажатия
+	if(CONTROL_State == DS_Ready && error != TRME_None)
+	{
+		CONTROL_SwitchToFault(FAULT_TRM);
+		DataTable[REG_TEMP_CH1] = 0;
+		DataTable[REG_TRM_ERROR] = error;
+		error = TRME_None;
+	}
 }
 // ----------------------------------------
