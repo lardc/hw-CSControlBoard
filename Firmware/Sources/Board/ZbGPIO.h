@@ -21,7 +21,7 @@ void ZbGPIO_CSMux(Int16U SPIDevice);
 
 inline Boolean ZbGPIO_IsSafetySensorOk()
 {
-	return ZwGPIO_ReadPin(PIN_SAFETY);
+	return !ZwGPIO_ReadPin(PIN_SAFETY);
 }
 // ----------------------------------------
 
@@ -33,7 +33,7 @@ inline Boolean ZbGPIO_HomeSensorActuate()
 
 inline Boolean ZbGPIO_IsBusToolingSensorOk()
 {
-	return ZwGPIO_ReadPin(PIN_SEN1);
+	return !ZwGPIO_ReadPin(PIN_SEN1);
 }
 // ----------------------------------------
 

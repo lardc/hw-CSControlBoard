@@ -44,8 +44,9 @@ typedef enum __DeviceSubState
 
 	DSS_PositionOperating = 20,
 
-	DSS_ClampingOperating = 30,
-	DSS_ClampingConnectControl = 31,
+	DSS_ClampingWaitSensors = 30,
+	DSS_ClampingOperating = 31,
+	DSS_ClampingConnectControl = 32,
 
 	DSS_ClampingReleaseOperating = 40
 } DeviceSubState;

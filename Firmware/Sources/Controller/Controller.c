@@ -121,9 +121,9 @@ void CONTROL_Idle()
 	
 	CONTROL_UpdateTRMTemperature();
 
-	DataTable[REG_SAFETY_SENSOR] = !ZbGPIO_IsSafetySensorOk();
+	DataTable[REG_SAFETY_SENSOR] = ZbGPIO_IsSafetySensorOk();
 	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
-	DataTable[REG_BUS_TOOLING_SENSOR] = !ZbGPIO_IsBusToolingSensorOk();
+	DataTable[REG_BUS_TOOLING_SENSOR] = ZbGPIO_IsBusToolingSensorOk();
 	DataTable[REG_ADAPTER_TOOLING_SENSOR] = ZbGPIO_IsAdapterToolingSensorOk();
 	
 	// Process deferred procedures
@@ -206,16 +206,16 @@ static void CONTROL_HandleClampActions()
 	{
 		case DSS_Com_CheckControl:
 			{
-				Boolean HandlePowerCon = !ZbGPIO_IsPowerConnected() && CONTROL_State == DS_Clamping;
-				if(ZbGPIO_IsControlConnected() || HandlePowerCon)
+				// Раннее включение поджатия адаптера если зажимается прибор
+				if(CONTROL_State == DS_Clamping)
+					ZbGPIO_SwitchPowerConnection(TRUE);
+
+				// Проверка состояния управления и пауза для разжатия
+				if(ZbGPIO_IsControlConnected())
 				{
-					if(ZbGPIO_IsControlConnected())
-						ZbGPIO_SwitchControlConnection(FALSE);
+					ZbGPIO_SwitchControlConnection(FALSE);
 
-					if(HandlePowerCon)
-						ZbGPIO_SwitchPowerConnection(TRUE);
-
-					Timeout = CONTROL_TimeCounter + HandlePowerCon ? PNEUMATIC_POWER_PAUSE : PNEUMATIC_CTRL_PAUSE;
+					Timeout = CONTROL_TimeCounter + PNEUMATIC_CTRL_PAUSE;
 					CONTROL_SetDeviceState(CONTROL_State, DSS_Com_ControlRelease);
 				}
 				else
@@ -284,16 +284,21 @@ static void CONTROL_HandleClampActions()
 			switch(CONTROL_SubState)
 			{
 				case DSS_Com_ReleaseDone:
+					Timeout = CONTROL_TimeCounter + PNEUMATIC_POWER_TIMEOUT;
+					CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingWaitSensors);
+					break;
+
+				case DSS_ClampingWaitSensors:
 					{
 						Boolean IsBusOk = ZbGPIO_IsBusToolingSensorOk();
-						Boolean IsAdapterOk = !ZbGPIO_IsAdapterToolingSensorOk();
+						Boolean IsAdapterOk = ZbGPIO_IsAdapterToolingSensorOk();
 
 						if(!DataTable[REG_USE_TOOLING_SENSOR] || (IsBusOk && IsAdapterOk))
 						{
 							CONTROL_PrepareClamping(TRUE);
 							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingOperating);
 						}
-						else
+						else if(CONTROL_TimeCounter > Timeout)
 							CONTROL_SwitchToFault(IsBusOk ? FAULT_ADAPTER_SEN : FAULT_BUS_SEN);
 					}
 					break;
