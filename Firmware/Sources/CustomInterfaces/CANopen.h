@@ -23,4 +23,6 @@ void CANopen_SdoWr(pCANopen_Interface Interface, Int16U Index, Int16U SubIndex, 
 // Send start node NMT command
 void CANopen_NMT_NodeStart(pCANopen_Interface Interface, Int16U NodeId);
 
+Boolean CANopen_PDOMonitor(pCANopen_Interface Interface, pInt32U ValueH, pInt32U ValueL);
+
 #endif // __CANOPEN_H

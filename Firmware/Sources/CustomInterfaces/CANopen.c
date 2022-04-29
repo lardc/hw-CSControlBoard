@@ -8,6 +8,7 @@
 #define MBOX_RPDO1			3
 #define MBOX_SDO_TX			4
 #define MBOX_SDO_RX			5
+#define MBOX_TPDO2			6
 //
 #define MBOX_RX				TRUE
 #define MBOX_TX				FALSE
@@ -15,6 +16,7 @@
 #define CANOPEN_FC_NMT		0x0
 #define CANOPEN_FC_TPDO1	0x3
 #define CANOPEN_FC_RPDO1	0x4
+#define CANOPEN_FC_TPDO2	0x5
 #define CANOPEN_FC_SDO_TX	0xb
 #define CANOPEN_FC_SDO_RX	0xc
 //
@@ -49,6 +51,7 @@ void CANopen_Init(pCANopen_Interface Interface, pCANopen_IOConfig IOConfig, CANo
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_OFFSET + MBOX_RPDO1,		(CANOPEN_FC_RPDO1 * CANOPEN_FC_OFFSET + CANOPEN_SLAVE_NODE_ID) * CANOPEN_MSGID_OFFSET,	MBOX_TX, 8, ZW_CAN_MBProtected, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_OFFSET + MBOX_SDO_TX,	(CANOPEN_FC_SDO_TX * CANOPEN_FC_OFFSET + CANOPEN_SLAVE_NODE_ID) * CANOPEN_MSGID_OFFSET,	MBOX_RX, 8, ZW_CAN_MBProtected, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 	Interface->IOConfig->IO_ConfigMailbox(MBOX_OFFSET + MBOX_SDO_RX,	(CANOPEN_FC_SDO_RX * CANOPEN_FC_OFFSET + CANOPEN_SLAVE_NODE_ID) * CANOPEN_MSGID_OFFSET,	MBOX_TX, 8, ZW_CAN_MBProtected, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
+	Interface->IOConfig->IO_ConfigMailbox(MBOX_OFFSET + MBOX_TPDO2,		(CANOPEN_FC_TPDO2 * CANOPEN_FC_OFFSET + CANOPEN_SLAVE_NODE_ID) * CANOPEN_MSGID_OFFSET,	MBOX_RX, 8, ZW_CAN_MBProtected, ZW_CAN_NO_PRIORITY, ZW_CAN_STRONG_MATCH);
 }
 // ----------------------------------------
 
@@ -100,6 +103,26 @@ void CANopen_PdoWr(pCANopen_Interface Interface, pInt16U Data)
 		// Write data to mailbox
 		Interface->IOConfig->IO_SendMessage(MBOX_OFFSET + MBOX_RPDO1, &Message);
 	}
+}
+// ----------------------------------------
+
+Boolean CANopen_PDOMonitor(pCANopen_Interface Interface, pInt32U ValueH, pInt32U ValueL)
+{
+	// Check response
+	if (Interface->IOConfig->IO_IsMessageReceived(MBOX_OFFSET + MBOX_TPDO2, NULL))
+	{
+		CANMessage Message;
+
+		// Read data
+		Interface->IOConfig->IO_GetMessage(MBOX_OFFSET + MBOX_TPDO2, &Message);
+
+		*ValueH = Message.HIGH.DWORD_0;
+		*ValueL = Message.LOW.DWORD_1;
+
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 // ----------------------------------------
 

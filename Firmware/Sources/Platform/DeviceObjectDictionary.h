@@ -49,6 +49,10 @@
 #define ACT_DBG_SLS_PUSH_OUT		132	// Push out sliding system
 #define ACT_DBG_SLS_PUSH_IN			133	// Push in sliding system
 //
+#define ACT_DBG_CANOE_POSITION_LOG	150
+#define ACT_DBG_CANOE_LOG_STOP		151
+#define ACT_DBG_CANOE_LOG_SINGLE	152
+//
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
@@ -133,6 +137,7 @@
 #define REG_DBG_PAUSE_T_FEEDBACK	85	// Deactivate temperature feedback
 #define REG_DBG_CAN_DATA			86	// Read\Write Lenze register - Data
 #define REG_DBG_CAN_DATA_32			87
+#define REG_DBG_CAN_MONITOR_DELAY	88
 //
 #define REG_PWD_1					91	// Unlock password loct   ation 1
 #define REG_PWD_2					92	// Unlock password location 2
@@ -186,16 +191,10 @@
 
 // ENDPOINTS
 //
-#define EP16_Data_ForceActual		1	// Clamping force value from sensor
-#define EP16_Data_ForceDesired		2	// Configured clamping force value
-#define EP16_Data_ForceError		3	// Force error
-#define EP16_XLog_SubState			4	// Extended logging clamping process substate
-#define EP16_XLog_Force				5	// Extended logging force data from sensor
-#define EP16_XLog_Error				6	// Extended logging clamping error
-#define EP16_XLog_TorqueLimit		7	// Extended logging motor torque limit
+#define EP16_Data_Torque			1	// Clamping force value from sensor
+#define EP16_Data_Timestamp			2	// Configured clamping force value
 //
-#define EP32_Data_CtrlIncrements	1	// Input data for position controller
-#define EP32_Data_Position			2	// Data from resolver
+#define EP32_Data_Position			1	// Data from resolver
 
 // FAULT CODES
 //

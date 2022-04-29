@@ -23,10 +23,9 @@
 #define	SCCI_TIMEOUT_TICKS  		1000
 #define SC_FILTER_T					100
 //
-#define EP_COUNT_16					7
-#define EP_COUNT_32					2
-#define VALUES_x_SIZE				500
-#define VALUES_XLOG_x_SIZE			1000
+#define EP_COUNT_16					2
+#define EP_COUNT_32					1
+#define VALUES_x_SIZE				2000
 
 // Compatability patch
 #define PATCH_LENZE_DI6_INVERT		TRUE

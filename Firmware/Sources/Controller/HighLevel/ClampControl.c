@@ -39,7 +39,7 @@ static volatile ClampingState CLAMPCTRL_State = CS_NONE;
 static volatile Int32U ClampTimeout, DelayPowerSwitch, DelayTickCounter = 0;
 static volatile Boolean CounterOverflow = FALSE;
 //
-static volatile _iq ForceDesired, ForceActual, ClampDetect, Force2STReleaseMode, Error, Kp, Ki, GearRatio;
+static volatile _iq ForceDesired, ForceActual, ClampDetect, Force2STReleaseMode, Error, Kp, GearRatio;
 static volatile Int16U MaxAllowedError;
 static volatile Int32S ControlSignal, PositionActual, ClampMaxIncrements;
 static volatile Int16U PositionSpeedLimit, PositionTorqueLimit;
@@ -165,28 +165,7 @@ Boolean CLAMPCTRL_IsClampingDone()
 
 void CLAMPCTRL_XLog(DeviceState State)
 {
-	Int32S tmp;
-	static Boolean EnableSampling = FALSE;
-
-	// Start sampling on clamping start
-	if (State == DS_Clamping)
-		EnableSampling = TRUE;
-
-	// Disable sampling in ready mode
-	if (State == DS_Ready)
-		EnableSampling = FALSE;
-
-	if (CONTROL_Values_XLogCounter < VALUES_XLOG_x_SIZE && EnableSampling)
-	{
-		tmp = _IQint(CLAMP_ReadForce());
-		tmp = (tmp < 0) ? 0 : tmp;
-
-		CONTROL_Values_SubState[CONTROL_Values_XLogCounter] = (Int16U)CLAMPCTRL_State;
-		CONTROL_Values_Force[CONTROL_Values_XLogCounter] = (Int16U)tmp;
-		CONTROL_Values_Error[CONTROL_Values_XLogCounter] = (Int16U)_IQint(Error);
-		CONTROL_Values_TorqueLimit[CONTROL_Values_XLogCounter] = CLAMP_GetTorqueLimit();
-		CONTROL_Values_XLogCounter++;
-	}
+	//
 }
 // ----------------------------------------
 
@@ -419,20 +398,7 @@ static void CLAMPCTRL_DummyDataLogger()
 static void CLAMPCTRL_DataLogger(_iq _ForceActual, _iq _ForceDesired, _iq _ForceError,\
 								 Int32S _Control, Int32S _PositionActual)
 {
-	CONTROL_Values_1[CONTROL_Values_Counter] = (_ForceActual > 0) ? _IQint(_IQdiv(_ForceActual, _IQ(10))) : 0;
-	CONTROL_Values_2[CONTROL_Values_Counter] = _IQint(_IQdiv(_ForceDesired, _IQ(10)));
-	CONTROL_Values_3[CONTROL_Values_Counter] = _IQint(_IQdiv(_ForceError, _IQ(10)));
 	//
-	CONTROL_Values_1_32[CONTROL_Values_Counter] = _Control;
-	CONTROL_Values_2_32[CONTROL_Values_Counter] = _PositionActual;
-
-	CONTROL_Values_Counter++;
-
-	if (CONTROL_Values_Counter >= VALUES_x_SIZE)
-	{
-		CounterOverflow = TRUE;
-		CONTROL_Values_Counter = 0;
-	}
 }
 // ----------------------------------------
 
