@@ -35,7 +35,7 @@ typedef enum __DeviceState
 
 // Variables
 //
-extern volatile Int64U CONTROL_TimeCounter;
+extern volatile Int64U CONTROL_TimeCounter, CONTROL_HSCounter;
 extern volatile DeviceState CONTROL_State;
 extern volatile Int16U CONTROL_BootLoaderRequest;
 //
@@ -58,5 +58,6 @@ void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
 void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag);
 // Notify about high-level CANopen fault
 void CONTROL_NotifyCANopenFault(CANopenErrCode ErrorCode, Int16U Index, Int16U SubIndex, Int32U Value);
+void CONTROL_PDOMonitor();
 
 #endif // __CONTROLLER_H

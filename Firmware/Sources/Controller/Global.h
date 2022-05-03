@@ -25,7 +25,7 @@
 //
 #define EP_COUNT_16					2
 #define EP_COUNT_32					1
-#define VALUES_x_SIZE				2000
+#define VALUES_x_SIZE				3000
 
 // Compatability patch
 #define PATCH_LENZE_DI6_INVERT		TRUE

@@ -28,11 +28,11 @@ typedef void (*FUNC_AsyncDelegate)();
 
 // Variables
 //
-static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegulator = FALSE, HeatingActive = FALSE, EnablePDOMonitor = FALSE;
+static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegulator = FALSE, HeatingActive = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 static volatile Int16U AutoReleaseTimeoutTicks, SlidingCounter;
 //
-volatile Int64U CONTROL_TimeCounter = 0, Timeout;
+volatile Int64U CONTROL_TimeCounter = 0, CONTROL_HSCounter = 0, Timeout;
 volatile Int32U FanTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
 //
@@ -59,7 +59,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 static void CONTROL_ResetScopes();
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
-void CONTROL_PDOMonitor(Boolean ForceCheck);
 
 
 // Functions
@@ -127,30 +126,23 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 void CONTROL_Idle()
 {
-	if (EnablePDOMonitor)
+	DEVPROFILE_ProcessRequests();
+
+	// Update CAN bus status
+	DEVPROFILE_UpdateCANDiagStatus();
+
+	// Update temperature feedback
+	CONTROL_UpdateTemperatureFeedback();
+
+	// Read sliding system state
+	DataTable[REG_SLIDING_SENSOR] = CONTROL_SlidingSensorOK();
+
+	// Process deferred procedures
+	if(DPCDelegate)
 	{
-		CONTROL_PDOMonitor(FALSE);
-	}
-	else
-	{
-		DEVPROFILE_ProcessRequests();
-
-		// Update CAN bus status
-		DEVPROFILE_UpdateCANDiagStatus();
-
-		// Update temperature feedback
-		CONTROL_UpdateTemperatureFeedback();
-
-		// Read sliding system state
-		DataTable[REG_SLIDING_SENSOR] = CONTROL_SlidingSensorOK();
-
-		// Process deferred procedures
-		if(DPCDelegate)
-		{
-			FUNC_AsyncDelegate del = DPCDelegate;
-			DPCDelegate = NULL;
-			del();
-		}
+		FUNC_AsyncDelegate del = DPCDelegate;
+		DPCDelegate = NULL;
+		del();
 	}
 }
 // ----------------------------------------
@@ -193,8 +185,7 @@ void CONTROL_UpdateLow()
 {
 	CONTROL_HandleFanControl();
 	ZbSU_UpdateTimeCounter(CONTROL_TimeCounter);
-
-	if (!EnablePDOMonitor) CONTROL_HandleClampActions();
+	CONTROL_HandleClampActions();
 }
 // ----------------------------------------
 
@@ -490,7 +481,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 						if (DataTable[REG_DBG_CAN_MONITOR_DELAY])
 							DELAY_US(DataTable[REG_DBG_CAN_MONITOR_DELAY] * 1000L);
-						EnablePDOMonitor = TRUE;
+						// EnablePDOMonitor
 					}
 					else
 						*UserError = ERR_PARAMETER_OUT_OF_RNG;
@@ -501,11 +492,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DBG_CANOE_LOG_STOP:
-			EnablePDOMonitor = FALSE;
+			// EnablePDOMonitor
 			break;
 
 		case ACT_DBG_CANOE_LOG_SINGLE:
-			CONTROL_PDOMonitor(TRUE);
+			CONTROL_PDOMonitor();
 			break;
 
 		case ACT_START_CLAMPING:
@@ -934,20 +925,42 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 }
 // ----------------------------------------
 
-void CONTROL_PDOMonitor(Boolean ForceCheck)
+Int16U CONTROL_FlipWord(Int16U Word)
+{
+	return (Word >> 8) | (Word << 8);
+}
+// ----------------------------------------
+
+void CONTROL_PDOMonitor()
 {
 	Int32U ValH = 0, ValL = 0;
-	Int16U tmp;
+	Boolean PdoReady = CANopen_PDOMonitor(&DEVICE_CANopen_Interface, &ValH, &ValL);
 
-	if ((EnablePDOMonitor || ForceCheck) && CANopen_PDOMonitor(&DEVICE_CANopen_Interface, &ValH, &ValL))
+	if(PdoReady)
 	{
-		CONTROL_Values_1_32[CONTROL_Values_Counter] = ValH;
-		tmp = ValL >> 16;
-		CONTROL_Values_1[CONTROL_Values_Counter] = (tmp >> 8) | (tmp << 8);
-		CONTROL_Values_2[CONTROL_Values_Counter] = 0xFFFF & CONTROL_TimeCounter;
-		++CONTROL_Values_Counter;
+		Int16U Torque = CONTROL_FlipWord(ValH >> 16);
+		Int16U PosL = CONTROL_FlipWord(ValL >> 16);
+		Int16U PosH = CONTROL_FlipWord(ValL & 0xFFFF);
 
-		if (CONTROL_Values_Counter >= VALUES_x_SIZE) EnablePDOMonitor = FALSE;
+		DataTable[140] = 1;
+		DataTable[141] = Torque;
+		DataTable[142] = PosL;
+		DataTable[143] = PosH;
+
+		if(CONTROL_Values_Counter < VALUES_x_SIZE)
+		{
+			CONTROL_Values_1_32[CONTROL_Values_Counter] = (Int32U)PosH << 16 | PosL;
+			CONTROL_Values_1[CONTROL_Values_Counter] = Torque;
+			CONTROL_Values_2[CONTROL_Values_Counter] = 0xFFFF & CONTROL_HSCounter;
+			++CONTROL_Values_Counter;
+		}
+	}
+	else
+	{
+		DataTable[140] = 0;
+		DataTable[141] = 0;
+		DataTable[142] = 0;
+		DataTable[143] = 0;
 	}
 }
 // ----------------------------------------
