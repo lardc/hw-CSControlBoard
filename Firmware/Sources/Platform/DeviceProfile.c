@@ -140,7 +140,7 @@ void DEVPROFILE_InitEPService16(pInt16U Indexes, pInt16U Sizes, pInt16U *Counter
 
 void DEVPROFILE_InitEPService32(pInt16U Indexes, pInt16U Sizes, pInt16U *Counters, pInt16U *Datas)
 {
-	Int16U i;
+	Int16S i;
 
 	for(i = 0; i < EP_COUNT_32; ++i)
 	{
@@ -170,7 +170,7 @@ void DEVPROFILE_ProcessRequests()
 #endif
 void DEVPROFILE_ResetEPReadState()
 {
-	Int16U i;
+	Int16S i;
 
 	for(i = 0; i < EP_COUNT_16; ++i)
 	{
@@ -217,7 +217,7 @@ void DEVPROFILE_ResetScopes16(Int16U ResetPosition)
 
 void DEVPROFILE_ResetScopes32(Int16U ResetPosition)
 {
-	Int16U i;
+	Int16S i;
 
 	for(i = 0; i < EP_COUNT_32; ++i)
 	{

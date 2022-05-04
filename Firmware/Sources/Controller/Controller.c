@@ -36,10 +36,9 @@ volatile Int64U CONTROL_TimeCounter = 0, CONTROL_HSCounter = 0, Timeout;
 volatile Int32U FanTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
 //
-Int16U CONTROL_Values_1[VALUES_x_SIZE];
-Int16U CONTROL_Values_2[VALUES_x_SIZE];
-//
-Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
+Int16U CONTROL_Values_Time[VALUES_x_SIZE];
+Int32U CONTROL_Values_Position[VALUES_x_SIZE];
+Int16U CONTROL_Values_Torque[VALUES_x_SIZE];
 //
 volatile Int16U CONTROL_Values_Counter = 0;
 //
@@ -65,15 +64,15 @@ Boolean CONTROL_PressureOK();
 //
 void CONTROL_Init(Boolean BadClockDetected)
 {
-	Int16U EPIndexes_16[EP_COUNT_16] = {EP16_Data_Torque, EP16_Data_Timestamp};
+	Int16U EPIndexes_16[EP_COUNT_16] = {EP16_Data_Time, EP16_Data_Torque};
 	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE, VALUES_x_SIZE};
 	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter};
-	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1, CONTROL_Values_2};
+	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_Time, CONTROL_Values_Torque};
 
 	Int16U EPIndexes_32[EP_COUNT_32] = {EP32_Data_Position};
 	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE};
 	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_Values_Counter};
-	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32};
+	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_Position};
 
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = { &ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM };
@@ -448,51 +447,21 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				}
 				else
 				{
+					CONTROL_ResetScopes();
 					Int32U Position = ((Int32U)DataTable[REG_CUSTOM_POS_32] << 16) | DataTable[REG_CUSTOM_POS];
 
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
 					CLAMP_GoToPosition_mm(TRUE, (Int32S)Position);
 					CONTROL_SetDeviceState(DS_Position);
+
+					if(DataTable[REG_DBG_CAN_MONITOR_DELAY])
+						DELAY_US(DataTable[REG_DBG_CAN_MONITOR_DELAY] * 1000L);
+					ZwTimer_StartT1();
 				}
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
-			break;
-
-		case ACT_DBG_CANOE_POSITION_LOG:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
-			{
-				if (CONTROL_CheckLenzeError() ||
-					((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
-				{
-					*UserError = ERR_DEVICE_NOT_READY;
-				}
-				else
-				{
-					if (DataTable[REG_CUSTOM_POS] <= DataTable[REG_ALLOWED_MOVE])
-					{
-						CONTROL_ResetScopes();
-						DataTable[REG_PROBLEM] = PROBLEM_NONE;
-
-						CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
-						CLAMP_GoToPosition_mm(TRUE, DataTable[REG_CUSTOM_POS]);
-						CONTROL_SetDeviceState(DS_Position);
-
-						if (DataTable[REG_DBG_CAN_MONITOR_DELAY])
-							DELAY_US(DataTable[REG_DBG_CAN_MONITOR_DELAY] * 1000L);
-						// EnablePDOMonitor
-					}
-					else
-						*UserError = ERR_PARAMETER_OUT_OF_RNG;
-				}
-			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
-			break;
-
-		case ACT_DBG_CANOE_LOG_STOP:
-			// EnablePDOMonitor
 			break;
 
 		case ACT_DBG_CANOE_LOG_SINGLE:
@@ -943,17 +912,20 @@ void CONTROL_PDOMonitor()
 		Int16U PosH = CONTROL_FlipWord(ValL & 0xFFFF);
 
 		DataTable[140] = 1;
-		DataTable[141] = Torque;
-		DataTable[142] = PosL;
-		DataTable[143] = PosH;
+		DataTable[141] = 0xFFFF & CONTROL_HSCounter;
+		DataTable[142] = Torque;
+		DataTable[143] = PosL;
+		DataTable[144] = PosH;
 
 		if(CONTROL_Values_Counter < VALUES_x_SIZE)
 		{
-			CONTROL_Values_1_32[CONTROL_Values_Counter] = (Int32U)PosH << 16 | PosL;
-			CONTROL_Values_1[CONTROL_Values_Counter] = Torque;
-			CONTROL_Values_2[CONTROL_Values_Counter] = 0xFFFF & CONTROL_HSCounter;
+			CONTROL_Values_Time[CONTROL_Values_Counter] = 0xFFFF & CONTROL_HSCounter;
+			CONTROL_Values_Torque[CONTROL_Values_Counter] = Torque;
+			CONTROL_Values_Position[CONTROL_Values_Counter] = (Int32U)PosH << 16 | PosL;
 			++CONTROL_Values_Counter;
 		}
+		else
+			ZwTimer_StopT1();
 	}
 	else
 	{
@@ -961,6 +933,7 @@ void CONTROL_PDOMonitor()
 		DataTable[141] = 0;
 		DataTable[142] = 0;
 		DataTable[143] = 0;
+		DataTable[144] = 0;
 	}
 }
 // ----------------------------------------

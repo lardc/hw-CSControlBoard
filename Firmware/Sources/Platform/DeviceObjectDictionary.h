@@ -49,9 +49,7 @@
 #define ACT_DBG_SLS_PUSH_OUT		132	// Push out sliding system
 #define ACT_DBG_SLS_PUSH_IN			133	// Push in sliding system
 //
-#define ACT_DBG_CANOE_POSITION_LOG	150
-#define ACT_DBG_CANOE_LOG_STOP		151
-#define ACT_DBG_CANOE_LOG_SINGLE	152
+#define ACT_DBG_CANOE_LOG_SINGLE	150
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -191,10 +189,10 @@
 
 // ENDPOINTS
 //
-#define EP16_Data_Torque			1	// Clamping force value from sensor
-#define EP16_Data_Timestamp			2	// Configured clamping force value
+#define EP16_Data_Time				1
+#define EP16_Data_Torque			2
 //
-#define EP32_Data_Position			1	// Data from resolver
+#define EP32_Data_Position			1
 
 // FAULT CODES
 //
