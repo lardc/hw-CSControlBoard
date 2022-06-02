@@ -97,7 +97,7 @@ typedef struct __TableItemConstraint
 #define POS_RLS_OFFS_DEF			20		// (in mm)
 
 // Position parameters
-#define POS_MAX						110
+#define POS_MAX						120
 
 // Device parameters
 #define DEV_HEIGHT_MIN				0		// (in mm)
