@@ -112,6 +112,7 @@
 #define REG_ALLOWED_MOVE			58	// Clamp allowed move (in mm)
 #define REG_POWER_SW_DELAY			59	// Time to close power switch (in ms) (must be a multiple of 50ms @ 20 Hz TIMER2)
 #define REG_USE_AIR_CONTROL			60	// Use air pressure monitoring system
+#define REG_FORCE_SET_K				61	// Force setpoint K coefficient (x1000)
 //
 #define REG_SP__1					63
 //
