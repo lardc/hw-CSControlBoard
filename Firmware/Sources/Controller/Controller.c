@@ -35,6 +35,7 @@ static volatile Int16U AutoReleaseTimeoutTicks, SlidingCounter;
 volatile Int64U CONTROL_TimeCounter = 0, CONTROL_HSCounter = 0, Timeout;
 volatile Int32U FanTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
+volatile MasterState CONTROL_MasterState = MS_None;
 //
 Int16U CONTROL_Values_Time[VALUES_x_SIZE];
 Int32U CONTROL_Values_Position[VALUES_x_SIZE];
@@ -53,6 +54,7 @@ static void CONTROL_HandleClampActions();
 static void CONTROL_UpdateTemperatureFeedback();
 static void CONTROL_HandleFanControl();
 static void CONTROL_SetDeviceState(DeviceState NewState);
+static void CONTROL_SetMasterState(MasterState NewState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 static void CONTROL_ResetScopes();
@@ -935,5 +937,60 @@ void CONTROL_PDOMonitor()
 		DataTable[143] = 0;
 		DataTable[144] = 0;
 	}
+}
+// ----------------------------------------
+
+static void CONTROL_SetMasterState(MasterState NewState)
+{
+	// Set new state
+	CONTROL_MasterState = NewState;
+	DataTable[REG_MASTER_STATE] = NewState;
+}
+// ----------------------------------------
+
+void CONTROL_ProcessMasterEvents()
+{
+	static Int64U Timeout = 0;
+	static Boolean SensorStopPouring = FALSE;
+
+	switch(CONTROL_MasterState)
+	{
+		case MS_RequireStart:
+			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE];
+			SensorStopPouring = DataTable[REG_STOP_BEER_BY_SENSOR];
+			ZbGPIO_HeadsUp(FALSE);
+			CONTROL_SetMasterState(MS_PreCO2Pause);
+			break;
+
+		case MS_PreCO2Pause:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_POURING_TIME];
+				ZbGPIO_OpenCO2Valve(TRUE);
+				CONTROL_SetMasterState(MS_PouringCO2);
+			}
+			break;
+
+		case MS_PouringCO2:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_TO_BEER_PAUSE];
+				ZbGPIO_OpenCO2Valve(FALSE);
+				CONTROL_SetMasterState(MS_PostCO2Pause);
+			}
+			break;
+
+		case MS_PostCO2Pause:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				ZbGPIO_OpenBeerValve(TRUE);
+				CONTROL_SetMasterState(MS_PouringBeer);
+			}
+			break;
+
+		default:
+			break;
+	}
+
 }
 // ----------------------------------------

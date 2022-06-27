@@ -88,11 +88,14 @@
 #define REG_FORCE_Kp_POST_N			31	// PID Kp post regulation (N)
 #define REG_FORCE_Kp_POST_D			32	// PID Kp post regulation (D)
 #define REG_CONTINUOUS_CTRL			33	// Enable controller after reaching desired force
-
-
-
-
-
+//
+#define REG_BEER_POURING_TIME		34	// Время налива пива, мс
+#define REG_CO2_POURING_TIME		35	// Время налива CO2, мс
+#define REG_H_DOWN_TO_CO2_PAUSE		36	// Длительность паузы между опусканием голов и началом подачи СО2, мс
+#define REG_CO2_TO_BEER_PAUSE		37	// Длительность паузы между остановкой подачи СО2 и подачей пива, мс
+#define REG_BEER_TO_H_UP_PAUSE		38	// Длительность паузы между остановкой подачи пива и подъёмом голов, мс
+#define REG_STOP_BEER_BY_SENSOR		39	// Остановка налива по сенсору
+//
 #define REG_USE_HEATING				46	// Enable/disable heating system
 #define REG_TEMP_READ_K_N			47	// Temperature read recalculating K coefficient (N)
 #define REG_TEMP_READ_K_D			48	// Temperature read recalculating K coefficient (D)
@@ -150,6 +153,8 @@
 #define REG_TRM_DATA				103	// Data read from TRM
 #define REG_TRM_ERROR				104	// TRM error value
 #define REG_SLIDING_SENSOR			105	// Sliding sensor current state
+//
+#define REG_MASTER_STATE			106	// Device master state
 //
 #define REG_FORCE_RESULT			110	// Actual force value (in kN x10)
 #define REG_DRV_ERROR				111	// Lenze error

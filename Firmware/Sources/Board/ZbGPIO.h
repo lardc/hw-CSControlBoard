@@ -31,7 +31,7 @@ inline Boolean ZbGPIO_GetS3State()
 }
 // ----------------------------------------
 
-inline void ZbGPIO_LiftUpHeads(Boolean State)
+inline void ZbGPIO_HeadsUp(Boolean State)
 {
 	ZwGPIO_WritePin(PIN_D5D6, State);
 }

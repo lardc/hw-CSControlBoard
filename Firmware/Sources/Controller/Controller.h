@@ -33,6 +33,16 @@ typedef enum __DeviceState
 	DS_Sliding = 11
 } DeviceState;
 
+typedef enum __MasterState
+{
+	MS_None = 0,
+	MS_RequireStart = 1,
+	MS_PreCO2Pause = 2,
+	MS_PouringCO2 = 3,
+	MS_PostCO2Pause = 4,
+	MS_PouringBeer = 5
+} MasterState;
+
 // Variables
 //
 extern volatile Int64U CONTROL_TimeCounter, CONTROL_HSCounter;
