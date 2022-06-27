@@ -1,4 +1,4 @@
-#ifndef __OWENPROTOCOL_TYPES_H
+﻿#ifndef __OWENPROTOCOL_TYPES_H
 #define __OWENPROTOCOL_TYPES_H
 
 // Include

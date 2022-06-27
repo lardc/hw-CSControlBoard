@@ -1,4 +1,4 @@
-// Header
+п»ї// Header
 #include "Clamp.h"
 //
 #include "ZbAnalogInput.h"
@@ -31,7 +31,7 @@ void CLAMP_CompleteOperation(Boolean InhibitController)
 void CLAMP_BrakeAutoControl(Boolean Flag)
 {
 	/*
-	 * Управление тормозом игнорируется
+	 * РЈРїСЂР°РІР»РµРЅРёРµ С‚РѕСЂРјРѕР·РѕРј РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ
 	if (Flag) CLAMP_BrakeManualRelease(FALSE);
 	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x55eb, 0, Flag ? 12 : 11);
 	 */
@@ -41,7 +41,7 @@ void CLAMP_BrakeAutoControl(Boolean Flag)
 void CLAMP_BrakeManualRelease(Boolean Flag)
 {
 	/*
-	 * Управление тормозом игнорируется
+	 * РЈРїСЂР°РІР»РµРЅРёРµ С‚РѕСЂРјРѕР·РѕРј РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ
 	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5e29, 1, Flag ? 1 : 0);
 	 */
 }

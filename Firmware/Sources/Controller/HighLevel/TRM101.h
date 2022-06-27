@@ -1,4 +1,4 @@
-#ifndef __TRM101_H
+﻿#ifndef __TRM101_H
 #define __TRM101_H
 
 // Include

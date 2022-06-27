@@ -1,4 +1,4 @@
-// -----------------------------------------
+п»ї// -----------------------------------------
 // Device object dictionary
 // ----------------------------------------
 
@@ -89,12 +89,12 @@
 #define REG_FORCE_Kp_POST_D			32	// PID Kp post regulation (D)
 #define REG_CONTINUOUS_CTRL			33	// Enable controller after reaching desired force
 //
-#define REG_BEER_POURING_TIME		34	// Время налива пива, мс
-#define REG_CO2_POURING_TIME		35	// Время налива CO2, мс
-#define REG_H_DOWN_TO_CO2_PAUSE		36	// Длительность паузы между опусканием голов и началом подачи СО2, мс
-#define REG_CO2_TO_BEER_PAUSE		37	// Длительность паузы между остановкой подачи СО2 и подачей пива, мс
-#define REG_BEER_TO_H_UP_PAUSE		38	// Длительность паузы между остановкой подачи пива и подъёмом голов, мс
-#define REG_STOP_BEER_BY_SENSOR		39	// Остановка налива по сенсору
+#define REG_BEER_POURING_TIME		34	// Р’СЂРµРјСЏ РЅР°Р»РёРІР° РїРёРІР°, РјСЃ
+#define REG_CO2_POURING_TIME		35	// Р’СЂРµРјСЏ РЅР°Р»РёРІР° CO2, РјСЃ
+#define REG_H_DOWN_TO_CO2_PAUSE		36	// Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РїР°СѓР·С‹ РјРµР¶РґСѓ РѕРїСѓСЃРєР°РЅРёРµРј РіРѕР»РѕРІ Рё РЅР°С‡Р°Р»РѕРј РїРѕРґР°С‡Рё РЎРћ2, РјСЃ
+#define REG_CO2_TO_BEER_PAUSE		37	// Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РїР°СѓР·С‹ РјРµР¶РґСѓ РѕСЃС‚Р°РЅРѕРІРєРѕР№ РїРѕРґР°С‡Рё РЎРћ2 Рё РїРѕРґР°С‡РµР№ РїРёРІР°, РјСЃ
+#define REG_BEER_TO_H_UP_PAUSE		38	// Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РїР°СѓР·С‹ РјРµР¶РґСѓ РѕСЃС‚Р°РЅРѕРІРєРѕР№ РїРѕРґР°С‡Рё РїРёРІР° Рё РїРѕРґСЉС‘РјРѕРј РіРѕР»РѕРІ, РјСЃ
+#define REG_STOP_BEER_BY_SENSOR		39	// РћСЃС‚Р°РЅРѕРІРєР° РЅР°Р»РёРІР° РїРѕ СЃРµРЅСЃРѕСЂСѓ
 //
 #define REG_USE_HEATING				46	// Enable/disable heating system
 #define REG_TEMP_READ_K_N			47	// Temperature read recalculating K coefficient (N)

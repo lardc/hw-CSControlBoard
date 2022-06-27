@@ -1,4 +1,4 @@
-#ifndef __CANOPEN_TYPES_H
+﻿#ifndef __CANOPEN_TYPES_H
 #define __CANOPEN_TYPES_H
 
 // Include

@@ -1,4 +1,4 @@
-#ifndef __CLAMP_H
+﻿#ifndef __CLAMP_H
 #define __CLAMP_H
 
 // Include

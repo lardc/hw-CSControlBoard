@@ -1,4 +1,4 @@
-#ifndef __CLAMPCTRL_H
+﻿#ifndef __CLAMPCTRL_H
 #define __CLAMPCTRL_H
 
 // Include
