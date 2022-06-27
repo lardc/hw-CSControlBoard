@@ -25,33 +25,13 @@ static _iq TempFb_SamplesCopy[TEMPFB_BUFFER_SIZE] = {0};
 //
 _iq TempFb_GetTemperatureCH1()
 {
-	_iq tmp, tmp2, ret;
-
-	// Main conversion
-	tmp = _IQmpyI32(_FPtoIQ2(DataTable[REG_TEMP_READ_K_N], DataTable[REG_TEMP_READ_K_D]), ZbTh_ReadSEN1());
-	tmp2 = _IQdiv(tmp, _IQ(1000.0f));
-
-	// Fine tuning
-	ret = _IQmpy(tmp2, _IQmpyI32(tmp2, (Int16S)DataTable[REG_TEMP1_READ_FINE_P2])) + _IQmpy(tmp, _FPtoIQ2(DataTable[REG_TEMP1_READ_FINE_P1], 1000)) +
-			_FPtoIQ2((Int16S)DataTable[REG_TEMP1_READ_FINE_P0], 10);
-
-	return (ret > 0) ? ret : 0;
+	return _IQmpyI32(_FPtoIQ2(DataTable[REG_TEMP_READ_K_N], DataTable[REG_TEMP_READ_K_D]), ZbTh_ReadSEN1());
 }
 // ----------------------------------------
 
 _iq TempFb_GetTemperatureCH2()
 {
-	_iq tmp, tmp2, ret;
-
-	// Main conversion
-	tmp = _IQmpyI32(_FPtoIQ2(DataTable[REG_TEMP_READ_K_N], DataTable[REG_TEMP_READ_K_D]), ZbTh_ReadSEN2());
-	tmp2 = _IQdiv(tmp, _IQ(1000.0f));
-
-	// Fine tuning
-	ret = _IQmpy(tmp2, _IQmpyI32(tmp2, (Int16S)DataTable[REG_TEMP2_READ_FINE_P2])) + _IQmpy(tmp, _FPtoIQ2(DataTable[REG_TEMP2_READ_FINE_P1], 1000)) +
-			_FPtoIQ2((Int16S)DataTable[REG_TEMP2_READ_FINE_P0], 10);
-
-	return (ret > 0) ? ret : 0;
+	return _IQmpyI32(_FPtoIQ2(DataTable[REG_TEMP_READ_K_N], DataTable[REG_TEMP_READ_K_D]), ZbTh_ReadSEN2());
 }
 // ----------------------------------------
 

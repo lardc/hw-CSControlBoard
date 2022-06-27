@@ -19,9 +19,11 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_WD_RST, FALSE);
 	ZwGPIO_WritePin(PIN_M1M2, FALSE);
 	ZwGPIO_WritePin(PIN_M3M4, FALSE);
-	ZwGPIO_WritePin(PIN_SAFETY_HOLD, FALSE);
+	ZwGPIO_WritePin(PIN_D1D2, FALSE);
+	ZwGPIO_WritePin(PIN_D3D4, FALSE);
+	ZwGPIO_WritePin(PIN_D5D6, FALSE);
+	ZwGPIO_WritePin(PIN_D7D8, FALSE);
 	ZwGPIO_WritePin(PIN_FAN, FALSE);
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, FALSE);
 	ZwGPIO_WritePin(PIN_LED, FALSE);
 	ZwGPIO_WritePin(PIN_RS485_CTRL, FALSE);
 	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
@@ -32,9 +34,11 @@ void ZbGPIO_Init()
    	ZwGPIO_PinToOutput(PIN_WD_RST);
    	ZwGPIO_PinToOutput(PIN_M1M2);
    	ZwGPIO_PinToOutput(PIN_M3M4);
-   	ZwGPIO_PinToOutput(PIN_SAFETY_HOLD);
+   	ZwGPIO_PinToOutput(PIN_D1D2);
+   	ZwGPIO_PinToOutput(PIN_D3D4);
+   	ZwGPIO_PinToOutput(PIN_D5D6);
+   	ZwGPIO_PinToOutput(PIN_D7D8);
    	ZwGPIO_PinToOutput(PIN_FAN);
-   	ZwGPIO_PinToOutput(PIN_POWER_SWITCH);
    	ZwGPIO_PinToOutput(PIN_LED);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_A);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_B);

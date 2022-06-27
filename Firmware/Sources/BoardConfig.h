@@ -57,15 +57,17 @@
 #define SCI_B_MUX_SELECTOR	2
 //
 #define PIN_WD_RST			32
+#define PIN_D1D2			1
+#define PIN_D3D4			4
+#define PIN_D5D6			5
+#define PIN_D7D8			33
 #define PIN_M1M2			2
 #define PIN_M3M4			3
 #define PIN_SEN1			8
 #define PIN_SEN2			10
 #define PIN_SEN3			6
 #define PIN_SAFETY			22
-#define PIN_SAFETY_HOLD		1
 #define PIN_FAN				0
-#define PIN_POWER_SWITCH	33
 #define PIN_LED				12
 #define PIN_SPIMUX_A		14
 #define PIN_SPIMUX_B		15

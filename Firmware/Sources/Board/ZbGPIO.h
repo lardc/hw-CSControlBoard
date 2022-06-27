@@ -31,9 +31,27 @@ inline Boolean ZbGPIO_GetS3State()
 }
 // ----------------------------------------
 
+inline void ZbGPIO_LiftUpHeads(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_D5D6, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_OpenBeerValve(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_D3D4, State);
+	ZwGPIO_WritePin(PIN_D7D8, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_OpenCO2Valve(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_FAN, State);
+}
+// ----------------------------------------
+
 inline void ZbGPIO_EnablePowerSwitch(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, State);
 }
 // ----------------------------------------
 

@@ -88,18 +88,11 @@
 #define REG_FORCE_Kp_POST_N			31	// PID Kp post regulation (N)
 #define REG_FORCE_Kp_POST_D			32	// PID Kp post regulation (D)
 #define REG_CONTINUOUS_CTRL			33	// Enable controller after reaching desired force
-#define REG_TEMP1_READ_FINE_P2		34	// Temperature channel 1 read p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP1_READ_FINE_P1		35	// Temperature channel 1 read p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP1_READ_FINE_P0		36	// Temperature channel 1 read p0 member of quadratic correction polynom (offset) (in C x10)
-#define REG_TEMP2_READ_FINE_P2		37	// Temperature channel 2 read p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP2_READ_FINE_P1		38	// Temperature channel 2 read p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP2_READ_FINE_P0		39	// Temperature channel 2 read p0 member of quadratic correction polynom (offset) (in C x10)
-#define REG_TEMP1_TO_DAC_FINE_P2	40	// Temperature channel 1 to DAC p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP1_TO_DAC_FINE_P1	41	// Temperature channel 1 to DAC p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP1_TO_DAC_FINE_P0	42	// Temperature channel 1 to DAC p0 member of quadratic correction polynom (offset) (in C x10)
-#define REG_TEMP2_TO_DAC_FINE_P2	43	// Temperature channel 2 to DAC p2 member of quadratic correction polynom (x10^6)
-#define REG_TEMP2_TO_DAC_FINE_P1	44	// Temperature channel 2 to DAC p1 member of quadratic correction polynom (x1000)
-#define REG_TEMP2_TO_DAC_FINE_P0	45	// Temperature channel 2 to DAC p0 member of quadratic correction polynom (offset) (in C x10)
+
+
+
+
+
 #define REG_USE_HEATING				46	// Enable/disable heating system
 #define REG_TEMP_READ_K_N			47	// Temperature read recalculating K coefficient (N)
 #define REG_TEMP_READ_K_D			48	// Temperature read recalculating K coefficient (D)
