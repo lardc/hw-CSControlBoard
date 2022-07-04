@@ -123,7 +123,7 @@
 
 // SCI-A
 //--------------------------------------------------------
-#define SCIA_BR				115200L
+#define SCIA_BR				9600L
 #define SCIA_DB				8
 #define SCIA_SB				FALSE
 #define SCIA_PARITY			ZW_PAR_NONE

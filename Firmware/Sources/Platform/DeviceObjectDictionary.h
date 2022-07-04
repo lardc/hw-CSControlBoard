@@ -49,7 +49,16 @@
 #define ACT_DBG_SLS_PUSH_OUT		132	// Push out sliding system
 #define ACT_DBG_SLS_PUSH_IN			133	// Push in sliding system
 //
-#define ACT_DBG_CANOE_LOG_SINGLE	150
+#define ACT_DBGCAN_LOG_SINGLE		149
+//
+#define ACT_DBGCAN_HEADS_UP			150
+#define ACT_DBGCAN_HEADS_DOWN		151
+#define ACT_DBGCAN_BEER_OPEN		152
+#define ACT_DBGCAN_BEER_CLOSE		153
+#define ACT_DBGCAN_CO2_OPEN			154
+#define ACT_DBGCAN_CO2_CLOSE		155
+#define ACT_DBGCAN_ASYNC_MTR_START	156
+#define ACT_DBGCAN_ASYNC_MTR_STOP	157
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -93,7 +102,7 @@
 #define REG_CO2_POURING_TIME		35	// Время налива CO2, мс
 #define REG_H_DOWN_TO_CO2_PAUSE		36	// Длительность паузы между опусканием голов и началом подачи СО2, мс
 #define REG_CO2_TO_BEER_PAUSE		37	// Длительность паузы между остановкой подачи СО2 и подачей пива, мс
-#define REG_BEER_TO_H_UP_PAUSE		38	// Длительность паузы между остановкой подачи пива и подъёмом голов, мс
+#define REG_BEER_TO_H_UP_PAUSE		38	// Длительность паузы между остановкой подачи пива и подъёмом голов, мс (может быть отрицательной)
 #define REG_STOP_BEER_BY_SENSOR		39	// Остановка налива по сенсору
 //
 #define REG_USE_HEATING				46	// Enable/disable heating system

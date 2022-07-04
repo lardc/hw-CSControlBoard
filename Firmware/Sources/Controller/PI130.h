@@ -6,6 +6,6 @@
 
 // Functions
 //
-unsigned int PI130_Crc(unsigned char *data_value, unsigned char length);
+void PI130_StartMotor(Boolean State);
 
 #endif // __PI130_H

@@ -40,7 +40,9 @@ typedef enum __MasterState
 	MS_PreCO2Pause = 2,
 	MS_PouringCO2 = 3,
 	MS_PostCO2Pause = 4,
-	MS_PouringBeer = 5
+	MS_PouringBeer = 5,
+	MS_PreHeadsUp = 6,
+	MS_HeadsUpWBeer = 7
 } MasterState;
 
 // Variables

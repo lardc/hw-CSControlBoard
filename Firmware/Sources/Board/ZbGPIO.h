@@ -25,6 +25,18 @@ inline Boolean ZbGPIO_PressureOK()
 }
 // ----------------------------------------
 
+inline Boolean ZbGPIO_B1Pushed()
+{
+	return ZwGPIO_ReadPin(PIN_SEN1);
+}
+// ----------------------------------------
+
+inline Boolean ZbGPIO_B2Pushed()
+{
+	return ZwGPIO_ReadPin(PIN_SEN2);
+}
+// ----------------------------------------
+
 inline Boolean ZbGPIO_GetS3State()
 {
 	return ZwGPIO_ReadPin(PIN_SEN3);
@@ -69,7 +81,6 @@ inline void ZbGPIO_PneumoPushOut(Boolean State)
 
 inline void ZbGPIO_SwitchFan(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_FAN, State);
 }
 // ----------------------------------------
 

@@ -35,6 +35,7 @@ void ZbSU_SendData(pInt16U Buffer, Int16U BufferSize)
 
 	// Switch to TX mode
 	ZwGPIO_WritePin(PIN_RS485_CTRL, TRUE);
+	DELAY_US(5000);
 
 	// Send data
 	while (TxCounter < BufferSize)
@@ -44,7 +45,7 @@ void ZbSU_SendData(pInt16U Buffer, Int16U BufferSize)
 	}
 
 	// Switch to RX mode
-	DELAY_US(BufferSize * 100);
+	DELAY_US(BufferSize * 1000);
 	ZwGPIO_WritePin(PIN_RS485_CTRL, FALSE);
 }
 // ----------------------------------------

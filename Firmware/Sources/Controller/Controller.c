@@ -18,6 +18,7 @@
 #include "Clamp.h"
 #include "ClampControl.h"
 #include "TRM101.h"
+#include "PI130.h"
 //
 #include "AnalogOutput.h"
 
@@ -466,7 +467,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
-		case ACT_DBG_CANOE_LOG_SINGLE:
+		case ACT_DBGCAN_LOG_SINGLE:
 			CONTROL_PDOMonitor();
 			break;
 
@@ -888,6 +889,38 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			ZbGPIO_PneumoPushOut(FALSE);
 			break;
 
+		case ACT_DBGCAN_HEADS_UP:
+			ZbGPIO_HeadsUp(TRUE);
+			break;
+
+		case ACT_DBGCAN_HEADS_DOWN:
+			ZbGPIO_HeadsUp(FALSE);
+			break;
+
+		case ACT_DBGCAN_BEER_OPEN:
+			ZbGPIO_OpenBeerValve(TRUE);
+			break;
+
+		case ACT_DBGCAN_BEER_CLOSE:
+			ZbGPIO_OpenBeerValve(FALSE);
+			break;
+
+		case ACT_DBGCAN_CO2_OPEN:
+			ZbGPIO_OpenCO2Valve(TRUE);
+			break;
+
+		case ACT_DBGCAN_CO2_CLOSE:
+			ZbGPIO_OpenCO2Valve(FALSE);
+			break;
+
+		case ACT_DBGCAN_ASYNC_MTR_START:
+			PI130_StartMotor(TRUE);
+			break;
+
+		case ACT_DBGCAN_ASYNC_MTR_STOP:
+			PI130_StartMotor(FALSE);
+			break;
+
 		default:
 			return FALSE;
 	}
@@ -952,12 +985,15 @@ void CONTROL_ProcessMasterEvents()
 {
 	static Int64U Timeout = 0;
 	static Boolean SensorStopPouring = FALSE;
+	static Int16S StopBeerDelay = 0;
 
 	switch(CONTROL_MasterState)
 	{
 		case MS_RequireStart:
-			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE];
 			SensorStopPouring = DataTable[REG_STOP_BEER_BY_SENSOR];
+			StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE];
+
+			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE];
 			ZbGPIO_HeadsUp(FALSE);
 			CONTROL_SetMasterState(MS_PreCO2Pause);
 			break;
@@ -983,8 +1019,43 @@ void CONTROL_ProcessMasterEvents()
 		case MS_PostCO2Pause:
 			if(CONTROL_TimeCounter > Timeout)
 			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_BEER_POURING_TIME];
 				ZbGPIO_OpenBeerValve(TRUE);
 				CONTROL_SetMasterState(MS_PouringBeer);
+			}
+			break;
+
+		case MS_PouringBeer:
+			if((SensorStopPouring) || (!SensorStopPouring && CONTROL_TimeCounter > Timeout))
+			{
+				if(StopBeerDelay < 0)
+				{
+					Timeout = CONTROL_TimeCounter - StopBeerDelay;
+					ZbGPIO_HeadsUp(TRUE);
+					CONTROL_SetMasterState(MS_HeadsUpWBeer);
+				}
+				else
+				{
+					Timeout = CONTROL_TimeCounter + StopBeerDelay;
+					ZbGPIO_OpenBeerValve(FALSE);
+					CONTROL_SetMasterState(MS_PreHeadsUp);
+				}
+			}
+			break;
+
+		case MS_PreHeadsUp:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				ZbGPIO_HeadsUp(TRUE);
+				CONTROL_SetMasterState(MS_None);
+			}
+			break;
+
+		case MS_HeadsUpWBeer:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				ZbGPIO_OpenBeerValve(FALSE);
+				CONTROL_SetMasterState(MS_None);
 			}
 			break;
 
