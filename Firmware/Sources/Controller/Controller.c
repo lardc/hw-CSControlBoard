@@ -17,7 +17,6 @@
 #include "TemperatureFeedback.h"
 #include "Clamp.h"
 #include "ClampControl.h"
-#include "TRM101.h"
 #include "PI130.h"
 //
 #include "AnalogOutput.h"
@@ -105,16 +104,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 		{
 			DataTable[REG_WARNING] = WARNING_WATCHDOG_RESET;
 			ZwSystem_ClearDogAlarmFlag();
-		}
-
-		// Heating system init
-		if (DataTable[REG_USE_HEATING])
-		{
-			TRMError dummy_error;
-
-			// Terminate heating for sure
-			TRM_Stop(TRM_CH1_ADDR, &dummy_error);
-			TRM_Stop(TRM_CH2_ADDR, &dummy_error);
 		}
 	}
 	else
@@ -616,53 +605,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			}
 			break;
 
-		case ACT_SET_TEMPERATURE:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
-					if (DataTable[REG_TEMP_SETPOINT] < TRM_TEMP_THR)
-					{
-						TRM_SetTemp(TRM_CH1_ADDR, TRM_ROOM_TEMP, &error);
-						if (error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, TRM_ROOM_TEMP, &error);
-						if (error == TRME_None) TRM_Stop(TRM_CH1_ADDR, &error);
-						if (error == TRME_None) TRM_Stop(TRM_CH2_ADDR, &error);
-
-						HeatingActive = FALSE;
-					}
-					else
-					{
-						TRM_SetTemp(TRM_CH1_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
-						if (error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
-						if (error == TRME_None) TRM_Start(TRM_CH1_ADDR, &error);
-						if (error == TRME_None) TRM_Start(TRM_CH2_ADDR, &error);
-
-						HeatingActive = TRUE;
-					}
-
-					if (error != TRME_None)
-					{
-						DataTable[REG_TRM_ERROR] = error;
-						DataTable[REG_FAULT_REASON] = FAULT_TRM;
-						CONTROL_SetDeviceState(DS_Fault);
-						*UserError = ERR_TRM_COMM_ERR;
-					}
-
-					// resume regulator
-					MuteRegulator = FALSE;
-				}
-				else
-				{
-					DataTable[REG_TEMP_CH1] = DataTable[REG_TEMP_SETPOINT];
-					DataTable[REG_TEMP_CH2] = DataTable[REG_TEMP_SETPOINT];
-				}
-			}
-			break;
-
 		case ACT_CLR_FAULT:
 			{
 				if(CONTROL_State == DS_Fault)
@@ -707,147 +649,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				CLAMP_WriteRegister(DataTable[REG_DBG_CAN_INDEX], DataTable[REG_DBG_CAN_SUBCODE], Value);
 
 				MuteRegulator = FALSE;
-			}
-			break;
-
-		case ACT_DBG_WRITE_DAC_RAW:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready ||
-				CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled)
-			{
-				if (DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
-					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbDAC_WriteA(DataTable[REG_DBG_TEMP_CH_DATA]) : ZbDAC_WriteB(DataTable[REG_DBG_TEMP_CH_DATA]);
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			else
-				*UserError = ERR_DEVICE_NOT_READY;
-			break;
-
-		case ACT_DBG_WRITE_DAC_TEMP:
-			if ((CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready ||
-				CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled))
-			{
-				if (DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
-				{
-					_iq temp = _FPtoIQ2(DataTable[REG_DBG_TEMP_CH_DATA], 10);
-					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? AnalogOutput_SetCH1(temp) : AnalogOutput_SetCH2(temp);
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			else
-				*UserError = ERR_DEVICE_NOT_READY;
-			break;
-
-		case ACT_DBG_READ_TEMP:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					_iq temp = (DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? TempFb_GetTemperatureCH1() : TempFb_GetTemperatureCH2();
-					DataTable[REG_DBG_TEMP] = _IQmpyI32int(temp, 10);
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			break;
-
-		case ACT_DBG_READ_TEMP_RAW:
-			{
-				if (DataTable[REG_USE_HEATING])
-					DataTable[REG_DBG_TEMP_RAW] = (DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbTh_ReadSEN1() : ZbTh_ReadSEN2();
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			break;
-
-		case ACT_DBG_READ_TRM_TEMP:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
-					TRMError error;
-					DataTable[REG_TRM_DATA] = TRM_ReadTemp(DataTable[REG_DBG_TRM_ADDRESS], &error);
-					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
-
-					if (error != TRME_None)
-						*UserError = ERR_TRM_COMM_ERR;
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			break;
-
-		case ACT_DBG_READ_TRM_POWER:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
-					DataTable[REG_TRM_DATA] = TRM_ReadPower(DataTable[REG_DBG_TRM_ADDRESS], &error);
-					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
-
-					if (error != TRME_None)
-						*UserError = ERR_TRM_COMM_ERR;
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			break;
-
-		case ACT_DBG_TRM_START:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
-					TRM_Start(DataTable[REG_DBG_TRM_ADDRESS], &error);
-					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
-
-					if (error != TRME_None)
-						*UserError = ERR_TRM_COMM_ERR;
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
-			}
-			break;
-
-		case ACT_DBG_TRM_STOP:
-			{
-				if (DataTable[REG_USE_HEATING])
-				{
-					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
-					TRM_Stop(DataTable[REG_DBG_TRM_ADDRESS], &error);
-					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
-
-					if (error != TRME_None)
-						*UserError = ERR_TRM_COMM_ERR;
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
 			}
 			break;
 

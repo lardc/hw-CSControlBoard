@@ -6,7 +6,6 @@
 #define __CONTROLLER_H
 
 // Include
-#include "OWENProtocol.h"
 #include "CANopenTypes.h"
 #include "stdinc.h"
 //

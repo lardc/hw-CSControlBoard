@@ -8,7 +8,6 @@
 // Include
 #include "BCCISlave.h"
 #include "CANopen.h"
-#include "OWENProtocol.h"
 #include "SCCISlave.h"
 #include "stdinc.h"
 //
