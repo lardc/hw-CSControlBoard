@@ -53,8 +53,6 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 // Forward functions
 //
 static void CONTROL_HandleClampActions();
-static void CONTROL_UpdateTemperatureFeedback();
-static void CONTROL_HandleFanControl();
 static void CONTROL_SetDeviceState(DeviceState NewState);
 static void CONTROL_SetMasterState(MasterState NewState);
 static void CONTROL_FillWPPartDefault();
@@ -62,6 +60,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 static void CONTROL_ResetScopes();
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
+void CONTROL_ProcessMasterEvents();
 
 
 // Functions
@@ -120,15 +119,9 @@ void CONTROL_Init(Boolean BadClockDetected)
 void CONTROL_Idle()
 {
 	DEVPROFILE_ProcessRequests();
-
-	// Update CAN bus status
 	DEVPROFILE_UpdateCANDiagStatus();
 
-	// Update temperature feedback
-	CONTROL_UpdateTemperatureFeedback();
-
-	// Read sliding system state
-	DataTable[REG_SLIDING_SENSOR] = CONTROL_SlidingSensorOK();
+	CONTROL_ProcessMasterEvents();
 
 	// Process deferred procedures
 	if(DPCDelegate)
@@ -176,8 +169,6 @@ Boolean CONTROL_SlidingSensorOK()
 #endif
 void CONTROL_UpdateLow()
 {
-	CONTROL_HandleFanControl();
-	ZbSU_UpdateTimeCounter(CONTROL_TimeCounter);
 	CONTROL_HandleClampActions();
 }
 // ----------------------------------------
@@ -210,13 +201,6 @@ void CONTROL_NotifyCANopenFault(CANopenErrCode ErrorCode, Int16U Index, Int16U S
 	DataTable[REG_CANO_ERR_SUBINDEX] = SubIndex;
 	DataTable[REG_CANO_ERR_DATA] = Value;
 	DataTable[REG_CANO_ERR_DATA_32] = Value >> 16;
-}
-// ----------------------------------------
-
-static void CONTROL_UpdateTemperatureFeedback()
-{
-	if (DataTable[REG_USE_HEATING] && !DataTable[REG_DBG_PAUSE_T_FEEDBACK])
-		TempFb_UpdateTemperatureFeedback(CONTROL_TimeCounter);
 }
 // ----------------------------------------
 
@@ -272,14 +256,6 @@ Boolean CONTROL_CheckLenzeError()
 Boolean CONTROL_PressureOK()
 {
 	return (DataTable[REG_USE_AIR_CONTROL]) ? ZbGPIO_PressureOK() : TRUE;
-}
-// ----------------------------------------
-
-static void CONTROL_HandleFanControl()
-{
-	ZbGPIO_SwitchFan((FanTimeout > 0 || HeatingActive) ? TRUE : FALSE);
-	if (FanTimeout > 0)
-		--FanTimeout;
 }
 // ----------------------------------------
 
@@ -726,6 +702,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			PI130_StartMotor(FALSE);
 			break;
 
+		case ACT_DBG_CAN_EXEC_POURING:
+			CONTROL_SetMasterState(MS_RequireStart);
+			break;
+
 		default:
 			return FALSE;
 	}
@@ -796,9 +776,9 @@ void CONTROL_ProcessMasterEvents()
 	{
 		case MS_RequireStart:
 			SensorStopPouring = DataTable[REG_STOP_BEER_BY_SENSOR];
-			StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE];
+			StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE] / 100;
 
-			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE];
+			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE] / 100;
 			ZbGPIO_HeadsDown(TRUE);
 			CONTROL_SetMasterState(MS_PreCO2Pause);
 			break;
@@ -806,7 +786,7 @@ void CONTROL_ProcessMasterEvents()
 		case MS_PreCO2Pause:
 			if(CONTROL_TimeCounter > Timeout)
 			{
-				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_POURING_TIME];
+				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_POURING_TIME] / 100;
 				ZbGPIO_OpenCO2Valve(TRUE);
 				CONTROL_SetMasterState(MS_PouringCO2);
 			}
@@ -815,7 +795,7 @@ void CONTROL_ProcessMasterEvents()
 		case MS_PouringCO2:
 			if(CONTROL_TimeCounter > Timeout)
 			{
-				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_TO_BEER_PAUSE];
+				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_TO_BEER_PAUSE] / 100;
 				ZbGPIO_OpenCO2Valve(FALSE);
 				CONTROL_SetMasterState(MS_PostCO2Pause);
 			}
@@ -824,7 +804,7 @@ void CONTROL_ProcessMasterEvents()
 		case MS_PostCO2Pause:
 			if(CONTROL_TimeCounter > Timeout)
 			{
-				Timeout = CONTROL_TimeCounter + DataTable[REG_BEER_POURING_TIME];
+				Timeout = CONTROL_TimeCounter + DataTable[REG_BEER_POURING_TIME] / 100;
 				ZbGPIO_OpenBeerValve(TRUE);
 				CONTROL_SetMasterState(MS_PouringBeer);
 			}

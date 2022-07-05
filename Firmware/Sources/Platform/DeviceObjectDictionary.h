@@ -60,6 +60,8 @@
 #define ACT_DBGCAN_ASYNC_MTR_START	156
 #define ACT_DBGCAN_ASYNC_MTR_STOP	157
 //
+#define ACT_DBG_CAN_EXEC_POURING	160
+//
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
 #define ACT_RESET_TO_DEFAULT		202	// Reset parameters to default values (only in controller memory)
