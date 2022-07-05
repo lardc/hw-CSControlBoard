@@ -35,18 +35,21 @@ Int16U PI130_Crc(pInt16U data_value, Int16U length)
 	return crc_value;
 }
 
+#define MSG_LEN 8
 void PI130_StartMotor(Boolean State)
 {
 	Int16U Char = 0;
-	Int16U Data[8] = {0x01, 0x06, 0x20, 0x00, 0x00, 0x01, 0, 0};
+	Int16U Data[MSG_LEN] = {0x01, 0x06, 0x20, 0x00, 0x00, 0x01, 0, 0};
+	if(!State)
+		Data[5] = 0x06;
 
-	Int16U CRC = PI130_Crc(Data, 6);
-	Data[6] = CRC >> 8;
-	Data[7] = CRC & 0xff;
-	ZbSU_SendData(Data, 8);
+	Int16U CRC = PI130_Crc(Data, MSG_LEN - 2);
+	Data[MSG_LEN - 2] = CRC & 0xff;
+	Data[MSG_LEN - 1] = CRC >> 8;
+	ZbSU_SendData(Data, MSG_LEN);
 
 	Int64U LastByteRead = CONTROL_TimeCounter;
-	while((LastByteRead + BYTES_READ_TIMEOUT) > CONTROL_TimeCounter && CONTROL_Rx_Counter < VALUES_RX_SIZE)
+	while((LastByteRead + 1) >= CONTROL_TimeCounter && CONTROL_Rx_Counter < VALUES_RX_SIZE)
 	{
 		if(ZbSU_Read(&Char))
 		{
