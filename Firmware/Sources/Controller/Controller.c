@@ -40,8 +40,10 @@ volatile MasterState CONTROL_MasterState = MS_None;
 Int16U CONTROL_Values_Time[VALUES_x_SIZE];
 Int32U CONTROL_Values_Position[VALUES_x_SIZE];
 Int16U CONTROL_Values_Torque[VALUES_x_SIZE];
-//
 volatile Int16U CONTROL_Values_Counter = 0;
+//
+volatile Int16U CONTROL_RS485_Rx[VALUES_RX_SIZE];
+volatile Int16U CONTROL_Rx_Counter = 0;
 //
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
@@ -66,10 +68,10 @@ Boolean CONTROL_PressureOK();
 //
 void CONTROL_Init(Boolean BadClockDetected)
 {
-	Int16U EPIndexes_16[EP_COUNT_16] = {EP16_Data_Time, EP16_Data_Torque};
-	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE, VALUES_x_SIZE};
-	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter};
-	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_Time, CONTROL_Values_Torque};
+	Int16U EPIndexes_16[EP_COUNT_16] = {EP16_Data_Time, EP16_Data_Torque, EP16_RS485_Rx};
+	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_RX_SIZE};
+	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Rx_Counter};
+	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_Time, CONTROL_Values_Torque, (pInt16U)CONTROL_RS485_Rx};
 
 	Int16U EPIndexes_32[EP_COUNT_32] = {EP32_Data_Position};
 	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE};
@@ -690,12 +692,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			ZbGPIO_PneumoPushOut(FALSE);
 			break;
 
-		case ACT_DBGCAN_HEADS_UP:
-			ZbGPIO_HeadsUp(TRUE);
+		case ACT_DBGCAN_HEADS_DOWN:
+			ZbGPIO_HeadsDown(TRUE);
 			break;
 
-		case ACT_DBGCAN_HEADS_DOWN:
-			ZbGPIO_HeadsUp(FALSE);
+		case ACT_DBGCAN_HEADS_UP:
+			ZbGPIO_HeadsDown(FALSE);
 			break;
 
 		case ACT_DBGCAN_BEER_OPEN:
@@ -715,10 +717,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DBGCAN_ASYNC_MTR_START:
+			CONTROL_ResetScopes();
 			PI130_StartMotor(TRUE);
 			break;
 
 		case ACT_DBGCAN_ASYNC_MTR_STOP:
+			CONTROL_ResetScopes();
 			PI130_StartMotor(FALSE);
 			break;
 
@@ -795,7 +799,7 @@ void CONTROL_ProcessMasterEvents()
 			StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE];
 
 			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE];
-			ZbGPIO_HeadsUp(FALSE);
+			ZbGPIO_HeadsDown(TRUE);
 			CONTROL_SetMasterState(MS_PreCO2Pause);
 			break;
 
@@ -832,7 +836,7 @@ void CONTROL_ProcessMasterEvents()
 				if(StopBeerDelay < 0)
 				{
 					Timeout = CONTROL_TimeCounter - StopBeerDelay;
-					ZbGPIO_HeadsUp(TRUE);
+					ZbGPIO_HeadsDown(FALSE);
 					CONTROL_SetMasterState(MS_HeadsUpWBeer);
 				}
 				else
@@ -847,7 +851,7 @@ void CONTROL_ProcessMasterEvents()
 		case MS_PreHeadsUp:
 			if(CONTROL_TimeCounter > Timeout)
 			{
-				ZbGPIO_HeadsUp(TRUE);
+				ZbGPIO_HeadsDown(FALSE);
 				CONTROL_SetMasterState(MS_None);
 			}
 			break;

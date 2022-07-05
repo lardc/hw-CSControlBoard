@@ -23,7 +23,7 @@
 #define	SCCI_TIMEOUT_TICKS  		1000
 #define SC_FILTER_T					100
 //
-#define EP_COUNT_16					2
+#define EP_COUNT_16					3
 #define EP_COUNT_32					1
 #define VALUES_x_SIZE				3000
 

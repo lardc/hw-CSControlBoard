@@ -1,16 +1,12 @@
 ﻿// Header
 #include "PI130.h"
 
-// Definitions
-#define RX_BUFFER_LEN			32
-#define BYTES_READ_TIMEOUT		100		// in ms
-
 // Include
 #include "Controller.h"
 #include "ZbBoard.h"
 
-// Variables
-static volatile Int16U RxBuffer[RX_BUFFER_LEN] = {0};
+// Definitions
+#define BYTES_READ_TIMEOUT		100		// in ms
 
 // Forward functions
 Int16U PI130_Crc(pInt16U data_value, Int16U length);
@@ -50,13 +46,11 @@ void PI130_StartMotor(Boolean State)
 	ZbSU_SendData(Data, 8);
 
 	Int64U LastByteRead = CONTROL_TimeCounter;
-	Int16U RxCounter = 0;
-
-	while((LastByteRead + BYTES_READ_TIMEOUT) > CONTROL_TimeCounter && RxCounter < RX_BUFFER_LEN)
+	while((LastByteRead + BYTES_READ_TIMEOUT) > CONTROL_TimeCounter && CONTROL_Rx_Counter < VALUES_RX_SIZE)
 	{
 		if(ZbSU_Read(&Char))
 		{
-			RxBuffer[RxCounter++] = Char;
+			CONTROL_RS485_Rx[CONTROL_Rx_Counter++] = Char;
 			LastByteRead = CONTROL_TimeCounter;
 		}
 	}

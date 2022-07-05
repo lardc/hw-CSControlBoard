@@ -51,8 +51,8 @@
 //
 #define ACT_DBGCAN_LOG_SINGLE		149
 //
-#define ACT_DBGCAN_HEADS_UP			150
-#define ACT_DBGCAN_HEADS_DOWN		151
+#define ACT_DBGCAN_HEADS_DOWN		150
+#define ACT_DBGCAN_HEADS_UP			151
 #define ACT_DBGCAN_BEER_OPEN		152
 #define ACT_DBGCAN_BEER_CLOSE		153
 #define ACT_DBGCAN_CO2_OPEN			154
@@ -198,6 +198,7 @@
 //
 #define EP16_Data_Time				1
 #define EP16_Data_Torque			2
+#define EP16_RS485_Rx				3
 //
 #define EP32_Data_Position			1
 

@@ -51,6 +51,10 @@ extern volatile DeviceState CONTROL_State;
 extern volatile Int16U CONTROL_BootLoaderRequest;
 extern volatile Int16U CONTROL_Values_Counter;
 
+#define VALUES_RX_SIZE	32
+extern volatile Int16U CONTROL_RS485_Rx[];
+extern volatile Int16U CONTROL_Rx_Counter;
+
 // Functions
 //
 // Initialize controller
