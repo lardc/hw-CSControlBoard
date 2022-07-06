@@ -59,8 +59,11 @@
 #define ACT_DBGCAN_CO2_CLOSE		155
 #define ACT_DBGCAN_ASYNC_MTR_START	156
 #define ACT_DBGCAN_ASYNC_MTR_STOP	157
+#define ACT_DBGCAN_SEAMER_PUSH_UP	158
+#define ACT_DBGCAN_SEAMER_PUSH_DOWN	159
 //
 #define ACT_DBG_CAN_EXEC_POURING	160
+#define ACT_DBG_CAN_EXEC_SEAMING	161
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -106,12 +109,17 @@
 #define REG_CO2_TO_BEER_PAUSE		37	// Длительность паузы между остановкой подачи СО2 и подачей пива, мс
 #define REG_BEER_TO_H_UP_PAUSE		38	// Длительность паузы между остановкой подачи пива и подъёмом голов, мс (может быть отрицательной)
 #define REG_STOP_BEER_BY_SENSOR		39	// Остановка налива по сенсору
+#define REG_SEAMER_PUSH_UP_TIME		40	// Задержка после начала зажатия, мс
+#define REG_SEAMER_SPIN_UP_TIME		41	// Задержка после начала раскрутки банки, мс
+#define REG_SEAMER_STAGE1_TIME		42	// Задержка после выхода валка на этап1 закатки, мс
+#define REG_SEAMER_STAGE2_TIME		43	// Задержка после выхода валка на этап2 закатки, мс
+#define REG_SEAMER_SLOW_DOWN_TIME	44	// Задержка после начала раскрутки банки, мс
 //
-#define REG_USE_HEATING				46	// Enable/disable heating system
-#define REG_TEMP_READ_K_N			47	// Temperature read recalculating K coefficient (N)
-#define REG_TEMP_READ_K_D			48	// Temperature read recalculating K coefficient (D)
-#define REG_TEMP_TO_DAC_K_N			49	// Temperature to DAC recalculating K coefficient (N)
-#define REG_TEMP_TO_DAC_K_D			50	// Temperature to DAC recalculating K coefficient (D)
+#define REG_SEAMER_STAGE1_POS		47
+#define REG_SEAMER_STAGE1_POS_32	48
+#define REG_SEAMER_STAGE2_POS		49
+#define REG_SEAMER_STAGE2_POS_32	50
+//
 #define REG_2ST_FORCE_LIM			51	// Double stage clamping force threshold (in x10 kN)
 #define REG_USE_2ST_CLAMP			52	// Enable/disable double stage clamping
 #define REG_USE_SLIDING_SENSOR		53	// Enable/disable sliding system sensor

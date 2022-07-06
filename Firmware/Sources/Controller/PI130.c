@@ -49,11 +49,12 @@ void PI130_StartMotor(Boolean State)
 	ZbSU_SendData(Data, MSG_LEN);
 
 	Int64U LastByteRead = CONTROL_TimeCounter;
-	while((LastByteRead + 1) >= CONTROL_TimeCounter && CONTROL_Rx_Counter < VALUES_RX_SIZE)
+	while((LastByteRead + 1) >= CONTROL_TimeCounter)
 	{
 		if(ZbSU_Read(&Char))
 		{
-			CONTROL_RS485_Rx[CONTROL_Rx_Counter++] = Char;
+			if(CONTROL_Rx_Counter < VALUES_RX_SIZE)
+				CONTROL_RS485_Rx[CONTROL_Rx_Counter++] = Char;
 			LastByteRead = CONTROL_TimeCounter;
 		}
 	}

@@ -35,13 +35,26 @@ typedef enum __DeviceState
 typedef enum __MasterState
 {
 	MS_None = 0,
-	MS_RequireStart = 1,
+
+	MS_RequirePouringStart = 1,
 	MS_PreCO2Pause = 2,
 	MS_PouringCO2 = 3,
 	MS_PostCO2Pause = 4,
 	MS_PouringBeer = 5,
 	MS_PreHeadsUp = 6,
-	MS_HeadsUpWBeer = 7
+	MS_HeadsUpWBeer = 7,
+
+	MS_RequireSeamingStart = 10,
+	MS_WaitSeamerPushUp = 11,
+	MS_WaitSpindleSpinUp = 12,
+	MS_SeamingStep1 = 13,
+	MS_PostSeamingStep1 = 14,
+	MS_SeamingStep2 = 15,
+	MS_PostSeamingStep2 = 16,
+	MS_MoveToZero = 17,
+	MS_StopSpindle = 18,
+	MS_WaitStopSpindle = 19,
+
 } MasterState;
 
 // Variables

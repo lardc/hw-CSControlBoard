@@ -702,8 +702,20 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			PI130_StartMotor(FALSE);
 			break;
 
+		case ACT_DBGCAN_SEAMER_PUSH_UP:
+			ZbGPIO_SeamingPushUp(TRUE);
+			break;
+
+		case ACT_DBGCAN_SEAMER_PUSH_DOWN:
+			ZbGPIO_SeamingPushUp(FALSE);
+			break;
+
 		case ACT_DBG_CAN_EXEC_POURING:
-			CONTROL_SetMasterState(MS_RequireStart);
+			CONTROL_SetMasterState(MS_RequirePouringStart);
+			break;
+
+		case ACT_DBG_CAN_EXEC_SEAMING:
+			CONTROL_SetMasterState(MS_RequireSeamingStart);
 			break;
 
 		default:
@@ -769,15 +781,11 @@ static void CONTROL_SetMasterState(MasterState NewState)
 void CONTROL_ProcessMasterEvents()
 {
 	static Int64U Timeout = 0;
-	static Boolean SensorStopPouring = FALSE;
-	static Int16S StopBeerDelay = 0;
 
 	switch(CONTROL_MasterState)
 	{
-		case MS_RequireStart:
-			SensorStopPouring = DataTable[REG_STOP_BEER_BY_SENSOR];
-			StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE] / 100;
-
+		// Секция управления наливом
+		case MS_RequirePouringStart:
 			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE] / 100;
 			ZbGPIO_HeadsDown(TRUE);
 			CONTROL_SetMasterState(MS_PreCO2Pause);
@@ -811,8 +819,9 @@ void CONTROL_ProcessMasterEvents()
 			break;
 
 		case MS_PouringBeer:
-			if((SensorStopPouring) || (!SensorStopPouring && CONTROL_TimeCounter > Timeout))
+			if(CONTROL_TimeCounter > Timeout)
 			{
+				Int16S StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE] / 100;
 				if(StopBeerDelay < 0)
 				{
 					Timeout = CONTROL_TimeCounter - StopBeerDelay;
@@ -844,9 +853,117 @@ void CONTROL_ProcessMasterEvents()
 			}
 			break;
 
+		// Секция управления закаткой
+		case MS_RequireSeamingStart:
+			if(CONTROL_State == DS_Ready || (CONTROL_State == DS_None && CLAMP_IsHomingPosAvailable()))
+			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_PUSH_UP_TIME] / 100;
+				ZbGPIO_SeamingPushUp(TRUE);
+				CONTROL_SetMasterState(MS_WaitSeamerPushUp);
+			}
+			else
+				CONTROL_SetMasterState(MS_None);
+			break;
+
+		case MS_WaitSeamerPushUp:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_SPIN_UP_TIME] / 100;
+				PI130_StartMotor(TRUE);
+				CONTROL_SetMasterState(MS_WaitSpindleSpinUp);
+			}
+			break;
+
+		case MS_WaitSpindleSpinUp:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				Int32U Position = ((Int32U)DataTable[REG_SEAMER_STAGE1_POS_32] << 16) | DataTable[REG_SEAMER_STAGE1_POS];
+				CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
+				CLAMP_GoToPosition_mm(TRUE, (Int32S)Position);
+				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_SetMasterState(MS_SeamingStep1);
+			}
+			break;
+
+		case MS_SeamingStep1:
+			if(CONTROL_State == DS_Ready)
+			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_STAGE1_TIME] / 100;
+				CONTROL_SetMasterState(MS_PostSeamingStep1);
+			}
+			else if(CONTROL_State != DS_Position)
+				CONTROL_SetMasterState(MS_StopSpindle);
+			break;
+
+		case MS_PostSeamingStep1:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				Int32U Position = ((Int32U)DataTable[REG_SEAMER_STAGE2_POS_32] << 16) | DataTable[REG_SEAMER_STAGE2_POS];
+				CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
+				CLAMP_GoToPosition_mm(TRUE, (Int32S)Position);
+				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_SetMasterState(MS_SeamingStep2);
+			}
+			break;
+
+		case MS_SeamingStep2:
+			if(CONTROL_State == DS_Ready)
+			{
+				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_STAGE2_TIME] / 100;
+				CONTROL_SetMasterState(MS_PostSeamingStep2);
+			}
+			else if(CONTROL_State != DS_Position)
+				CONTROL_SetMasterState(MS_StopSpindle);
+			break;
+
+		case MS_PostSeamingStep2:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
+				CLAMP_GoToPosition_mm(TRUE, 0);
+				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_SetMasterState(MS_MoveToZero);
+			}
+			break;
+
+		case MS_MoveToZero:
+			if(CONTROL_State == DS_Ready || CONTROL_State != DS_Position)
+				CONTROL_SetMasterState(MS_StopSpindle);
+			break;
+
+		case MS_StopSpindle:
+			Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_SLOW_DOWN_TIME] / 100;
+			PI130_StartMotor(FALSE);
+			CONTROL_SetMasterState(MS_WaitStopSpindle);
+			break;
+
+		case MS_WaitStopSpindle:
+			if(CONTROL_TimeCounter > Timeout)
+			{
+				ZbGPIO_SeamingPushUp(FALSE);
+				CONTROL_SetMasterState(MS_None);
+			}
+			break;
+
 		default:
 			break;
 	}
+}
+// ----------------------------------------
 
+void CONTROL_ProcessButtons()
+{
+	static Boolean PrevButton1State = FALSE, PrevButton2State = FALSE;
+
+	Boolean NewButton1State = ZbGPIO_B1Pushed();
+	if(PrevButton1State && NewButton1State && CONTROL_MasterState == MS_None)
+		CONTROL_SetMasterState(MS_RequirePouringStart);
+
+	Boolean NewButton2State = ZbGPIO_B2Pushed();
+	if(PrevButton2State && NewButton2State && CONTROL_MasterState == MS_None)
+		CONTROL_SetMasterState(MS_RequireSeamingStart);
+
+	PrevButton1State = NewButton1State;
+	PrevButton2State = NewButton2State;
 }
 // ----------------------------------------

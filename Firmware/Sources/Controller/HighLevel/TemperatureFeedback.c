@@ -25,13 +25,13 @@ static _iq TempFb_SamplesCopy[TEMPFB_BUFFER_SIZE] = {0};
 //
 _iq TempFb_GetTemperatureCH1()
 {
-	return _IQmpyI32(_FPtoIQ2(DataTable[REG_TEMP_READ_K_N], DataTable[REG_TEMP_READ_K_D]), ZbTh_ReadSEN1());
+	return 0;
 }
 // ----------------------------------------
 
 _iq TempFb_GetTemperatureCH2()
 {
-	return _IQmpyI32(_FPtoIQ2(DataTable[REG_TEMP_READ_K_N], DataTable[REG_TEMP_READ_K_D]), ZbTh_ReadSEN2());
+	return 0;
 }
 // ----------------------------------------
 
