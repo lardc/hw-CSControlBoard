@@ -21,7 +21,7 @@ void ZbGPIO_CSMux(Int16U SPIDevice);
 
 inline Boolean ZbGPIO_PressureOK()
 {
-	return !ZwGPIO_ReadPin(PIN_SEN2);
+	return TRUE;
 }
 // ----------------------------------------
 
@@ -37,9 +37,15 @@ inline Boolean ZbGPIO_B2Pushed()
 }
 // ----------------------------------------
 
-inline Boolean ZbGPIO_GetS3State()
+inline Boolean ZbGPIO_B3Pushed()
 {
 	return ZwGPIO_ReadPin(PIN_SEN3);
+}
+// ----------------------------------------
+
+inline Boolean ZbGPIO_GetS3State()
+{
+	return TRUE;
 }
 // ----------------------------------------
 

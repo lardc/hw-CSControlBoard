@@ -61,6 +61,7 @@ static void CONTROL_ResetScopes();
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
 void CONTROL_ProcessMasterEvents();
+void CONTROL_ProcessButtons();
 
 
 // Functions
@@ -170,6 +171,7 @@ Boolean CONTROL_SlidingSensorOK()
 void CONTROL_UpdateLow()
 {
 	CONTROL_HandleClampActions();
+	CONTROL_ProcessButtons();
 }
 // ----------------------------------------
 
@@ -945,6 +947,18 @@ void CONTROL_ProcessMasterEvents()
 			}
 			break;
 
+		// Секция хоуминга
+		case MS_RequireHoming:
+			CLAMP_HomingStart();
+			CONTROL_SetDeviceState(DS_Homing);
+			CONTROL_SetMasterState(MS_WaitHoming);
+			break;
+
+		case MS_WaitHoming:
+			if(CONTROL_State != DS_Homing && CONTROL_State != DS_Position)
+				CONTROL_SetMasterState(MS_None);
+			break;
+
 		default:
 			break;
 	}
@@ -953,7 +967,8 @@ void CONTROL_ProcessMasterEvents()
 
 void CONTROL_ProcessButtons()
 {
-	static Boolean PrevButton1State = FALSE, PrevButton2State = FALSE;
+	static Boolean PrevButton1State = FALSE, PrevButton2State = FALSE,
+			PrevButton3State = FALSE;
 
 	Boolean NewButton1State = ZbGPIO_B1Pushed();
 	if(PrevButton1State && NewButton1State && CONTROL_MasterState == MS_None)
@@ -963,7 +978,12 @@ void CONTROL_ProcessButtons()
 	if(PrevButton2State && NewButton2State && CONTROL_MasterState == MS_None)
 		CONTROL_SetMasterState(MS_RequireSeamingStart);
 
+	Boolean NewButton3State = ZbGPIO_B3Pushed();
+	if(PrevButton3State && NewButton3State && CONTROL_MasterState == MS_None)
+		CONTROL_SetMasterState(MS_RequireHoming);
+
 	PrevButton1State = NewButton1State;
 	PrevButton2State = NewButton2State;
+	PrevButton3State = NewButton3State;
 }
 // ----------------------------------------

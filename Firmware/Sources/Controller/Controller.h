@@ -55,6 +55,9 @@ typedef enum __MasterState
 	MS_StopSpindle = 18,
 	MS_WaitStopSpindle = 19,
 
+	MS_RequireHoming = 30,
+	MS_WaitHoming = 31
+
 } MasterState;
 
 // Variables
