@@ -174,6 +174,9 @@
 #define REG_SLIDING_SENSOR			105	// Sliding sensor current state
 //
 #define REG_MASTER_STATE			106	// Device master state
+#define REG_BUTTON1					107
+#define REG_BUTTON2					108
+#define REG_BUTTON3					109
 //
 #define REG_FORCE_RESULT			110	// Actual force value (in kN x10)
 #define REG_DRV_ERROR				111	// Lenze error

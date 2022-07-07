@@ -985,5 +985,9 @@ void CONTROL_ProcessButtons()
 	PrevButton1State = NewButton1State;
 	PrevButton2State = NewButton2State;
 	PrevButton3State = NewButton3State;
+
+	DataTable[REG_BUTTON1] = PrevButton1State ? 1 : 0;
+	DataTable[REG_BUTTON2] = PrevButton2State ? 1 : 0;
+	DataTable[REG_BUTTON3] = PrevButton3State ? 1 : 0;
 }
 // ----------------------------------------
