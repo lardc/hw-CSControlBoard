@@ -951,6 +951,8 @@ void CONTROL_ProcessMasterEvents()
 		case MS_StopSpindle:
 			Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_SLOW_DOWN_TIME] / 100;
 			PI130_StartMotor(FALSE);
+			DELAY_US(100000);
+			PI130_StartMotor(FALSE);
 			CONTROL_SetMasterState(MS_WaitStopSpindle);
 			break;
 
