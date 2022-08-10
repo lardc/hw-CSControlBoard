@@ -131,6 +131,9 @@
 #define REG_POWER_SW_DELAY			59	// Time to close power switch (in ms) (must be a multiple of 50ms @ 20 Hz TIMER2)
 #define REG_USE_AIR_CONTROL			60	// Use air pressure monitoring system
 //
+#define REG_POSITION_SPEED_LIM_FAST	61	// Скорость при быстром перемещении (в %)
+#define REG_POS_OFFSET_FOR_FAST		62	// Оффсет перемещения при двухступенчатом регулировании скорости
+//
 #define REG_SP__1					63
 //
 // ----------------------------------------

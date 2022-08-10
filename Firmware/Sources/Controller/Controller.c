@@ -62,6 +62,7 @@ Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
 void CONTROL_ProcessMasterEvents();
 void CONTROL_ProcessButtons();
+void CONTROL_GoToSeamingPosition(Int16U PosReg32, Int16U PosReg, Boolean IsFast);
 
 
 // Functions
@@ -879,12 +880,19 @@ void CONTROL_ProcessMasterEvents()
 		case MS_WaitSpindleSpinUp:
 			if(CONTROL_TimeCounter > Timeout)
 			{
-				Int32U Position = ((Int32U)DataTable[REG_SEAMER_STAGE1_POS_32] << 16) | DataTable[REG_SEAMER_STAGE1_POS];
-				CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
-				CLAMP_GoToPosition_mm(TRUE, (Int32S)Position);
-				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE1_POS_32, REG_SEAMER_STAGE1_POS, TRUE);
+				CONTROL_SetMasterState(MS_SeamingStep1Fast);
+			}
+			break;
+
+		case MS_SeamingStep1Fast:
+			if(CONTROL_State == DS_Ready)
+			{
+				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE1_POS_32, REG_SEAMER_STAGE1_POS, FALSE);
 				CONTROL_SetMasterState(MS_SeamingStep1);
 			}
+			else if(CONTROL_State != DS_Position)
+				CONTROL_SetMasterState(MS_StopSpindle);
 			break;
 
 		case MS_SeamingStep1:
@@ -900,12 +908,19 @@ void CONTROL_ProcessMasterEvents()
 		case MS_PostSeamingStep1:
 			if(CONTROL_TimeCounter > Timeout)
 			{
-				Int32U Position = ((Int32U)DataTable[REG_SEAMER_STAGE2_POS_32] << 16) | DataTable[REG_SEAMER_STAGE2_POS];
-				CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
-				CLAMP_GoToPosition_mm(TRUE, (Int32S)Position);
-				CONTROL_SetDeviceState(DS_Position);
+				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE2_POS_32, REG_SEAMER_STAGE2_POS, TRUE);
+				CONTROL_SetMasterState(MS_SeamingStep2Fast);
+			}
+			break;
+
+		case MS_SeamingStep2Fast:
+			if(CONTROL_State == DS_Ready)
+			{
+				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE2_POS_32, REG_SEAMER_STAGE2_POS, FALSE);
 				CONTROL_SetMasterState(MS_SeamingStep2);
 			}
+			else if(CONTROL_State != DS_Position)
+				CONTROL_SetMasterState(MS_StopSpindle);
 			break;
 
 		case MS_SeamingStep2:
@@ -962,6 +977,21 @@ void CONTROL_ProcessMasterEvents()
 		default:
 			break;
 	}
+}
+// ----------------------------------------
+
+void CONTROL_GoToSeamingPosition(Int16U PosReg32, Int16U PosReg, Boolean IsFast)
+{
+	// Настройка скорости
+	Int16U SpeedLimit = DataTable[IsFast ? REG_POSITION_SPEED_LIM_FAST : REG_POSITION_SPEED_LIMIT];
+	CLAMP_SpeedTorqueLimits(SpeedLimit, DataTable[REG_POSITION_TORQUE_LIMIT]);
+
+	// Запуск перемещения
+	Int32S Position = (Int32S)(((Int32U)DataTable[PosReg32] << 16) | DataTable[PosReg]);
+	if(IsFast)
+		Position += ((Position < 0) ? 1 : -1) * (Int32S)DataTable[REG_POS_OFFSET_FOR_FAST];
+	CLAMP_GoToPosition_mm(TRUE, Position);
+	CONTROL_SetDeviceState(DS_Position);
 }
 // ----------------------------------------
 
