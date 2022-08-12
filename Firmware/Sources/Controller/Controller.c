@@ -35,7 +35,8 @@ static volatile Int16U AutoReleaseTimeoutTicks, SlidingCounter;
 volatile Int64U CONTROL_TimeCounter = 0, CONTROL_HSCounter = 0, Timeout;
 volatile Int32U FanTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
-volatile MasterState CONTROL_MasterState = MS_None;
+volatile MasterStatePouring CONTROL_MasterStatePouring = MSP_None;
+volatile MasterStateSeaming CONTROL_MasterStateSeaming = MSS_None;
 //
 Int16U CONTROL_Values_Time[VALUES_x_SIZE];
 Int32U CONTROL_Values_Position[VALUES_x_SIZE];
@@ -54,13 +55,15 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 //
 static void CONTROL_HandleClampActions();
 static void CONTROL_SetDeviceState(DeviceState NewState);
-static void CONTROL_SetMasterState(MasterState NewState);
+static void CONTROL_SetMasterStatePouring(MasterStatePouring NewState);
+static void CONTROL_SetMasterStateSeaming(MasterStateSeaming NewState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
 static void CONTROL_ResetScopes();
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
-void CONTROL_ProcessMasterEvents();
+void CONTROL_ProcessMasterEventsPouring();
+void CONTROL_ProcessMasterEventsSeaming();
 void CONTROL_ProcessButtons();
 void CONTROL_GoToSeamingPosition(Int16U PosReg32, Int16U PosReg, Boolean IsFast);
 
@@ -123,7 +126,8 @@ void CONTROL_Idle()
 	DEVPROFILE_ProcessRequests();
 	DEVPROFILE_UpdateCANDiagStatus();
 
-	CONTROL_ProcessMasterEvents();
+	CONTROL_ProcessMasterEventsPouring();
+	CONTROL_ProcessMasterEventsSeaming();
 
 	// Process deferred procedures
 	if(DPCDelegate)
@@ -714,11 +718,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DBG_CAN_EXEC_POURING:
-			CONTROL_SetMasterState(MS_RequirePouringStart);
+			CONTROL_SetMasterStatePouring(MSP_RequirePouringStart);
 			break;
 
 		case ACT_DBG_CAN_EXEC_SEAMING:
-			CONTROL_SetMasterState(MS_RequireSeamingStart);
+			CONTROL_SetMasterStateSeaming(MSS_RequireSeamingStart);
 			break;
 
 		default:
@@ -773,55 +777,58 @@ void CONTROL_PDOMonitor()
 }
 // ----------------------------------------
 
-static void CONTROL_SetMasterState(MasterState NewState)
+static void CONTROL_SetMasterStatePouring(MasterStatePouring NewState)
 {
-	// Set new state
-	CONTROL_MasterState = NewState;
-	DataTable[REG_MASTER_STATE] = NewState;
+	DataTable[REG_MASTER_STATE_POURING] = CONTROL_MasterStatePouring = NewState;
 }
 // ----------------------------------------
 
-void CONTROL_ProcessMasterEvents()
+static void CONTROL_SetMasterStateSeaming(MasterStateSeaming NewState)
+{
+	DataTable[REG_MASTER_STATE_SEAMING] = CONTROL_MasterStateSeaming = NewState;
+}
+// ----------------------------------------
+
+void CONTROL_ProcessMasterEventsPouring()
 {
 	static Int64U Timeout = 0;
 
-	switch(CONTROL_MasterState)
+	switch(CONTROL_MasterStatePouring)
 	{
-		// Секция управления наливом
-		case MS_RequirePouringStart:
+		case MSP_RequirePouringStart:
 			Timeout = CONTROL_TimeCounter + DataTable[REG_H_DOWN_TO_CO2_PAUSE] / 100;
 			ZbGPIO_HeadsDown(TRUE);
-			CONTROL_SetMasterState(MS_PreCO2Pause);
+			CONTROL_SetMasterStatePouring(MSP_PreCO2Pause);
 			break;
 
-		case MS_PreCO2Pause:
+		case MSP_PreCO2Pause:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_POURING_TIME] / 100;
 				ZbGPIO_OpenCO2Valve(TRUE);
-				CONTROL_SetMasterState(MS_PouringCO2);
+				CONTROL_SetMasterStatePouring(MSP_PouringCO2);
 			}
 			break;
 
-		case MS_PouringCO2:
+		case MSP_PouringCO2:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_CO2_TO_BEER_PAUSE] / 100;
 				ZbGPIO_OpenCO2Valve(FALSE);
-				CONTROL_SetMasterState(MS_PostCO2Pause);
+				CONTROL_SetMasterStatePouring(MSP_PostCO2Pause);
 			}
 			break;
 
-		case MS_PostCO2Pause:
+		case MSP_PostCO2Pause:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_BEER_POURING_TIME] / 100;
 				ZbGPIO_OpenBeerValve(TRUE);
-				CONTROL_SetMasterState(MS_PouringBeer);
+				CONTROL_SetMasterStatePouring(MSP_PouringBeer);
 			}
 			break;
 
-		case MS_PouringBeer:
+		case MSP_PouringBeer:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				Int16S StopBeerDelay = (Int16S)DataTable[REG_BEER_TO_H_UP_PAUSE] / 100;
@@ -829,151 +836,161 @@ void CONTROL_ProcessMasterEvents()
 				{
 					Timeout = CONTROL_TimeCounter - StopBeerDelay;
 					ZbGPIO_HeadsDown(FALSE);
-					CONTROL_SetMasterState(MS_HeadsUpWBeer);
+					CONTROL_SetMasterStatePouring(MSP_HeadsUpWBeer);
 				}
 				else
 				{
 					Timeout = CONTROL_TimeCounter + StopBeerDelay;
 					ZbGPIO_OpenBeerValve(FALSE);
-					CONTROL_SetMasterState(MS_PreHeadsUp);
+					CONTROL_SetMasterStatePouring(MSP_PreHeadsUp);
 				}
 			}
 			break;
 
-		case MS_PreHeadsUp:
+		case MSP_PreHeadsUp:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				ZbGPIO_HeadsDown(FALSE);
-				CONTROL_SetMasterState(MS_None);
+				CONTROL_SetMasterStatePouring(MSP_None);
 			}
 			break;
 
-		case MS_HeadsUpWBeer:
+		case MSP_HeadsUpWBeer:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				ZbGPIO_OpenBeerValve(FALSE);
-				CONTROL_SetMasterState(MS_None);
+				CONTROL_SetMasterStatePouring(MSP_None);
 			}
 			break;
 
-		// Секция управления закаткой
-		case MS_RequireSeamingStart:
+		default:
+			break;
+	}
+}
+// ----------------------------------------
+
+void CONTROL_ProcessMasterEventsSeaming()
+{
+	static Int64U Timeout = 0;
+
+	switch(CONTROL_MasterStateSeaming)
+	{
+		case MSS_RequireHoming:
+			CLAMP_HomingStart();
+			CONTROL_SetDeviceState(DS_Homing);
+			CONTROL_SetMasterStateSeaming(MSS_WaitHoming);
+			break;
+
+		case MSS_WaitHoming:
+			if(CONTROL_State != DS_Homing && CONTROL_State != DS_Position)
+				CONTROL_SetMasterStateSeaming(MSS_None);
+			break;
+
+		case MSS_RequireSeamingStart:
 			if(CONTROL_State == DS_Ready || (CONTROL_State == DS_None && CLAMP_IsHomingPosAvailable()))
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_PUSH_UP_TIME] / 100;
 				ZbGPIO_SeamingPushUp(TRUE);
-				CONTROL_SetMasterState(MS_WaitSeamerPushUp);
+				CONTROL_SetMasterStateSeaming(MSS_WaitSeamerPushUp);
 			}
 			else
-				CONTROL_SetMasterState(MS_None);
+				CONTROL_SetMasterStateSeaming(MSS_None);
 			break;
 
-		case MS_WaitSeamerPushUp:
+		case MSS_WaitSeamerPushUp:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_SPIN_UP_TIME] / 100;
 				PI130_StartMotor(TRUE);
-				CONTROL_SetMasterState(MS_WaitSpindleSpinUp);
+				CONTROL_SetMasterStateSeaming(MSS_WaitSpindleSpinUp);
 			}
 			break;
 
-		case MS_WaitSpindleSpinUp:
+		case MSS_WaitSpindleSpinUp:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE1_POS_32, REG_SEAMER_STAGE1_POS, TRUE);
-				CONTROL_SetMasterState(MS_SeamingStep1Fast);
+				CONTROL_SetMasterStateSeaming(MSS_SeamingStep1Fast);
 			}
 			break;
 
-		case MS_SeamingStep1Fast:
+		case MSS_SeamingStep1Fast:
 			if(CONTROL_State == DS_Ready)
 			{
 				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE1_POS_32, REG_SEAMER_STAGE1_POS, FALSE);
-				CONTROL_SetMasterState(MS_SeamingStep1);
+				CONTROL_SetMasterStateSeaming(MSS_SeamingStep1);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterState(MS_StopSpindle);
+				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 			break;
 
-		case MS_SeamingStep1:
+		case MSS_SeamingStep1:
 			if(CONTROL_State == DS_Ready)
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_STAGE1_TIME] / 100;
-				CONTROL_SetMasterState(MS_PostSeamingStep1);
+				CONTROL_SetMasterStateSeaming(MSS_PostSeamingStep1);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterState(MS_StopSpindle);
+				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 			break;
 
-		case MS_PostSeamingStep1:
+		case MSS_PostSeamingStep1:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE2_POS_32, REG_SEAMER_STAGE2_POS, TRUE);
-				CONTROL_SetMasterState(MS_SeamingStep2Fast);
+				CONTROL_SetMasterStateSeaming(MSS_SeamingStep2Fast);
 			}
 			break;
 
-		case MS_SeamingStep2Fast:
+		case MSS_SeamingStep2Fast:
 			if(CONTROL_State == DS_Ready)
 			{
 				CONTROL_GoToSeamingPosition(REG_SEAMER_STAGE2_POS_32, REG_SEAMER_STAGE2_POS, FALSE);
-				CONTROL_SetMasterState(MS_SeamingStep2);
+				CONTROL_SetMasterStateSeaming(MSS_SeamingStep2);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterState(MS_StopSpindle);
+				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 			break;
 
-		case MS_SeamingStep2:
+		case MSS_SeamingStep2:
 			if(CONTROL_State == DS_Ready)
 			{
 				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_STAGE2_TIME] / 100;
-				CONTROL_SetMasterState(MS_PostSeamingStep2);
+				CONTROL_SetMasterStateSeaming(MSS_PostSeamingStep2);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterState(MS_StopSpindle);
+				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 			break;
 
-		case MS_PostSeamingStep2:
+		case MSS_PostSeamingStep2:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
 				CLAMP_GoToPosition_mm(TRUE, 0);
 				CONTROL_SetDeviceState(DS_Position);
-				CONTROL_SetMasterState(MS_MoveToZero);
+				CONTROL_SetMasterStateSeaming(MSS_MoveToZero);
 			}
 			break;
 
-		case MS_MoveToZero:
+		case MSS_MoveToZero:
 			if(CONTROL_State == DS_Ready || CONTROL_State != DS_Position)
-				CONTROL_SetMasterState(MS_StopSpindle);
+				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 			break;
 
-		case MS_StopSpindle:
+		case MSS_StopSpindle:
 			Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_SLOW_DOWN_TIME] / 100;
 			PI130_StartMotor(FALSE);
 			DELAY_US(100000);
 			PI130_StartMotor(FALSE);
-			CONTROL_SetMasterState(MS_WaitStopSpindle);
+			CONTROL_SetMasterStateSeaming(MSS_WaitStopSpindle);
 			break;
 
-		case MS_WaitStopSpindle:
+		case MSS_WaitStopSpindle:
 			if(CONTROL_TimeCounter > Timeout)
 			{
 				ZbGPIO_SeamingPushUp(FALSE);
-				CONTROL_SetMasterState(MS_None);
+				CONTROL_SetMasterStateSeaming(MSS_None);
 			}
-			break;
-
-		// Секция хоуминга
-		case MS_RequireHoming:
-			CLAMP_HomingStart();
-			CONTROL_SetDeviceState(DS_Homing);
-			CONTROL_SetMasterState(MS_WaitHoming);
-			break;
-
-		case MS_WaitHoming:
-			if(CONTROL_State != DS_Homing && CONTROL_State != DS_Position)
-				CONTROL_SetMasterState(MS_None);
 			break;
 
 		default:
@@ -1003,16 +1020,16 @@ void CONTROL_ProcessButtons()
 			PrevButton3State = FALSE;
 
 	Boolean NewButton1State = ZbGPIO_B1Pushed();
-	if(PrevButton1State && NewButton1State && CONTROL_MasterState == MS_None)
-		CONTROL_SetMasterState(MS_RequirePouringStart);
+	if(PrevButton1State && NewButton1State && CONTROL_MasterStatePouring == MSP_None)
+		CONTROL_SetMasterStatePouring(MSP_RequirePouringStart);
 
 	Boolean NewButton2State = ZbGPIO_B2Pushed();
-	if(PrevButton2State && NewButton2State && CONTROL_MasterState == MS_None)
-		CONTROL_SetMasterState(MS_RequireSeamingStart);
+	if(PrevButton2State && NewButton2State && CONTROL_MasterStateSeaming == MSS_None)
+		CONTROL_SetMasterStateSeaming(MSS_RequireSeamingStart);
 
 	Boolean NewButton3State = ZbGPIO_B3Pushed();
-	if(PrevButton3State && NewButton3State && CONTROL_MasterState == MS_None)
-		CONTROL_SetMasterState(MS_RequireHoming);
+	if(PrevButton3State && NewButton3State && CONTROL_MasterStateSeaming == MSS_None)
+		CONTROL_SetMasterStateSeaming(MSS_RequireHoming);
 
 	PrevButton1State = NewButton1State;
 	PrevButton2State = NewButton2State;

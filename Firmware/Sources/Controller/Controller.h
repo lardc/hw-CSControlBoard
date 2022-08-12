@@ -32,35 +32,38 @@ typedef enum __DeviceState
 	DS_Sliding = 11
 } DeviceState;
 
-typedef enum __MasterState
+typedef enum __MasterStatePouring
 {
-	MS_None = 0,
+	MSP_None = 0,
+	MSP_RequirePouringStart = 1,
+	MSP_PreCO2Pause = 2,
+	MSP_PouringCO2 = 3,
+	MSP_PostCO2Pause = 4,
+	MSP_PouringBeer = 5,
+	MSP_PreHeadsUp = 6,
+	MSP_HeadsUpWBeer = 7
 
-	MS_RequirePouringStart = 1,
-	MS_PreCO2Pause = 2,
-	MS_PouringCO2 = 3,
-	MS_PostCO2Pause = 4,
-	MS_PouringBeer = 5,
-	MS_PreHeadsUp = 6,
-	MS_HeadsUpWBeer = 7,
+} MasterStatePouring;
 
-	MS_RequireSeamingStart = 10,
-	MS_WaitSeamerPushUp = 11,
-	MS_WaitSpindleSpinUp = 12,
-	MS_SeamingStep1Fast = 13,
-	MS_SeamingStep1 = 14,
-	MS_PostSeamingStep1 = 15,
-	MS_SeamingStep2Fast = 16,
-	MS_SeamingStep2 = 17,
-	MS_PostSeamingStep2 = 18,
-	MS_MoveToZero = 19,
-	MS_StopSpindle = 20,
-	MS_WaitStopSpindle = 21,
+typedef enum __MasterStateSeaming
+{
+	MSS_None = 0,
+	MSS_RequireHoming = 1,
+	MSS_WaitHoming = 2,
+	MSS_RequireSeamingStart = 3,
+	MSS_WaitSeamerPushUp = 4,
+	MSS_WaitSpindleSpinUp = 5,
+	MSS_SeamingStep1Fast = 6,
+	MSS_SeamingStep1 = 7,
+	MSS_PostSeamingStep1 = 8,
+	MSS_SeamingStep2Fast = 9,
+	MSS_SeamingStep2 = 10,
+	MSS_PostSeamingStep2 = 11,
+	MSS_MoveToZero = 12,
+	MSS_StopSpindle = 13,
+	MSS_WaitStopSpindle = 14
 
-	MS_RequireHoming = 30,
-	MS_WaitHoming = 31
-
-} MasterState;
+} MasterStateSeaming;
 
 // Variables
 //

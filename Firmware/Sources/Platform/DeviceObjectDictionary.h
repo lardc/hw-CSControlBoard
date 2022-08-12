@@ -176,7 +176,8 @@
 #define REG_TRM_ERROR				104	// TRM error value
 #define REG_SLIDING_SENSOR			105	// Sliding sensor current state
 //
-#define REG_MASTER_STATE			106	// Device master state
+#define REG_MASTER_STATE_POURING	106	// Device pouring master state
+//
 #define REG_BUTTON1					107
 #define REG_BUTTON2					108
 #define REG_BUTTON3					109
@@ -189,6 +190,8 @@
 #define REG_DBG_TEMP				114	// Temperature isolator data (in C x10)
 #define REG_DBG_ADC_RAW_DATA		115	// Initial ADC offset (in ticks of 4095 scale)
 #define REG_DBG_TEMP_RAW			117	// Temperature isolator raw data
+//
+#define REG_MASTER_STATE_SEAMING	118	// Device seaming master state
 //
 #define REG_CANA_BUSOFF_COUNTER		120 // Counter of bus-off states
 #define REG_CANA_STATUS_REG			121	// CAN status register (32 bit)
