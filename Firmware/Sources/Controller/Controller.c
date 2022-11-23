@@ -28,7 +28,7 @@ typedef void (*FUNC_AsyncDelegate)();
 
 // Variables
 //
-static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegulator = FALSE, HeatingActive = FALSE;
+static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegulator = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 static volatile Int16U AutoReleaseTimeoutTicks, SlidingCounter;
 //
@@ -66,6 +66,7 @@ void CONTROL_ProcessMasterEventsPouring();
 void CONTROL_ProcessMasterEventsSeaming();
 void CONTROL_ProcessButtons();
 void CONTROL_GoToSeamingPosition(Int16U PosReg32, Int16U PosReg, Boolean IsFast);
+void CONTROL_HandleAbnormalPosState();
 
 
 // Functions
@@ -251,7 +252,7 @@ Boolean CONTROL_CheckLenzeError()
 
 	if (err)
 	{
-		DataTable[REG_DRV_ERROR] = err;
+		DataTable[REG_DIAG_DRV_ERROR] = err;
 		DataTable[REG_FAULT_REASON] = DISABLE_LENZE_ERROR;
 		CONTROL_SetDeviceState(DS_Disabled);
 	}
@@ -585,7 +586,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_DBG_READ_LENZE_ERROR:
 			{
 				MuteRegulator = TRUE;
-				DataTable[REG_DRV_ERROR] = CLAMP_ReadError();
+				DataTable[REG_DIAG_DRV_ERROR] = CLAMP_ReadError();
 				MuteRegulator = FALSE;
 			}
 			break;
@@ -889,6 +890,9 @@ void CONTROL_ProcessMasterEventsSeaming()
 		case MSS_RequireSeamingStart:
 			if(CONTROL_State == DS_Ready || (CONTROL_State == DS_None && CLAMP_IsHomingPosAvailable()))
 			{
+				DataTable[REG_DIAG_DRV_ERROR] = 0;
+				DataTable[REG_DIAG_FAILED_OP] = 0;
+
 				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_PUSH_UP_TIME] / 100;
 				ZbGPIO_SeamingPushUp(TRUE);
 				CONTROL_SetMasterStateSeaming(MSS_WaitSeamerPushUp);
@@ -921,7 +925,7 @@ void CONTROL_ProcessMasterEventsSeaming()
 				CONTROL_SetMasterStateSeaming(MSS_SeamingStep1);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
+				CONTROL_HandleAbnormalPosState();
 			break;
 
 		case MSS_SeamingStep1:
@@ -931,7 +935,7 @@ void CONTROL_ProcessMasterEventsSeaming()
 				CONTROL_SetMasterStateSeaming(MSS_PostSeamingStep1);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
+				CONTROL_HandleAbnormalPosState();
 			break;
 
 		case MSS_PostSeamingStep1:
@@ -949,7 +953,7 @@ void CONTROL_ProcessMasterEventsSeaming()
 				CONTROL_SetMasterStateSeaming(MSS_SeamingStep2);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
+				CONTROL_HandleAbnormalPosState();
 			break;
 
 		case MSS_SeamingStep2:
@@ -959,7 +963,7 @@ void CONTROL_ProcessMasterEventsSeaming()
 				CONTROL_SetMasterStateSeaming(MSS_PostSeamingStep2);
 			}
 			else if(CONTROL_State != DS_Position)
-				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
+				CONTROL_HandleAbnormalPosState();
 			break;
 
 		case MSS_PostSeamingStep2:
@@ -973,8 +977,10 @@ void CONTROL_ProcessMasterEventsSeaming()
 			break;
 
 		case MSS_MoveToZero:
-			if(CONTROL_State == DS_Ready || CONTROL_State != DS_Position)
+			if(CONTROL_State == DS_Ready)
 				CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
+			else if(CONTROL_State != DS_Position)
+				CONTROL_HandleAbnormalPosState();
 			break;
 
 		case MSS_StopSpindle:
@@ -996,6 +1002,15 @@ void CONTROL_ProcessMasterEventsSeaming()
 		default:
 			break;
 	}
+}
+// ----------------------------------------
+
+void CONTROL_HandleAbnormalPosState()
+{
+	DataTable[REG_DIAG_DRV_ERROR] = CLAMP_ReadError();
+	DataTable[REG_DIAG_FAILED_OP] = CONTROL_MasterStateSeaming;
+
+	CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 }
 // ----------------------------------------
 

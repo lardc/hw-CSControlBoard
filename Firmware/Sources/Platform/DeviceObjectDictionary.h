@@ -183,7 +183,6 @@
 #define REG_BUTTON3					109
 //
 #define REG_FORCE_RESULT			110	// Actual force value (in kN x10)
-#define REG_DRV_ERROR				111	// Lenze error
 //
 #define REG_DBG_READ_REG			112	// Read Lenze register output
 #define REG_DBG_READ_REG_32			113
@@ -210,6 +209,9 @@
 #define REG_CANO_ERR_SUBINDEX		132	// CANopen error subindex
 #define REG_CANO_ERR_DATA			133	// CANopen error data (low bits)
 #define REG_CANO_ERR_DATA_32		134	// CANopen error data (high bits)
+//
+#define REG_DIAG_DRV_ERROR			135	// Lenze error
+#define REG_DIAG_FAILED_OP			136
 //
 #define REG_SP__3					159
 
