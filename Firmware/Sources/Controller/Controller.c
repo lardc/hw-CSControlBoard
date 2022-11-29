@@ -127,6 +127,7 @@ void CONTROL_Idle()
 	DEVPROFILE_ProcessRequests();
 	DEVPROFILE_UpdateCANDiagStatus();
 
+	CONTROL_HandleClampActions();
 	CONTROL_ProcessMasterEventsPouring();
 	CONTROL_ProcessMasterEventsSeaming();
 
@@ -176,7 +177,6 @@ Boolean CONTROL_SlidingSensorOK()
 #endif
 void CONTROL_UpdateLow()
 {
-	CONTROL_HandleClampActions();
 	CONTROL_ProcessButtons();
 }
 // ----------------------------------------
