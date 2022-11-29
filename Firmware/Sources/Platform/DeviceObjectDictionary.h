@@ -212,6 +212,8 @@
 //
 #define REG_DIAG_DRV_ERROR			135	// Lenze error
 #define REG_DIAG_FAILED_OP			136
+#define REG_DIAG_QSP_CODE			137
+#define REG_DIAG_DEV_STATE			138
 //
 #define REG_SP__3					159
 

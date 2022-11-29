@@ -264,12 +264,12 @@ Boolean CLAMP_IsStopLimitReached()
 }
 // ----------------------------------------
 
-Boolean CLAMP_IsQSPActive()
+Int16U CLAMP_IsQSPActive()
 {
 	Int32U Data = 0;
 	CANopen_SdoRd(&DEVICE_CANopen_Interface, 0x5f60, 0, &Data);
 
-	return Data;
+	return (Data & 0xFFFF);
 }
 // ----------------------------------------
 

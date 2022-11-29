@@ -28,7 +28,7 @@ typedef void (*FUNC_AsyncDelegate)();
 
 // Variables
 //
-static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegulator = FALSE;
+static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegulator = FALSE, QSPEvent = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 static volatile Int16U AutoReleaseTimeoutTicks, SlidingCounter;
 //
@@ -287,12 +287,19 @@ static void CONTROL_HandleClampActions()
 		case DS_ClampingUpdate:
 		case DS_ClampingRelease:
 			{
-				if (CLAMP_IsQSPActive())
+				Int16U QSP = CLAMP_IsQSPActive();
+				if(QSP)
 				{
 					DINT;
 					CLAMP_CompleteOperation(TRUE);
 					CONTROL_SetDeviceState(DS_Halt);
 					EINT;
+
+					if(!QSPEvent)
+					{
+						QSPEvent = TRUE;
+						DataTable[REG_DIAG_QSP_CODE] = QSP;
+					}
 				}
 			}
 			break;
@@ -890,8 +897,12 @@ void CONTROL_ProcessMasterEventsSeaming()
 		case MSS_RequireSeamingStart:
 			if(CONTROL_State == DS_Ready || (CONTROL_State == DS_None && CLAMP_IsHomingPosAvailable()))
 			{
+				QSPEvent = FALSE;
+
 				DataTable[REG_DIAG_DRV_ERROR] = 0;
 				DataTable[REG_DIAG_FAILED_OP] = 0;
+				DataTable[REG_DIAG_QSP_CODE] = 0;
+				DataTable[REG_DIAG_DEV_STATE] = 0;
 
 				Timeout = CONTROL_TimeCounter + DataTable[REG_SEAMER_PUSH_UP_TIME] / 100;
 				ZbGPIO_SeamingPushUp(TRUE);
@@ -1009,6 +1020,7 @@ void CONTROL_HandleAbnormalPosState()
 {
 	DataTable[REG_DIAG_DRV_ERROR] = CLAMP_ReadError();
 	DataTable[REG_DIAG_FAILED_OP] = CONTROL_MasterStateSeaming;
+	DataTable[REG_DIAG_DEV_STATE] = CONTROL_State;
 
 	CONTROL_SetMasterStateSeaming(MSS_StopSpindle);
 }
