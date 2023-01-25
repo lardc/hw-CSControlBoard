@@ -67,9 +67,10 @@
 #define PIN_FAN				0
 #define PIN_POWER_SWITCH	33
 #define PIN_LED				12
-#define PIN_SPIMUX_A		14
-#define PIN_SPIMUX_B		15
-#define PIN_SPIMUX_C		23
+#define PIN_SPIMUX_OPT2		14
+#define PIN_SPIMUX_OPT1		15
+#define PIN_SPIMUX_AOUT		23
+#define PIN_SPIMUX_SU		34
 #define PIN_RS485_CTRL		24
 #define PIN_AOUT_LDAC		13
 
