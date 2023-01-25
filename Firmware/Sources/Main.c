@@ -8,6 +8,7 @@
 #include "ZwDSP.h"
 #include "ZbBoard.h"
 #include "TRM101.h"
+#include "Flash.h"
 //
 #include "SysConfig.h"
 //
@@ -63,6 +64,7 @@ void main()
 
 	// Try initialize SCI in spite of result of clock initialization
 	InitializeSCI();
+	FLASH_Init();
 
 	// Setup ISRs
 	BEGIN_ISR_MAP

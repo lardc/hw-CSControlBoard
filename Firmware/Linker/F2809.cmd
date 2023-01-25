@@ -112,7 +112,23 @@ PAGE 1 :   /* Data Memory */
  
 SECTIONS
 {
- 
+Flash28_API:
+   {
+        -lFlash2809_API_V100.lib(.econst)
+        -lFlash2809_API_V100.lib(.text)
+   }                   LOAD = FLASHD,
+                       RUN = RAML0,
+                       /* ¬ переменную Flash28_API_LoadStart зап-ем нач. адр.
+                          сектора  Flash28_API */
+                       LOAD_START(_Flash28_API_LoadStart),
+                       /* ¬ переменную Flash28_API_LoadEnd записываем кон. адр.
+                          сектора  Flash28_API */
+                       LOAD_END(_Flash28_API_LoadEnd),
+					   /* ¬ переменную Flash28_API_RunStart записываем адр.
+                          дл€ записи API functions в RAM */
+                       RUN_START(_Flash28_API_RunStart),
+                       PAGE = 0
+
    /* Allocate program areas: */
    .cinit              : > FLASHD      PAGE = 0		// Moved from FLASHC
    .pinit              : > FLASHD      PAGE = 0		// Moved from FLASHC
