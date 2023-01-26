@@ -10,6 +10,7 @@
 #include "Flash.h"
 
 // Definitions
+#define FLASH_SECTOR			SECTORH
 #define FLASH_START_ADDR		0x3D8000
 
 // Functions
@@ -17,7 +18,7 @@
 void ZbMemory_WriteValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U BufferSize)
 {
 	DINT;
-	Status = Flash_Erase(SECTORH, (FLASH_ST *)&FlashStatus);
+	Status = Flash_Erase(FLASH_SECTOR, (FLASH_ST *)&FlashStatus);
 	Status = Flash_Program((pInt16U)FLASH_START_ADDR, Buffer, BufferSize, (FLASH_ST *)&FlashStatus);
 	EINT;
 }
