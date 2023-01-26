@@ -8,6 +8,7 @@
 #include "SysConfig.h"
 #include "ZbGPIO.h"
 #include "Flash.h"
+#include "ZwSysCtrl.h"
 
 // Definitions
 #define FLASH_SECTOR			SECTORH
@@ -17,18 +18,19 @@
 //
 void ZbMemory_WriteValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U BufferSize)
 {
+	ZwSystem_DisableDog();
 	DINT;
 	Status = Flash_Erase(FLASH_SECTOR, (FLASH_ST *)&FlashStatus);
 	Status = Flash_Program((pInt16U)FLASH_START_ADDR, Buffer, BufferSize, (FLASH_ST *)&FlashStatus);
 	EINT;
+	ZwSystem_EnableDog(SYS_WD_PRESCALER);
 }
 // ----------------------------------------
 
 void ZbMemory_ReadValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U BufferSize)
 {
 	Int16U i;
-	pInt16U StartPointer = (pInt16U)FLASH_START_ADDR;
 	for(i = 0; i < BufferSize; i++)
-		Buffer[i] = *(StartPointer + i);
+		Buffer[i] = *(pInt16U)(FLASH_START_ADDR + i);
 }
 // ----------------------------------------
