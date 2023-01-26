@@ -11,47 +11,38 @@
 #include "Global.h"
 
 // Functions
-//
-// Init module
 void ZbGPIO_Init();
-// Get pin state
-Boolean ZbGPIO_FilterSafetyCircuit(Boolean NewState);
-// Set proper CS output
 void ZbGPIO_CSMux(Int16U SPIDevice);
 
 inline Boolean ZbGPIO_PressureOK()
 {
-	return !ZwGPIO_ReadPin(PIN_SEN2);
+	return TRUE;
 }
 // ----------------------------------------
 
 inline Boolean ZbGPIO_GetS3State()
 {
-	return ZwGPIO_ReadPin(PIN_SEN3);
+	return TRUE;
 }
 // ----------------------------------------
 
 inline void ZbGPIO_EnablePowerSwitch(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, State);
 }
 // ----------------------------------------
 
 inline void ZbGPIO_PneumoPushUp(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_M1M2, State);
 }
 // ----------------------------------------
 
 inline void ZbGPIO_PneumoPushOut(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_M3M4, State);
 }
 // ----------------------------------------
 
 inline void ZbGPIO_SwitchFan(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_FAN, State);
 }
 // ----------------------------------------
 
