@@ -114,8 +114,6 @@
 #define REG_USE_AIR_CONTROL			60	// Use air pressure monitoring system
 #define REG_FORCE_SET_K				61	// Force setpoint K coefficient (x1000)
 //
-#define REG_SP__1					63
-//
 // ----------------------------------------
 //
 #define REG_CUSTOM_POS				64	// Mannually configured position (in mm)
@@ -137,8 +135,6 @@
 #define REG_PWD_2					92	// Unlock password location 2
 #define REG_PWD_3					93	// Unlock password location 3
 #define REG_PWD_4					94	// Unlock password location 4
-//
-#define REG_SP__2					95
 //
 // ----------------------------------------
 //
@@ -175,7 +171,13 @@
 #define REG_CANB_DIAG_TEC			128	// CAN TEC
 #define REG_CANB_DIAG_REC			129	// CAN REC
 //
-#define REG_SP__3					159
+// ----------------------------------------
+//
+#define REG_FWINFO_SLAVE_NID		256	// Device CAN slave node ID
+#define REG_FWINFO_MASTER_NID		257	// Device CAN master node ID (if presented)
+// 258 - 259
+#define REG_FWINFO_STR_LEN			260	// Length of the information string record
+#define REG_FWINFO_STR_BEGIN		261	// Begining of the information string record
 
 // ENDPOINTS
 //
