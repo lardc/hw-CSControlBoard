@@ -431,7 +431,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	switch(ActionID)
 	{
 		case ACT_HOMING:
-			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
 			{
 				if(CONTROL_CheckLenzeError())
 				{
@@ -449,7 +449,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_GOTO_POSITION:
-			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
 			{
 				if(CONTROL_CheckLenzeError() ||
 					((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
@@ -474,7 +474,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_CLAMPING:
-			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
 			{
 				if(!CONTROL_PressureOK())
 				{
@@ -531,8 +531,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_RELEASE_CLAMPING:
-			if(CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_Halt
-					|| CONTROL_State == DS_None)
+			if(CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_None)
 			{
 				// prevent interrupt by regulator
 				MuteRegulator = TRUE;
