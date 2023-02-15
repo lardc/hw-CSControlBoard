@@ -46,7 +46,7 @@ typedef struct __TableItemConstraint
 
 // Параметры скорости (мм/сек)
 #define SPEED_MIN					1
-#define SPEED_MAX					50
+#define SPEED_MAX					100
 #define SPEED_DEF					5
 
 // Температура (С х10)

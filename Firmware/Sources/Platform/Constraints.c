@@ -35,7 +35,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 16
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 17
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 18
-											   {0, 0, 0},																// 19
+											   {1, 100, 50},															// 19
 											   {NO, YES, YES},															// 20
 											   {NO, YES, YES},															// 21
 											   {NO, YES, YES},															// 22

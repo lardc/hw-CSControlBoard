@@ -4,13 +4,14 @@
 
 // Header
 #include "StepperMotor.h"
+#include "DeviceObjectDictionary.h"
+#include "DataTable.h"
 
 // Includes
 #include "SysConfig.h"
 #include "Global.h"
 
 // Definitions
-#define SM_TOGGLE_ACCELERATION		1
 #define SM_SPEED_CHANGE_STEPS		(2 * SM_FULL_ROUND_STEPS)	// Acceleration in steps
 #define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
 
@@ -199,7 +200,7 @@ void SM_ToggleCyclesToTarget(Int16U Target)
 {
 	static Int16U EnableCounter = 0;
 
-	if(++EnableCounter > SM_TOGGLE_ACCELERATION)
+	if(++EnableCounter > DataTable[REG_SM_TOGGLE_ACCELERATION])
 	{
 		EnableCounter = 0;
 
