@@ -1,4 +1,4 @@
-// ----------------------------------------
+п»ї// ----------------------------------------
 // Controller logic
 // ----------------------------------------
 
@@ -201,16 +201,16 @@ static void CONTROL_HandleClampActions()
 			break;
 	}
 
-	// Обработка общей логики отключения управления
+	// РћР±СЂР°Р±РѕС‚РєР° РѕР±С‰РµР№ Р»РѕРіРёРєРё РѕС‚РєР»СЋС‡РµРЅРёСЏ СѓРїСЂР°РІР»РµРЅРёСЏ
 	switch(CONTROL_SubState)
 	{
 		case DSS_Com_CheckControl:
 			{
-				// Раннее включение поджатия адаптера если зажимается прибор
+				// Р Р°РЅРЅРµРµ РІРєР»СЋС‡РµРЅРёРµ РїРѕРґР¶Р°С‚РёСЏ Р°РґР°РїС‚РµСЂР° РµСЃР»Рё Р·Р°Р¶РёРјР°РµС‚СЃСЏ РїСЂРёР±РѕСЂ
 				if(CONTROL_State == DS_Clamping)
 					ZbGPIO_SwitchPowerConnection(TRUE);
 
-				// Проверка состояния управления и пауза для разжатия
+				// РџСЂРѕРІРµСЂРєР° СЃРѕСЃС‚РѕСЏРЅРёСЏ СѓРїСЂР°РІР»РµРЅРёСЏ Рё РїР°СѓР·Р° РґР»СЏ СЂР°Р·Р¶Р°С‚РёСЏ
 				if(ZbGPIO_IsControlConnected())
 				{
 					ZbGPIO_SwitchControlConnection(FALSE);
@@ -229,7 +229,7 @@ static void CONTROL_HandleClampActions()
 			break;
 	}
 
-	// Обработка машины подсостояний
+	// РћР±СЂР°Р±РѕС‚РєР° РјР°С€РёРЅС‹ РїРѕРґСЃРѕСЃС‚РѕСЏРЅРёР№
 	switch(CONTROL_State)
 	{
 		case DS_Homing:
@@ -637,14 +637,14 @@ void CONTROL_UpdateTRMTemperature()
 	static Int64U ReadTimeout = 0;
 	static TRMError error = TRME_None;
 
-	// Условие разрешения считывания температуры
+	// РЈСЃР»РѕРІРёРµ СЂР°Р·СЂРµС€РµРЅРёСЏ СЃС‡РёС‚С‹РІР°РЅРёСЏ С‚РµРјРїРµСЂР°С‚СѓСЂС‹
 	if(DataTable[REG_USE_HEATING] && error == TRME_None && CONTROL_State != DS_Fault && CONTROL_TimeCounter > ReadTimeout)
 	{
 		DataTable[REG_TEMP_CH1] = TRM_ReadTemp(TRM_CH1_ADDR, &error);
 		ReadTimeout = CONTROL_TimeCounter + TRM_READ_PAUSE;
 	}
 
-	// Фолт при ошибке срабатывает только после завершения операции зажатия
+	// Р¤РѕР»С‚ РїСЂРё РѕС€РёР±РєРµ СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ РѕРїРµСЂР°С†РёРё Р·Р°Р¶Р°С‚РёСЏ
 	if(CONTROL_State == DS_Ready && error != TRME_None)
 	{
 		CONTROL_SwitchToFault(FAULT_TRM);

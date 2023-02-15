@@ -1,4 +1,4 @@
-// -----------------------------------------
+п»ї// -----------------------------------------
 // Global definitions
 // ----------------------------------------
 
@@ -21,7 +21,7 @@ typedef struct __TableItemConstraint
 	Int16U Default;
 } TableItemConstraint;
 
-// Параметры позиционирования (мм)
+// РџР°СЂР°РјРµС‚СЂС‹ РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ (РјРј)
 #define POS_MAX						180
 
 #define CASE_MIN					1
@@ -34,22 +34,22 @@ typedef struct __TableItemConstraint
 #define CASE_F_DEF					144
 #define CASE_ADAP_DEF				50
 
-// Расстояние замедления (мм)
+// Р Р°СЃСЃС‚РѕСЏРЅРёРµ Р·Р°РјРµРґР»РµРЅРёСЏ (РјРј)
 #define SLOW_DOWN_MIN				0
 #define SLOW_DOWN_MAX				50
 #define SLOW_DOWN_DEF				10
 
-// Оффсет хоуминга (мм)
+// РћС„С„СЃРµС‚ С…РѕСѓРјРёРЅРіР° (РјРј)
 #define HOMING_OFFS_MIN				1
 #define HOMING_OFFS_MAX				20
 #define HOMING_OFFS_DEF				5
 
-// Параметры скорости (мм/сек)
+// РџР°СЂР°РјРµС‚СЂС‹ СЃРєРѕСЂРѕСЃС‚Рё (РјРј/СЃРµРє)
 #define SPEED_MIN					1
 #define SPEED_MAX					50
 #define SPEED_DEF					5
 
-// Температура (С х10)
+// РўРµРјРїРµСЂР°С‚СѓСЂР° (РЎ С…10)
 #define TRM_TEMP_MIN				0		// in C x10
 #define TRM_TEMP_MAX				2000	// in C x10
 #define TRM_TEMP_DEF				0		// in C x10

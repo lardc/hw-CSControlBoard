@@ -1,4 +1,4 @@
-// ----------------------------------------
+п»ї// ----------------------------------------
 // SM driver module
 // ----------------------------------------
 
@@ -64,18 +64,18 @@ void SM_LogicHandler()
 
 	if(!SM_IsPositioningDone() || SM_HomingFlag)
 	{
-		// Генератор шагов
+		// Р“РµРЅРµСЂР°С‚РѕСЂ С€Р°РіРѕРІ
 		if(++SM_CycleCounter >= SM_CyclesToToggle)
 		{
 			SM_CycleCounter = 0;
 			ZbGPIO_SwitchStep(TickHigh = !TickHigh);
 
-			// Счёт для перемещения по нарастающему фронту тиков
+			// РЎС‡С‘С‚ РґР»СЏ РїРµСЂРµРјРµС‰РµРЅРёСЏ РїРѕ РЅР°СЂР°СЃС‚Р°СЋС‰РµРјСѓ С„СЂРѕРЅС‚Сѓ С‚РёРєРѕРІ
 			if(TickHigh)
 			{
 				if(SM_HomingFlag)
 				{
-					// Условие завершения хоуминга
+					// РЈСЃР»РѕРІРёРµ Р·Р°РІРµСЂС€РµРЅРёСЏ С…РѕСѓРјРёРЅРіР°
 					if(ZbGPIO_HomeSensorActuate())
 					{
 						SM_HomingFlag = FALSE;
@@ -84,7 +84,7 @@ void SM_LogicHandler()
 				}
 				else
 				{
-					// Проверка условия позиционирования
+					// РџСЂРѕРІРµСЂРєР° СѓСЃР»РѕРІРёСЏ РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ
 					SM_GlobalStepsCounter += (ZbGPIO_IsDirUp()) ? 1 : -1;
 					Int32U StepsToPos = abs(SM_DestSteps - SM_GlobalStepsCounter);
 
@@ -102,7 +102,7 @@ void SM_LogicHandler()
 				}
 			}
 
-			// По спаду фронта обработка запросов на остановку
+			// РџРѕ СЃРїР°РґСѓ С„СЂРѕРЅС‚Р° РѕР±СЂР°Р±РѕС‚РєР° Р·Р°РїСЂРѕСЃРѕРІ РЅР° РѕСЃС‚Р°РЅРѕРІРєСѓ
 			else if(SM_RequestStopFlag)
 			{
 				SM_RequestStopFlag = FALSE;
