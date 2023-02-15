@@ -50,7 +50,7 @@
 #define CS_MONITORING_TICK	(1000000 / TIMER2_PERIOD / CS_MONITORING_FREQ)
 
 #define TIMER2_PERIOD		1000ul		// System timer (in us)
-#define TIMER1_PERIOD		100ul		// High priority step-motor tick timer (in us)
+#define TIMER1_PERIOD		50ul		// High priority step-motor tick timer (in us)
 //--------------------------------------------------------
 
 // TRM

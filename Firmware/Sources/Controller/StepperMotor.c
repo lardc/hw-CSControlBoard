@@ -10,7 +10,7 @@
 #include "Global.h"
 
 // Definitions
-#define SM_TOGGLE_ACCELERATION		100
+#define SM_TOGGLE_ACCELERATION		1
 #define SM_SPEED_CHANGE_STEPS		(2 * SM_FULL_ROUND_STEPS)	// Acceleration in steps
 #define SM_STEPS_RESERVE			10			// Safety area of steps to destination position
 
