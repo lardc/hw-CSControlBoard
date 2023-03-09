@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Device object dictionary
 // ----------------------------------------
 
@@ -15,13 +15,9 @@
 #define ACT_CLR_HALT				5	// Clear halt state
 //
 #define ACT_HOMING					100	// Start homing
-#define ACT_GOTO_POSITION			101 // Go to manually configured position
 #define ACT_START_CLAMPING			102 // Star clamping
 #define ACT_CLAMPING_UPDATE			103 // Update regulator with new parameters
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
-#define ACT_HALT					105 // Abort operation
-#define ACT_SLIDING_PUSH_OUT		106	// Push out sliding system
-#define ACT_SLIDING_PUSH_IN			107	// Push in sliding system
 #define ACT_SET_TEMPERATURE			108	// Set temperature
 //
 #define ACT_DBG_READ_LENZE_REG		110	// Read Lenze register
@@ -40,13 +36,14 @@
 #define ACT_DBG_BREAK_MAN_RLS_ON	123	// Enable brake manual release
 #define ACT_DBG_BREAK_MAN_RLS_OFF	124	// Disable brake manual release
 #define ACT_DBG_BREAK_AUTO_CONTROL	125	// Disable brake manual control
-#define ACT_DBG_READ_FORCE			126 // Read current force value
-#define ACT_DBG_READ_LENZE_ERROR	127 // Read current error value
-// 128 - 129
-#define ACT_DBG_SLS_PUSH_UP			130	// Push up sliding system
-#define ACT_DBG_SLS_PUSH_DOWN		131	// Push down sliding system
-#define ACT_DBG_SLS_PUSH_OUT		132	// Push out sliding system
-#define ACT_DBG_SLS_PUSH_IN			133	// Push in sliding system
+//
+#define ACT_TAIL_CLAMP_ON			130
+#define ACT_TAIL_CLAMP_OFF			131
+#define ACT_BODY_CLAMP_ON			132
+#define ACT_BODY_CLAMP_OFF			133
+#define ACT_DUT_CLAMP_ON			134
+#define ACT_DUT_CLAMP_OFF			135
+#define ACT_FAN_ON					136
 //
 #define ACT_SAVE_TO_ROM				200	// Save parameters to EEPROM module
 #define ACT_RESTORE_FROM_ROM		201	// Restore parameters from EEPROM module
@@ -60,6 +57,7 @@
 // REGISTERS
 //
 #define REG_ADC_INIT_OFFSET			0	// Initial ADC offset (in ticks of 4095)
+#define REG_CLAMP_MANUAL			1
 //
 #define REG_FORCE_K_N				10	// Force recalculating K coefficient (N)
 #define REG_FORCE_K_D				11	// Force recalculating K coefficient (D)
@@ -112,7 +110,6 @@
 #define REG_ALLOWED_MOVE			58	// Clamp allowed move (in mm)
 #define REG_POWER_SW_DELAY			59	// Time to close power switch (in ms) (must be a multiple of 50ms @ 20 Hz TIMER2)
 #define REG_USE_AIR_CONTROL			60	// Use air pressure monitoring system
-#define REG_FORCE_SET_K				61	// Force setpoint K coefficient (x1000)
 //
 #define REG_SP__1					63
 //
@@ -176,14 +173,6 @@
 #define REG_CANB_DIAG_REC			129	// CAN REC
 //
 #define REG_SP__3					159
-//
-// ----------------------------------------
-//
-#define REG_FWINFO_SLAVE_NID		256	// Device CAN slave node ID
-#define REG_FWINFO_MASTER_NID		257	// Device CAN master node ID (if presented)
-// 258 - 259
-#define REG_FWINFO_STR_LEN			260	// Length of the information string record
-#define REG_FWINFO_STR_BEGIN		261	// Begining of the information string record
 
 // ENDPOINTS
 //

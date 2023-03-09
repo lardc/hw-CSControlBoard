@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Board-specific GPIO functions
 // ----------------------------------------
 
@@ -17,11 +17,13 @@ void ZbGPIO_Init()
 	// Output pins
 	// Reset to default state
 	ZwGPIO_WritePin(PIN_WD_RST, FALSE);
-	ZwGPIO_WritePin(PIN_M1M2, FALSE);
-	ZwGPIO_WritePin(PIN_M3M4, FALSE);
-	ZwGPIO_WritePin(PIN_SAFETY_HOLD, FALSE);
+	ZwGPIO_WritePin(PIN_DUT_TAIL_MP, FALSE);
+	ZwGPIO_WritePin(PIN_DUT_BODY_MP, FALSE);
+	ZwGPIO_WritePin(PIN_DUT_TAIL_PP, FALSE);
+	ZwGPIO_WritePin(PIN_DUT_BODY_PP, FALSE);
+	ZwGPIO_WritePin(PIN_BTN_TAIL_LED, FALSE);
+	ZwGPIO_WritePin(PIN_BTN_BODY_LED, FALSE);
 	ZwGPIO_WritePin(PIN_FAN, FALSE);
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, FALSE);
 	ZwGPIO_WritePin(PIN_LED, FALSE);
 	ZwGPIO_WritePin(PIN_RS485_CTRL, FALSE);
 	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
@@ -30,11 +32,13 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_AOUT_LDAC, TRUE);
    	// Configure pins
    	ZwGPIO_PinToOutput(PIN_WD_RST);
-   	ZwGPIO_PinToOutput(PIN_M1M2);
-   	ZwGPIO_PinToOutput(PIN_M3M4);
-   	ZwGPIO_PinToOutput(PIN_SAFETY_HOLD);
+   	ZwGPIO_PinToOutput(PIN_DUT_BODY_PP);
+   	ZwGPIO_PinToOutput(PIN_DUT_TAIL_PP);
+   	ZwGPIO_PinToOutput(PIN_DUT_BODY_MP);
+   	ZwGPIO_PinToOutput(PIN_DUT_TAIL_MP);
+   	ZwGPIO_PinToOutput(PIN_BTN_TAIL_LED);
+   	ZwGPIO_PinToOutput(PIN_BTN_BODY_LED);
    	ZwGPIO_PinToOutput(PIN_FAN);
-   	ZwGPIO_PinToOutput(PIN_POWER_SWITCH);
    	ZwGPIO_PinToOutput(PIN_LED);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_A);
    	ZwGPIO_PinToOutput(PIN_SPIMUX_B);
@@ -43,10 +47,10 @@ void ZbGPIO_Init()
    	ZwGPIO_PinToOutput(PIN_AOUT_LDAC);
 
    	// Input pins
-   	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);
+   	ZwGPIO_PinToInput(PIN_BTN_TAIL, TRUE, PQ_Sample6);
    	ZwGPIO_PinToInput(PIN_SEN2, TRUE, PQ_Sample6);
    	ZwGPIO_PinToInput(PIN_SEN3, TRUE, PQ_Sample6);
-   	ZwGPIO_PinToInput(PIN_SAFETY, TRUE, PQ_Sample6);
+   	ZwGPIO_PinToInput(PIN_BTN_BODY, TRUE, PQ_Sample6);
 }
 // ----------------------------------------
 

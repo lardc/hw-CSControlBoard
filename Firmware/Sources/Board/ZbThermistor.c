@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 #include "ZbThermistor.h"
 //
 #include "SysConfig.h"

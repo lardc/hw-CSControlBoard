@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Global definitions
 // ----------------------------------------
 
@@ -11,6 +11,7 @@
 
 
 // Constants
+
 //
 // Password to unlock non-volatile area for write
 #define ENABLE_LOCKING				FALSE
@@ -27,6 +28,7 @@
 #define EP_COUNT_32					2
 #define VALUES_x_SIZE				500
 #define VALUES_XLOG_x_SIZE			1000
+
 
 // Compatability patch
 #define PATCH_LENZE_DI6_INVERT		TRUE

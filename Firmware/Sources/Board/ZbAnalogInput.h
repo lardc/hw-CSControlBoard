@@ -1,4 +1,4 @@
-#ifndef __ZBANALOG_INPUT_H
+﻿#ifndef __ZBANALOG_INPUT_H
 #define __ZBANALOG_INPUT_H
 
 // Include

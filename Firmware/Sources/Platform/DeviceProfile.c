@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Device profile
 // ----------------------------------------
 
@@ -45,7 +45,6 @@ CANopen_Interface DEVICE_CANopen_Interface;
 //
 static SCCI_IOConfig RS232_IOConfig;
 static BCCI_IOConfig CAN_IOConfig;
-static CANopen_IOConfig CANopenBus_IOConfig;
 static xCCI_ServiceConfig X_ServiceConfig;
 static xCCI_FUNC_CallbackAction ControllerDispatchFunction;
 static EPStates_16 RS232_EPState_16, CAN_EPState_16;
@@ -88,12 +87,6 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 	CAN_IOConfig.IO_IsMessageReceived = &ZwCANa_IsMessageReceived;
 	CAN_IOConfig.IO_ConfigMailbox = &ZwCANa_ConfigMailbox;
 	//
-	CANopenBus_IOConfig.IO_ConfigMailbox = &ZwCANb_ConfigMailbox;
-	CANopenBus_IOConfig.IO_GetMessage = &ZwCANb_GetMessage;
-	CANopenBus_IOConfig.IO_GetTimeStamp = &ZwCANb_GetTimeStamp;
-	CANopenBus_IOConfig.IO_IsMessageReceived = &ZwCANb_IsMessageReceived;
-	CANopenBus_IOConfig.IO_SendMessage = &ZwCANb_SendMessage;
-	CANopenBus_IOConfig.IO_ClearMailbox = &ZwCANb_CancelMessage;
 
 	// Init service
 	X_ServiceConfig.Read32Service = &DEVPROFILE_ReadValue32;
@@ -107,7 +100,6 @@ void DEVPROFILE_Init(xCCI_FUNC_CallbackAction SpecializedDispatch, volatile Bool
 			  DATA_TABLE_SIZE, SCCI_TIMEOUT_TICKS, &RS232_EPState_16, &RS232_EPState_32);
 	BCCI_Init(&DEVICE_CAN_Interface, &CAN_IOConfig, &X_ServiceConfig, (pInt16U)DataTable,
 			  DATA_TABLE_SIZE, &CAN_EPState_16);
-	CANopen_Init(&DEVICE_CANopen_Interface, &CANopenBus_IOConfig, &DEVPROFILE_CANopen_NetworkFail);
 
 	// Set write protection
 	SCCI_AddProtectedArea(&DEVICE_RS232_Interface, DATA_TABLE_WP_START, DATA_TABLE_SIZE - 1);

@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Controller logic
 // ----------------------------------------
 
@@ -32,7 +32,7 @@ static volatile Boolean EnableAutoRelease = FALSE, CycleActive = FALSE, MuteRegu
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 static volatile Int16U AutoReleaseTimeoutTicks, SlidingCounter;
 //
-volatile Int64U CONTROL_TimeCounter = 0, Timeout;
+volatile Int64U CONTROL_TimeCounter = 0, Timeout, CONTROL_LEDTimeCounter = 0;
 volatile Int32U FanTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
 //
@@ -68,15 +68,19 @@ volatile Int16U CONTROL_BootLoaderRequest = 0;
 
 // Forward functions
 //
-static void CONTROL_HandleClampActions();
+static void CONTROL_DUT_Tail();
+static void CONTROL_DUT_Body();
+void CONTROL_HandleClampActions();
 static void CONTROL_UpdateTemperatureFeedback();
 static void CONTROL_HandleFanControl();
 static void CONTROL_SetDeviceState(DeviceState NewState);
 static void CONTROL_FillWPPartDefault();
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError);
-static void CONTROL_ResetScopes();
+void CONTROL_ResetScopes();
 Boolean CONTROL_SlidingSensorOK();
 Boolean CONTROL_PressureOK();
+void CONTROL_LED_Tail();
+void CONTROL_LED_Body();
 
 
 // Functions
@@ -101,7 +105,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 
 	// Init data table
 	DT_Init(EPROMService, BadClockDetected);
-	DT_SaveFirmwareInfo(DEVICE_CAN_ADDRESS, 0);
 	// Fill state variables with default values
 	CONTROL_FillWPPartDefault();
 
@@ -115,9 +118,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 	// Init analog input parameters
 	ZbAnanlogInput_Init();
 
-	// Sliding system init
-	ZbGPIO_PneumoPushOut(FALSE);
-	ZbGPIO_PneumoPushUp(FALSE);
 
 	if(!BadClockDetected)
 	{
@@ -156,15 +156,63 @@ void CONTROL_Idle()
 	// Update temperature feedback
 	CONTROL_UpdateTemperatureFeedback();
 
-	// Read sliding system state
-	DataTable[REG_SLIDING_SENSOR] = CONTROL_SlidingSensorOK();
+	//
 
-	// Process deferred procedures
-	if(DPCDelegate)
+	if(DataTable[REG_CLAMP_MANUAL])
 	{
-		FUNC_AsyncDelegate del = DPCDelegate;
-		DPCDelegate = NULL;
-		del();
+		CONTROL_DUT_Tail();
+		CONTROL_DUT_Body();
+	}
+}
+// ----------------------------------------
+
+void CONTROL_DUT_Tail()
+{
+	if(ZbGPIO_BTN_DUT_State(PIN_BTN_TAIL))
+	{
+		ZbGPIO_DUT_TailControl(FALSE);
+		ZbGPIO_LEDTail(TRUE);
+	}
+	else
+	{
+		ZbGPIO_DUT_TailControl(TRUE);
+		CONTROL_LED_Tail();
+	}
+}
+// ----------------------------------------
+
+void CONTROL_DUT_Body()
+{
+	if(ZbGPIO_BTN_DUT_State(PIN_BTN_BODY))
+	{
+		ZbGPIO_DUT_BodyControl(FALSE);
+		ZbGPIO_LEDBody(TRUE);
+
+	}
+	else
+	{
+		ZbGPIO_DUT_BodyControl(TRUE);
+		CONTROL_LED_Body();
+	}
+}
+// ----------------------------------------
+
+void CONTROL_LED_Tail()
+{
+	if(CONTROL_TimeCounter>(CONTROL_LEDTimeCounter + LED_PERIOD_BLINK))
+	{
+		CONTROL_LEDTimeCounter = CONTROL_TimeCounter;
+		ZbGPIO_ToggleLED_Tail();
+	}
+}
+// ----------------------------------------
+
+void CONTROL_LED_Body()
+{
+	if(CONTROL_TimeCounter>(CONTROL_LEDTimeCounter + LED_PERIOD_BLINK))
+	{
+		CONTROL_LEDTimeCounter = CONTROL_TimeCounter;
+		ZbGPIO_ToggleLED_Body();
 	}
 }
 // ----------------------------------------
@@ -206,7 +254,6 @@ Boolean CONTROL_SlidingSensorOK()
 void CONTROL_UpdateLow()
 {
 	CONTROL_HandleFanControl();
-	CONTROL_HandleClampActions();
 	ZbSU_UpdateTimeCounter(CONTROL_TimeCounter);
 }
 // ----------------------------------------
@@ -256,15 +303,6 @@ static void CONTROL_FillWPPartDefault()
 
 static void CONTROL_SetDeviceState(DeviceState NewState)
 {
-	if (NewState == DS_Clamping || NewState == DS_ClampingUpdate)
-		FanTimeout = FAN_TIMEOUT_TCK;
-
-	// Handle power switch
-	ZbGPIO_EnablePowerSwitch(NewState == DS_ClampingDone ? TRUE : FALSE);
-
-	// Delay before changing device state
-	DELAY_US(1000L * DELAY_CHANGE_DEV_STATE);
-
 	// Set new state
 	CONTROL_State = NewState;
 	DataTable[REG_DEV_STATE] = NewState;
@@ -300,7 +338,7 @@ static void CONTROL_HandleFanControl()
 }
 // ----------------------------------------
 
-static void CONTROL_HandleClampActions()
+void CONTROL_HandleClampActions()
 {
 	static Int64U ClampingDoneCounterCopy = 0;
 
@@ -417,7 +455,7 @@ static void CONTROL_HandleClampActions()
 }
 // ----------------------------------------
 
-static void CONTROL_ResetScopes()
+void CONTROL_ResetScopes()
 {
 	DEVPROFILE_ResetScopes16(0);
 	DEVPROFILE_ResetScopes32(0);
@@ -432,41 +470,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_HOMING:
 			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				if (CONTROL_CheckLenzeError())
-				{
-					*UserError = ERR_DEVICE_NOT_READY;
-				}
-				else
-				{
-					DataTable[REG_PROBLEM] = PROBLEM_NONE;
-					CLAMP_HomingStart();
-					CONTROL_SetDeviceState(DS_Homing);
-				}
-			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
-			break;
-
-		case ACT_GOTO_POSITION:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
-			{
-				if (CONTROL_CheckLenzeError() ||
-					((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
-				{
-					*UserError = ERR_DEVICE_NOT_READY;
-				}
-				else
-				{
-					if (DataTable[REG_CUSTOM_POS] <= DataTable[REG_ALLOWED_MOVE])
-					{
-						DataTable[REG_PROBLEM] = PROBLEM_NONE;
-						CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
-						CLAMP_GoToPosition_mm(TRUE, DataTable[REG_CUSTOM_POS]);
-						CONTROL_SetDeviceState(DS_Position);
-					}
-					else
-						*UserError = ERR_PARAMETER_OUT_OF_RNG;
-				}
+				CONTROL_SetDeviceState(DS_Ready);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -475,146 +479,65 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_START_CLAMPING:
 			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				if (!CONTROL_PressureOK())
-				{
-					*UserError = ERR_NO_AIR_PRESSURE;
-				}
-				else if (!CONTROL_SlidingSensorOK())
-				{
-					*UserError = ERR_SLIDING_SYSTEM;
-				}
-				else if (CONTROL_CheckLenzeError() ||
-					((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
-				{
-					*UserError = ERR_DEVICE_NOT_READY;
-				}
-				else
-				{
-					AutoReleaseTimeoutTicks = ((Int32U)DataTable[REG_MAX_CONT_FORCE_TIMEOUT] * CS_MONITORING_FREQ) / 1000;
-					EnableAutoRelease = (DataTable[REG_FORCE_VAL] >= DataTable[REG_MAX_CONT_FORCE] && DataTable[REG_USE_CLAMP_BREAK] == 0) ? TRUE : FALSE;
-
-					DataTable[REG_PROBLEM] = PROBLEM_NONE;
-					CONTROL_ResetScopes();
-					CLAMPCTRL_StartClamping();
-					CONTROL_SetDeviceState(DS_Clamping);
-				}
+				CONTROL_SetDeviceState(DS_ClampingDone);
+				ZbGPIO_DUT_MainPinchControl(TRUE);
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_CLAMPING_UPDATE:
-			if (CONTROL_State == DS_ClampingDone)
-			{
-				// prevent interrupt by regulator
-				MuteRegulator = TRUE;
-
-				if (CONTROL_CheckLenzeError())
-				{
-					*UserError = ERR_DEVICE_NOT_READY;
-				}
-				else
-				{
-					AutoReleaseTimeoutTicks = ((Int32U)DataTable[REG_MAX_CONT_FORCE_TIMEOUT] * CS_MONITORING_FREQ) / 1000;
-					EnableAutoRelease = (DataTable[REG_FORCE_VAL] >= DataTable[REG_MAX_CONT_FORCE] && DataTable[REG_USE_CLAMP_BREAK] == 0) ? TRUE : FALSE;
-
-					DataTable[REG_PROBLEM] = PROBLEM_NONE;
-					CONTROL_SetDeviceState(DS_ClampingUpdate);
-				}
-
-				// resume regulator
-				MuteRegulator = FALSE;
-			}
-			else
-				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
 		case ACT_RELEASE_CLAMPING:
 			if (CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_Halt  || CONTROL_State == DS_None)
 			{
-				// prevent interrupt by regulator
-				MuteRegulator = TRUE;
-
-				if (CONTROL_CheckLenzeError())
-					*UserError = ERR_DEVICE_NOT_READY;
-				else
-					CONTROL_RequestClampRelease();
-
-				// resume regulator
-				MuteRegulator = FALSE;
+				CONTROL_SetDeviceState(DS_Ready);
+				ZbGPIO_DUT_MainPinchControl(FALSE);
 			}
-			else if (CONTROL_State != DS_ClampingRelease)
+			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
-		case ACT_HALT:
+		case ACT_TAIL_CLAMP_ON:
 			{
-				DINT;
-				CLAMP_CompleteOperation(TRUE);
-				CONTROL_SetDeviceState(DS_Halt);
-				EINT;
+				ZbGPIO_DUT_TailControl(FALSE);
 			}
 			break;
 
-		case ACT_SLIDING_PUSH_OUT:
+		case ACT_TAIL_CLAMP_OFF:
 			{
-				if (CONTROL_State == DS_Ready)
-				{
-					ZbGPIO_PneumoPushUp(TRUE);
-					DELAY_US(SLS_PUSH_UP_TO_OUT_PAUSE * 1000L);
-					ZbGPIO_PneumoPushOut(TRUE);
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
+				ZbGPIO_DUT_TailControl(TRUE);
 			}
 			break;
 
-		case ACT_SLIDING_PUSH_IN:
+		case ACT_BODY_CLAMP_ON:
 			{
-				if (CONTROL_State == DS_Ready)
-				{
-					ZbGPIO_PneumoPushUp(TRUE);
-					DELAY_US(SLS_PUSH_UP_TO_OUT_PAUSE * 1000L);
-					ZbGPIO_PneumoPushOut(FALSE);
-
-					SlidingCounter = 0;
-					Timeout = CONTROL_TimeCounter + SLS_PUSH_IN_TIMEOUT;
-					CONTROL_SetDeviceState(DS_Sliding);
-				}
-				else
-					*UserError = ERR_OPERATION_BLOCKED;
+				ZbGPIO_DUT_BodyControl(FALSE);
 			}
 			break;
 
-		case ACT_DBG_READ_FORCE:
+		case ACT_BODY_CLAMP_OFF:
 			{
-				if (!(CONTROL_State == DS_Clamping || CONTROL_State == DS_ClampingDone))
-				{
-					ZbAnanlogInput_EnableAcq(TRUE);
-					DELAY_US(1000L * DELAY_OP_COMPLETE);
-					ZbAnanlogInput_EnableAcq(FALSE);
-				}
-				CLAMP_ReadForce();
+				ZbGPIO_DUT_BodyControl(TRUE);
 			}
 			break;
 
-		case ACT_DBG_READ_RAW_ADC:
+		case ACT_DUT_CLAMP_ON:
 			{
-				if (!(CONTROL_State == DS_Clamping || CONTROL_State == DS_ClampingDone))
-				{
-					ZbAnanlogInput_EnableAcq(TRUE);
-					DELAY_US(1000L * DELAY_OP_COMPLETE);
-					ZbAnanlogInput_EnableAcq(FALSE);
-				}
-				CLAMP_ReadADCOffset();
+				ZbGPIO_DUT_MainPinchControl(TRUE);
 			}
 			break;
 
-		case ACT_DBG_READ_LENZE_ERROR:
+		case ACT_DUT_CLAMP_OFF:
 			{
-				MuteRegulator = TRUE;
-				DataTable[REG_DRV_ERROR] = CLAMP_ReadError();
-				MuteRegulator = FALSE;
+				ZbGPIO_DUT_MainPinchControl(FALSE);
+			}
+			break;
+
+		case ACT_FAN_ON:
+			{
+				FanTimeout = FAN_TIMEOUT_TCK;
 			}
 			break;
 
@@ -683,11 +606,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_CLR_WARNING:
 			DataTable[REG_PROBLEM] = PROBLEM_NONE;
 			DataTable[REG_WARNING] = WARNING_NONE;
-			break;
-
-		case ACT_CLR_HALT:
-			if(CONTROL_State == DS_Halt)
-				CONTROL_SetDeviceState(DS_Ready);
 			break;
 
 		case ACT_DBG_READ_LENZE_REG:
@@ -875,21 +793,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			ZbGPIO_EnablePowerSwitch(FALSE);
 			break;
 
-		case ACT_DBG_SLS_PUSH_UP:
-			ZbGPIO_PneumoPushUp(TRUE);
-			break;
-
-		case ACT_DBG_SLS_PUSH_DOWN:
-			ZbGPIO_PneumoPushUp(FALSE);
-			break;
-
-		case ACT_DBG_SLS_PUSH_OUT:
-			ZbGPIO_PneumoPushOut(TRUE);
-			break;
-
-		case ACT_DBG_SLS_PUSH_IN:
-			ZbGPIO_PneumoPushOut(FALSE);
-			break;
 
 		default:
 			return FALSE;

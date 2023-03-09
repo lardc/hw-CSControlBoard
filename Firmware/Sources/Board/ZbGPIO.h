@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Board-specific GPIO functions
 // ----------------------------------------
 
@@ -33,19 +33,19 @@ inline Boolean ZbGPIO_GetS3State()
 
 inline void ZbGPIO_EnablePowerSwitch(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_POWER_SWITCH, State);
+
 }
 // ----------------------------------------
 
 inline void ZbGPIO_PneumoPushUp(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_M1M2, State);
+
 }
 // ----------------------------------------
 
 inline void ZbGPIO_PneumoPushOut(Boolean State)
 {
-	ZwGPIO_WritePin(PIN_M3M4, State);
+
 }
 // ----------------------------------------
 
@@ -58,6 +58,55 @@ inline void ZbGPIO_SwitchFan(Boolean State)
 inline void ZbGPIO_ToggleLED()
 {
 	ZwGPIO_TogglePin(PIN_LED);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_ToggleLED_Tail()
+{
+	ZwGPIO_TogglePin(PIN_BTN_TAIL_LED);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_LEDTail(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_BTN_TAIL_LED, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_ToggleLED_Body()
+{
+	ZwGPIO_TogglePin(PIN_BTN_BODY_LED);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_LEDBody(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_BTN_BODY_LED, State);
+}
+// ----------------------------------------
+
+inline Boolean ZbGPIO_BTN_DUT_State(Int16U PinNumber)
+{
+	return !ZwGPIO_ReadPin(PinNumber);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_DUT_MainPinchControl(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_DUT_TAIL_MP, State);
+	ZwGPIO_WritePin(PIN_DUT_BODY_MP, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_DUT_TailControl(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_DUT_TAIL_PP, State);
+}
+// ----------------------------------------
+
+inline void ZbGPIO_DUT_BodyControl(Boolean State)
+{
+	ZwGPIO_WritePin(PIN_DUT_BODY_PP, State);
 }
 // ----------------------------------------
 

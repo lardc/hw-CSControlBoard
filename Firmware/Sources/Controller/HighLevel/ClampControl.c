@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 #include "ClampControl.h"
 //
 #include "Clamp.h"
@@ -192,7 +192,7 @@ void CLAMPCTRL_XLog(DeviceState State)
 
 void CLAMPCTRL_ClampingUpdateRequest()
 {
-	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL] * DataTable[REG_FORCE_SET_K] / 1000);
+	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL]);
 	MaxAllowedError = _IQint(_IQmpy(ForceDesired, _FPtoIQ2(DataTable[REG_CLAMP_ERR_ZONE], 100)));
 	ControlSignal = CLAMP_CurrentIncrements();
 
@@ -339,7 +339,7 @@ void CLAMPCTRL_CacheVariables()
 	ClampTorqueLimit = CLAMPCTRL_CalcTorqueLimit(TRUE);
 
 	GearRatio = _FPtoIQ2(DataTable[REG_GEAR_RATIO_K_N], DataTable[REG_GEAR_RATIO_K_D]);
-	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL] * DataTable[REG_FORCE_SET_K] / 1000);
+	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL]);
 
 	Force2STReleaseMode = _IQI(100l * DataTable[REG_2ST_FORCE_LIM]);
 	Use2STReleaseMode = DataTable[REG_USE_2ST_CLAMP] ? TRUE : FALSE;

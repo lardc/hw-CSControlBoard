@@ -1,4 +1,4 @@
-#ifndef __CANOPEN_PARAMS_H
+﻿#ifndef __CANOPEN_PARAMS_H
 #define __CANOPEN_PARAMS_H
 
 // Include

@@ -1,4 +1,4 @@
-// -----------------------------------------
+﻿// -----------------------------------------
 // Global definitions
 // ----------------------------------------
 
@@ -15,7 +15,7 @@
 const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
                                       {
 											   {0, 4095, 0},															// 0
-											   {0, 0, 0},																// 1
+											   {0, 1, 1},																// 1
 											   {0, 0, 0},																// 2
 											   {0, 0, 0},																// 3
 											   {0, 0, 0},																// 4
@@ -75,7 +75,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {0, POS_MAX, POS_MAX},													// 58
 											   {0, INT16U_MAX, 0},														// 59
 											   {NO, YES, YES},															// 60
-											   {X_D_DEF1, X_D_DEF3, X_D_DEF2},											// 61
+											   {0, 0, 0},																// 61
 											   {0, 0, 0},																// 62
                                     		   {INT16U_MAX, 0, 0}														// 63
                                       };

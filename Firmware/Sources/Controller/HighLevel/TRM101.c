@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 #include "TRM101.h"
 //
 // Include
