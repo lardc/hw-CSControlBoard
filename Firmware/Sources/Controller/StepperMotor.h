@@ -32,6 +32,7 @@ Boolean SM_IsPositioningDone();
 // Homing
 void SM_Homing(Int16U HomingSpeed);
 Boolean SM_IsHomingDone();
+Boolean SM_IsSafetyEvent();
 void SM_ResetZeroPoint();
 void SM_RequestStop();
 

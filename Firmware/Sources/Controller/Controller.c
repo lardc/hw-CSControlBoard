@@ -369,7 +369,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_RELEASE_CLAMPING:
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready)
-				CONTROL_SetDeviceState(DS_ClampingRelease, DSS_Com_CheckControl);
+				// После срабатывания шторки безопасности команда разжатия приводит к хоумингу
+				CONTROL_SetDeviceState(SM_IsSafetyEvent() ? DS_Homing : DS_ClampingRelease, DSS_Com_CheckControl);
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
