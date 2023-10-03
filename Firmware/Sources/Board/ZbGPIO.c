@@ -26,6 +26,8 @@ void ZbGPIO_Init()
 	ZwGPIO_PinToOutput(PIN_SPIMUX_B);
 	ZwGPIO_PinToOutput(PIN_SPIMUX_C);
 	ZwGPIO_PinToOutput(PIN_RS485_CTRL);
+	ZwGPIO_PinToOutput(PIN_ADAPTER_ID_PWR);
+	ZwGPIO_PinToOutput(PIN_ADAPTER_ID_CTRL);
 	// Reset to default state
 	ZwGPIO_WritePin(PIN_STPM_EN, FALSE);
 	ZwGPIO_WritePin(PIN_STPM_DIR, FALSE);
@@ -38,12 +40,15 @@ void ZbGPIO_Init()
 	ZwGPIO_WritePin(PIN_SPIMUX_A, TRUE);
 	ZwGPIO_WritePin(PIN_SPIMUX_B, TRUE);
 	ZwGPIO_WritePin(PIN_SPIMUX_C, TRUE);
+	ZwGPIO_WritePin(PIN_ADAPTER_ID_CTRL, FALSE);
+	ZwGPIO_WritePin(PIN_ADAPTER_ID_PWR, TRUE);
 	
 	// Input pins
 	ZwGPIO_PinToInput(PIN_SEN1, TRUE, PQ_Sample6);
 	ZwGPIO_PinToInput(PIN_SEN2, TRUE, PQ_Sample6);
 	ZwGPIO_PinToInput(PIN_HOME, TRUE, PQ_Sample6);
 	ZwGPIO_PinToInput(PIN_SAFETY, TRUE, PQ_Sample6);
+	ZwGPIO_PinToInput(PIN_ADAPTER_ID_DATA, FALSE, PQ_Async);
 }
 // ----------------------------------------
 

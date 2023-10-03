@@ -16,6 +16,7 @@
 #include "TRM101.h"
 #include "StepperMotor.h"
 #include "StepperMotorDiag.h"
+#include "DS18B20.h"
 
 // Types
 typedef void (*FUNC_AsyncDelegate)();
@@ -346,6 +347,16 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
 	switch(ActionID)
 	{
+		case ACT_ADAPTER_WRITE_ID:
+			if(!DS18B20_WriteReg((Int16U*)&DataTable[70]))
+				*UserError = ERR_OPERATION_BLOCKED;
+			break;
+
+		case ACT_ADAPTER_READ_ID:
+			if(!DS18B20_ReadReg((Int16U*)&DataTable[150]))
+				*UserError = ERR_OPERATION_BLOCKED;
+			break;
+
 		case ACT_HOMING:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 				CONTROL_SetDeviceState(DS_Homing, DSS_Com_CheckControl);
