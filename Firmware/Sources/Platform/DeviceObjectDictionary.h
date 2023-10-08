@@ -76,6 +76,8 @@
 #define REG_DEV_CASE				71	// Код корпуса прибора
 #define REG_TEMP_SETPOINT			72	// Уставка температуры (С х10)
 //
+#define REG_ADAPTER_ID				73	// CS adapter ID
+//
 #define REG_DBG_TRM_ADDRESS			84	// Адрес ТРМ по RS485 для отладки
 //
 #define REG_DBG_STEP_DIV			90	// Коэффициент деления шагов в отладочном режиме
