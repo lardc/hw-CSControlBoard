@@ -7,9 +7,10 @@
 #define DQ_WRITE_INVERSION			TRUE
 #define DQ_READ_INVERSION			FALSE
 #define DQ_STRONG_PULLUP_INVERSION	TRUE
+#define DS18B20_USE_PARASITE_POWER	TRUE
 //
 #define DS18B20_REGISTERS			9
-#define DS18B20_USE_PARASITE_POWER	TRUE
+#define DS18B20_WRITE_TIMEOUT		5
 
 // Include
 //
@@ -65,6 +66,8 @@ Boolean DS18B20_ReadROM(pInt16U Data)
 
 Boolean DS18B20_WriteReg(pInt16U Data)
 {
+	Int16U TimeoutCounter = 0;
+
 	if(DS18B20_Reset())
 	{
 		DS18B20_WriteByte(DS18B20_SKIP_ROM);
@@ -84,7 +87,13 @@ Boolean DS18B20_WriteReg(pInt16U Data)
 			DS18B20_StrongPullUpDQ(FALSE);
 #endif
 
-			while(!DS18B20_Reset()){}
+			while(!DS18B20_Reset())
+			{
+				TimeoutCounter++;
+
+				if(TimeoutCounter >= DS18B20_WRITE_TIMEOUT)
+					return 0;
+			}
 
 			return 1;
 		}
