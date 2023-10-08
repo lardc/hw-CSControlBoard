@@ -120,15 +120,13 @@ Boolean DS18B20_ReadReg(pInt16U Data)
 
 Int16U DS18B20_ReadByte()
 {
+	Int16U Data = 0;
+	Int16U i;
 
-  Int16U Data = 0;
-  Int16U i;
+	for(i = 0; i < 8; i++)
+		Data |= DS18B20_ReadBit() << i;
 
-
-  for(i = 0; i < 8; i++)
-	  Data |= DS18B20_ReadBit() << i;
-  return Data;
-
+	return Data;
 }
 //-------------------
 
