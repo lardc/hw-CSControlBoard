@@ -12,6 +12,9 @@
 #define ACT_CLR_WARNING				4	// Clear warning
 #define ACT_CLR_HALT				5	// Clear halt state
 
+#define ACT_ADAPTER_WRITE_ID		10
+#define ACT_ADAPTER_READ_ID			11
+
 #define ACT_HOMING					100	// Start homing
 #define ACT_GOTO_POSITION			101 // Go to manually configured position
 #define ACT_START_CLAMPING			102 // Star clamping
@@ -72,6 +75,8 @@
 
 #define REG_DEV_CASE				71	// Код корпуса прибора
 #define REG_TEMP_SETPOINT			72	// Уставка температуры (С х10)
+//
+#define REG_ADAPTER_ID				73	// CS adapter ID
 //
 #define REG_DBG_TRM_ADDRESS			84	// Адрес ТРМ по RS485 для отладки
 //
