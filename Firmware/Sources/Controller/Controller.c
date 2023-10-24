@@ -16,7 +16,7 @@
 #include "TRM101.h"
 #include "StepperMotor.h"
 #include "StepperMotorDiag.h"
-#include "DS18B20.h"
+#include "ZbCSAdapter.h"
 
 // Types
 typedef void (*FUNC_AsyncDelegate)();
@@ -190,6 +190,7 @@ static void CONTROL_HandleFanControl()
 static void CONTROL_HandleClampActions()
 {
 	static Int64U Timeout = 0;
+	Int16U AdapterID = 0;
 
 	switch(CONTROL_State)
 	{
@@ -205,6 +206,21 @@ static void CONTROL_HandleClampActions()
 	// Обработка общей логики отключения управления
 	switch(CONTROL_SubState)
 	{
+		case DSS_CheckAdapter:
+			if(CSAdapter_ReadID((Int16U*)&AdapterID))
+			{
+				if(AdapterID == DataTable[REG_ADAPTER_ID])
+					CONTROL_SetDeviceState(CONTROL_State, DSS_Com_CheckControl);
+				else
+				{
+					DataTable[REG_PROBLEM] = PROBLEM_ADAPTER_ID;
+					CONTROL_SetDeviceState(DS_Ready, DSS_None);
+				}
+			}
+			else
+				CONTROL_SwitchToFault(FAULT_ADAPTER_CONN);
+			break;
+
 		case DSS_Com_CheckControl:
 			{
 				// Раннее включение поджатия адаптера если зажимается прибор
@@ -348,12 +364,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	switch(ActionID)
 	{
 		case ACT_ADAPTER_WRITE_ID:
-			if(!DS18B20_WriteReg((Int16U*)&DataTable[REG_ADAPTER_ID]))
+			if(!CSAdapter_WriteID((Int16U*)&DataTable[REG_ADAPTER_ID]))
 				*UserError = ERR_DEVICE_NOT_READY;
 			break;
 
 		case ACT_ADAPTER_READ_ID:
-			if(!DS18B20_ReadReg((Int16U*)&DataTable[REG_ADAPTER_ID]))
+			if(!CSAdapter_ReadID((Int16U*)&DataTable[REG_ADAPTER_ID]))
 				*UserError = ERR_DEVICE_NOT_READY;
 			break;
 
@@ -373,7 +389,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_START_CLAMPING:
 			if(CONTROL_State == DS_Ready)
-				CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
+				CONTROL_SetDeviceState(DS_Clamping, DSS_CheckAdapter);
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
 			break;
