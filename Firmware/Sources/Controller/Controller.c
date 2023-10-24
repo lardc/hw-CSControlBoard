@@ -349,12 +349,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	{
 		case ACT_ADAPTER_WRITE_ID:
 			if(!DS18B20_WriteReg((Int16U*)&DataTable[REG_ADAPTER_ID]))
-				*UserError = ERR_OPERATION_BLOCKED;
+				*UserError = ERR_DEVICE_NOT_READY;
 			break;
 
 		case ACT_ADAPTER_READ_ID:
 			if(!DS18B20_ReadReg((Int16U*)&DataTable[REG_ADAPTER_ID]))
-				*UserError = ERR_OPERATION_BLOCKED;
+				*UserError = ERR_DEVICE_NOT_READY;
 			break;
 
 		case ACT_HOMING:
