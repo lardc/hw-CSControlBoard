@@ -138,7 +138,6 @@
 // PROBLEM CODES
 //
 #define PROBLEM_NONE				0	// No problem
-#define PROBLEM_ADAPTER_ID			1	// Adapter does not match
 
 // DISABLE CODES
 //

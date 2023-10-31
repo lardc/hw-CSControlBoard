@@ -34,9 +34,7 @@ typedef enum __DeviceSubState
 {
 	DSS_None = 0,
 
-	DSS_CheckAdapter = 1,
-
-	DSS_Com_CheckControl = 2,
+	DSS_Com_CheckControl = 1,
 	DSS_Com_ControlRelease = 3,
 	DSS_Com_ReleaseDone = 4,
 
