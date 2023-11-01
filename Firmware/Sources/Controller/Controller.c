@@ -16,7 +16,7 @@
 #include "TRM101.h"
 #include "StepperMotor.h"
 #include "StepperMotorDiag.h"
-#include "DS18B20.h"
+#include "ZbCSAdapter.h"
 
 // Types
 typedef void (*FUNC_AsyncDelegate)();
@@ -345,16 +345,18 @@ static void CONTROL_HandleClampActions()
 
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
+	Int16U AdapterID = 0;
+
 	switch(ActionID)
 	{
 		case ACT_ADAPTER_WRITE_ID:
-			if(!DS18B20_WriteReg((Int16U*)&DataTable[REG_ADAPTER_ID]))
-				*UserError = ERR_OPERATION_BLOCKED;
+			if(!CSAdapter_WriteID((Int16U*)&DataTable[REG_ADAPTER_ID]))
+				*UserError = ERR_DEVICE_NOT_READY;
 			break;
 
 		case ACT_ADAPTER_READ_ID:
-			if(!DS18B20_ReadReg((Int16U*)&DataTable[REG_ADAPTER_ID]))
-				*UserError = ERR_OPERATION_BLOCKED;
+			if(!CSAdapter_ReadID((Int16U*)&DataTable[REG_ADAPTER_ID]))
+				*UserError = ERR_DEVICE_NOT_READY;
 			break;
 
 		case ACT_HOMING:
@@ -373,7 +375,17 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_START_CLAMPING:
 			if(CONTROL_State == DS_Ready)
-				CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
+			{
+				if(CSAdapter_ReadID((Int16U*)&AdapterID))
+				{
+					if(AdapterID == DataTable[REG_ADAPTER_ID])
+						CONTROL_SetDeviceState(CONTROL_State, DSS_Com_CheckControl);
+					else
+						*UserError = ERR_OPERATION_BLOCKED;
+				}
+				else
+					CONTROL_SwitchToFault(FAULT_ADAPTER_CONN);
+			}
 			else
 				*UserError = ERR_DEVICE_NOT_READY;
 			break;

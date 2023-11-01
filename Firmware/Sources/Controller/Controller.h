@@ -35,8 +35,8 @@ typedef enum __DeviceSubState
 	DSS_None = 0,
 
 	DSS_Com_CheckControl = 1,
-	DSS_Com_ControlRelease = 2,
-	DSS_Com_ReleaseDone = 3,
+	DSS_Com_ControlRelease = 3,
+	DSS_Com_ReleaseDone = 4,
 
 	DSS_HomingSearchSensor = 10,
 	DSS_HomingPause = 11,

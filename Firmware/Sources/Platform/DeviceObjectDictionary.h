@@ -133,6 +133,7 @@
 //
 #define FAULT_BUS_SEN				7	// Ошибка сигнала с датчика поджатия шин
 #define FAULT_ADAPTER_SEN			8	// Ошибка сигнала с датчика поджатия адаптера
+#define FAULT_ADAPTER_CONN			9	// No connection to adapter
 
 // PROBLEM CODES
 //
