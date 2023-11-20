@@ -10,6 +10,7 @@
 #include "TRM101.h"
 #include "SysConfig.h"
 #include "Controller.h"
+#include "Flash.h"
 
 // FORWARD FUNCTIONS
 // -----------------------------------------
@@ -70,9 +71,7 @@ void main()
 		ERTM;
 
 		// Set watch-dog as WDRST
-		ZwSystem_SelectDogFunc(FALSE);
 		ZwSystem_EnableDog(SYS_WD_PRESCALER);
-		ZwSystem_LockDog();
 
 		// Start timers
 		ZwTimer_StartT2();
