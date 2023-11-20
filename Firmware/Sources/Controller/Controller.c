@@ -85,6 +85,9 @@ void CONTROL_Init(Boolean BadClockDetected)
 	
 	SM_ResetZeroPoint();
 	ZwTimer_StartT1();
+	// Control Pressure
+	ZwADC_SubscribeToResults1(&CONTROL_PressureMeasuring);
+
 
 	// Sliding system init
 	if(!BadClockDetected)
@@ -103,6 +106,11 @@ void CONTROL_Init(Boolean BadClockDetected)
 			// Terminate heating for sure
 			TRM_Stop(TRM_CH1_ADDR, &dummy_error);
 		}
+		// Pressure system
+	//	if(DataTable[REG_USE_PRESSURE_SENSOR])
+	//	{
+
+	//	}
 	}
 	else
 	{
@@ -110,6 +118,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 		DataTable[REG_DISABLE_REASON] = DISABLE_BAD_CLOCK;
 		CONTROL_SetDeviceState(DS_Disabled, DSS_None);
 	}
+
 }
 // ----------------------------------------
 
@@ -124,7 +133,7 @@ void CONTROL_Idle()
 	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
 	DataTable[REG_BUS_TOOLING_SENSOR] = ZbGPIO_IsBusToolingSensorOk();
 	DataTable[REG_ADAPTER_TOOLING_SENSOR] = ZbGPIO_IsAdapterToolingSensorOk();
-	
+	ZwADC_StartSEQ1();
 	// Process deferred procedures
 	if(DPCDelegate)
 	{
@@ -674,5 +683,12 @@ void CONTROL_UpdateTRMTemperature()
 		DataTable[REG_TRM_ERROR] = error;
 		error = TRME_None;
 	}
+}
+// ----------------------------------------
+void CONTROL_PressureMeasuring(Int16U * const restrict pResults)
+{
+	Int32U Pressure = *(Int16U *)pResults;
+	Pressure = (Pressure * DataTable[REG_PRESSURE_K] / 1000) + DataTable[REG_PRESSURE_OFFSET];
+	DataTable[REG_PRESSURE] = Pressure;
 }
 // ----------------------------------------

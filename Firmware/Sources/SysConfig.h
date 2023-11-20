@@ -38,6 +38,13 @@
 #define GPIO_NSAMPLE		6			// 6 samples: T = 5.1uS * 6 = 31 uS
 //--------------------------------------------------------
 
+// ADC
+//--------------------------------------------------------
+#define ADC_PRESCALER		0			// HSPCLK / (1 * 1) = 50 MHz
+#define ADC_CD2				TRUE		// Div ADC core / 2 = 25MHz
+#define ADC_SH				2			// S/H sample window = 1 => 12.5 MSPS
+//--------------------------------------------------------
+
 // Flash
 //--------------------------------------------------------
 #define FLASH_FWAIT			3

@@ -83,5 +83,6 @@ void CONTROL_Idle();
 void CONTROL_UpdateLow();
 // Notify that CANa system fault occurs
 void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag);
-
+// Pressure measuring
+void CONTROL_PressureMeasuring(Int16U * const restrict pResults);
 #endif // __CONTROLLER_H

@@ -68,6 +68,11 @@
 #define REG_USE_HEATING				20	// Включение/выключение обработки команд системы нагрева
 #define REG_USE_SAFETY_SENSOR		21	// Включение/выключение обработки датчика безопасности
 #define REG_USE_TOOLING_SENSOR		22	// Включение/выключение обработки датчика оснастки
+#define REG_USE_PRESSURE_SENSOR		23	// Включение/выключение обработки датчика давления
+
+#define REG_PRESSURE_OFFSET 		30	//
+#define REG_PRESSURE_K				31  //
+
 //
 // ----------------------------------------
 //
@@ -101,7 +106,7 @@
 
 #define REG_TRM_DATA				103	// Data read from TRM
 #define REG_TRM_ERROR				104	// TRM error value
-
+#define REG_PRESSURE				105	// Давление в пневмомагистрали
 #define REG_SAFETY_SENSOR			106	// Состояние датчика безопасности
 #define REG_HOMING_SENSOR			107	// Состояние датчика хоуминга
 #define REG_BUS_TOOLING_SENSOR		108	// Состояние датчика фиксации шины оснастки

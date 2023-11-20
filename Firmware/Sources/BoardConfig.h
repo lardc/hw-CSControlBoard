@@ -71,5 +71,8 @@
 #define PIN_ADAPTER_ID_PWR	18
 #define PIN_ADAPTER_ID_CTRL	16
 #define PIN_ADAPTER_ID_DATA	13
+
+// ADC placement
+#define AIN_V_CSU			0x00	// INA 0
 //
 #endif // __BOARD_CONFIG_H

@@ -19,6 +19,7 @@ void InitializeTimers();
 void InitializeSPI();
 void InitializeSCI();
 void InitializeCAN();
+void InitializeADC();
 void InitializeBoard();
 void InitializeController(Boolean GoodClock);
 // -----------------------------------------
@@ -29,6 +30,8 @@ void InitializeController(Boolean GoodClock);
 ISRCALL Timer2_ISR();
 // CANa Line 0 ISR
 ISRCALL CAN0A_ISR();
+// ADC SEQ1 ISR
+ISRCALL SEQ1_ISR();
 // ILLEGAL ISR
 ISRCALL IllegalInstruction_ISR();
 // -----------------------------------------
@@ -49,6 +52,7 @@ void main()
 		InitializeTimers();
 		InitializeSPI();
 		InitializeCAN();
+		InitializeADC();
 		InitializeBoard();
 	}
 
@@ -60,6 +64,7 @@ void main()
 		ADD_ISR(TINT2, Timer2_ISR);
 		ADD_ISR(TINT1_XINT13, Timer1_ISR);
 		ADD_ISR(ECAN0INTA, CAN0A_ISR);
+		ADD_ISR(SEQ1INT, SEQ1_ISR);
 		ADD_ISR(ILLEGAL, IllegalInstruction_ISR);
 	END_ISR_MAP
 
@@ -170,6 +175,18 @@ void InitializeCAN()
 }
 // -----------------------------------------
 
+void InitializeADC()
+{
+	// Initialize and prepare ADC
+	ZwADC_Init(ADC_PRESCALER, ADC_CD2, ADC_SH);
+	ZwADC_ConfigInterrupts(TRUE, FALSE);
+
+	// Enable interrupts on peripheral and CPU levels
+	ZwADC_EnableInterrupts(TRUE, FALSE);
+	ZwADC_EnableInterruptsGlobal(TRUE);
+}
+// -----------------------------------------
+
 void InitializeBoard()
 {
 	// Init board GPIO
@@ -192,6 +209,7 @@ void InitializeController(Boolean GoodClock)
 	#pragma CODE_SECTION(IllegalInstruction_ISR, "ramfuncs");
 #endif
 //
+#pragma INTERRUPT(SEQ1_ISR, HPI);
 // -----------------------------------------
 
 // Timer 2 ISR
@@ -231,6 +249,19 @@ ISRCALL CAN0A_ISR(void)
 
 	// allow other interrupts from group 9
 	CAN_ISR_DONE;
+}
+// -----------------------------------------
+
+// ADC SEQ1 ISR
+ISRCALL SEQ1_ISR(void)
+{
+	// Handle interrupt
+	ZwADC_ProcessInterruptSEQ1();
+	// Dispatch results
+	ZwADC_Dispatch1();
+
+	// allow other interrupts from group 1
+	ADC_ISR_DONE;
 }
 // -----------------------------------------
 
