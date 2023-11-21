@@ -31,7 +31,7 @@ volatile DeviceSubState CONTROL_SubState = DSS_None;
 
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
 Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
-volatile Int16U CONTROL_Values_Counter = 0;
+volatile Int16U CONTROL_Values_Counter = 0, CSPressure = 0;
 
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
@@ -51,7 +51,7 @@ void CONTROL_PrepareHomingOffset();
 void CONTROL_PrepareClamping(Boolean Clamp);
 void CONTROL_Halt();
 void CONTROL_UpdateTRMTemperature();
-
+void UpdatePressureOK();
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
 {
@@ -106,11 +106,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 			// Terminate heating for sure
 			TRM_Stop(TRM_CH1_ADDR, &dummy_error);
 		}
-		// Pressure system
-	//	if(DataTable[REG_USE_PRESSURE_SENSOR])
-	//	{
-
-	//	}
 	}
 	else
 	{
@@ -133,7 +128,7 @@ void CONTROL_Idle()
 	DataTable[REG_HOMING_SENSOR] = ZbGPIO_HomeSensorActuate();
 	DataTable[REG_BUS_TOOLING_SENSOR] = ZbGPIO_IsBusToolingSensorOk();
 	DataTable[REG_ADAPTER_TOOLING_SENSOR] = ZbGPIO_IsAdapterToolingSensorOk();
-	ZwADC_StartSEQ1();
+	UpdatePressureOK();
 	// Process deferred procedures
 	if(DPCDelegate)
 	{
@@ -688,7 +683,19 @@ void CONTROL_UpdateTRMTemperature()
 void CONTROL_PressureMeasuring(Int16U * const restrict pResults)
 {
 	Int32U Pressure = *(Int16U *)pResults;
-	Pressure = (Pressure * DataTable[REG_PRESSURE_K] / 1000) + DataTable[REG_PRESSURE_OFFSET];
-	DataTable[REG_PRESSURE] = Pressure;
+	CSPressure = (Pressure * DataTable[REG_PRESSURE_K] / 1000) + DataTable[REG_PRESSURE_OFFSET];
+	DataTable[REG_PRESSURE] = CSPressure;
+
+
 }
 // ----------------------------------------
+
+void UpdatePressureOK()
+{
+	ZwADC_StartSEQ1();
+	if (CSPressure < DataTable[REG_PRESSURE_OK])
+		CONTROL_SwitchToFault(FAULT_PRESSURE);
+}
+
+
+

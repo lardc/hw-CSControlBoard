@@ -68,11 +68,10 @@
 #define REG_USE_HEATING				20	// Включение/выключение обработки команд системы нагрева
 #define REG_USE_SAFETY_SENSOR		21	// Включение/выключение обработки датчика безопасности
 #define REG_USE_TOOLING_SENSOR		22	// Включение/выключение обработки датчика оснастки
-#define REG_USE_PRESSURE_SENSOR		23	// Включение/выключение обработки датчика давления
-
-#define REG_PRESSURE_OFFSET 		30	//
-#define REG_PRESSURE_K				31  //
-
+//
+#define REG_PRESSURE_OFFSET 		30	// Смещение давления
+#define REG_PRESSURE_K				31  // Линейный коэффициент давления x1000
+#define REG_PRESSURE_OK				32	// Корректное давление системы бар x1000
 //
 // ----------------------------------------
 //
@@ -139,6 +138,7 @@
 #define FAULT_BUS_SEN				7	// Ошибка сигнала с датчика поджатия шин
 #define FAULT_ADAPTER_SEN			8	// Ошибка сигнала с датчика поджатия адаптера
 #define FAULT_ADAPTER_CONN			9	// No connection to adapter
+#define FAULT_PRESSURE				10	// Давление ниже нормы
 
 // PROBLEM CODES
 //
