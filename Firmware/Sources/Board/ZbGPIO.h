@@ -14,6 +14,7 @@
 //
 // Init module
 void ZbGPIO_Init();
+void DS18B20_Init();
 // Get pin state
 Boolean ZbGPIO_FilterSafetyCircuit(Boolean NewState);
 // Set proper CS output
@@ -33,7 +34,7 @@ inline Boolean ZbGPIO_HomeSensorActuate()
 
 inline Boolean ZbGPIO_IsBusToolingSensorOk()
 {
-	return ZwGPIO_ReadPin(PIN_SEN1);
+	return !ZwGPIO_ReadPin(PIN_SEN1);
 }
 // ----------------------------------------
 

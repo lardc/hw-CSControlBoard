@@ -56,19 +56,19 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {0, 0, 0},																// 37
 											   {0, 0, 0},																// 38
 											   {0, 0, 0},																// 39
-											   {0, 0, 0},																// 40
-											   {0, 0, 0},																// 41
-											   {0, 0, 0},																// 42
-											   {0, 0, 0},																// 43
-											   {0, 0, 0},																// 44
-											   {0, 0, 0},																// 45
-											   {0, 0, 0},																// 46
-											   {0, 0, 0},																// 47
-											   {0, 0, 0},																// 48
-											   {0, 0, 0},																// 49
-											   {0, 0, 0},																// 50
-											   {0, 0, 0},																// 51
-											   {0, 0, 0},																// 52
+											   {CASE_MIN, CASE_MAX, CASE_MIAA_DEF},										// 40
+											   {CASE_MIN, CASE_MAX, CASE_MIDA_DEF},										// 41
+											   {CASE_MIN, CASE_MAX, CASE_MIFA_DEF},										// 42
+											   {CASE_MIN, CASE_MAX, CASE_MIHA_DEF},										// 43
+											   {CASE_MIN, CASE_MAX, CASE_MIHM_DEF},										// 44
+											   {CASE_MIN, CASE_MAX, CASE_MIHV_DEF},										// 45
+											   {CASE_MIN, CASE_MAX, CASE_MISM_DEF},										// 46
+											   {CASE_MIN, CASE_MAX, CASE_MISM2_CH_DEF},									// 47
+											   {CASE_MIN, CASE_MAX, CASE_MISM2_SS_SD_DEF},								// 48
+											   {CASE_MIN, CASE_MAX, CASE_MISV_DEF},										// 49
+											   {CASE_MIN, CASE_MAX, CASE_MIXM_DEF},										// 50
+											   {CASE_MIN, CASE_MAX, CASE_MIXV_DEF},										// 51
+											   {CASE_MIN, CASE_MAX, CASE_MADAP_DEF},									// 52
 											   {0, 0, 0},																// 53
 											   {0, 0, 0},																// 54
 											   {0, 0, 0},																// 55
@@ -91,7 +91,7 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {0, 0, 0},																// 68
 											   {0, 0, 0},																// 69
 											   {0, INT16U_MAX, 0},														// 70
-											   {SC_Type_A2, SC_Type_ADAP, SC_Type_F1},									// 71
+											   {SC_Type_A2, SC_Type_MADAP, SC_Type_F1},									// 71
 											   {TRM_TEMP_MIN, TRM_TEMP_MAX, TRM_TEMP_DEF},								// 72
 											   {0, INT16U_MAX, 0},														// 73
 											   {0, 0, 0},																// 74

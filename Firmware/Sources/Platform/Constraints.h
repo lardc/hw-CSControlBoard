@@ -33,6 +33,20 @@ typedef struct __TableItemConstraint
 #define CASE_E_DEF					82
 #define CASE_F_DEF					144
 #define CASE_ADAP_DEF				50
+//
+#define CASE_MIAA_DEF				180
+#define CASE_MIDA_DEF				180
+#define CASE_MIFA_DEF				180
+#define CASE_MIHA_DEF				180
+#define CASE_MIHM_DEF				180
+#define CASE_MIHV_DEF				180
+#define CASE_MISM_DEF				180
+#define CASE_MISM2_CH_DEF			180
+#define CASE_MISM2_SS_SD_DEF		180
+#define CASE_MISV_DEF				180
+#define CASE_MIXM_DEF				180
+#define CASE_MIXV_DEF				180
+#define CASE_MADAP_DEF				180
 
 // Расстояние замедления (мм)
 #define SLOW_DOWN_MIN				0
