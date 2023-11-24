@@ -87,21 +87,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>FlashAPI/Flash2809_API_V100.lib</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/FlashAPI/Flash2809_API_V100.lib</locationURI>
-		</link>
-		<link>
-			<name>FlashAPI/Flash280x_API_Config.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/FlashAPI/Flash280x_API_Config.h</locationURI>
-		</link>
-		<link>
-			<name>FlashAPI/Flash280x_API_Library.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/FlashAPI/Flash280x_API_Library.h</locationURI>
-		</link>
-		<link>
 			<name>IQmath/IQmath.lib</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/IQmath/IQmath.lib</locationURI>
@@ -125,16 +110,6 @@
 			<name>Sources/RTS</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>Sources/Controller/Flash.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/BootLoader/Controller/Flash.c</locationURI>
-		</link>
-		<link>
-			<name>Sources/Controller/Flash.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/hw-TMS-libs/BootLoader/Controller/Flash.h</locationURI>
 		</link>
 		<link>
 			<name>Sources/Interface/BCCISlave.c</name>
