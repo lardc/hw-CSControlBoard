@@ -52,8 +52,10 @@
 #define REG_CLAMP_HEIGHT_CASE_D0			3	// Высота подъёма столика для корпуса D0 (мм)
 #define REG_CLAMP_HEIGHT_CASE_E0			4	// Высота подъёма столика для корпуса E0 (мм)
 #define REG_CLAMP_HEIGHT_CASE_F1			5	// Высота подъёма столика для корпуса F1 (мм)
-#define REG_CLAMP_HEIGHT_CASE_ADAP  		6   // высота подъёма столика для калибровочного адаптера (мм)
+#define REG_CLAMP_HEIGHT_CASE_ADAP  		6   // Высота подъёма столика для калибровочного адаптера (мм)
+#define REG_CLAMP_HEIGHT_CASE_E2M			7 	// Высота подъёма столика для корпуса E2M (мм)
 
+#define REG_CASE_THYRISTOR					9	// Зажимное используется для тиристоров
 #define REG_POS_SPEED_MIN					10	// Минимальная скорость перемещения при позиционировании (мм/сек)
 #define REG_POS_SPEED_LOW					11	// Пониженная скорость перемещения при позиционировании (мм/сек)
 #define REG_POS_SPEED_MAX					12	// Максимальная скорость перемещения при позиционировании (мм/сек)
@@ -156,7 +158,7 @@
 // PROBLEM CODES
 //
 #define PROBLEM_NONE						0	// No problem
-#define PROBLEM_OTHER_ADAPTER				1	// Установлен адаптер другой конфигурации
+#define PROBLEM_TOP_ADAPTER_MISMATCHED		3	// Установленный верхний адаптер не совпадает с заданым адаптером для проведения измерений
 
 // DISABLE CODES
 //

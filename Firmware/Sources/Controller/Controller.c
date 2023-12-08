@@ -301,8 +301,34 @@ static void CONTROL_HandleClampActions()
 
 					if(!DataTable[REG_USE_TOOLING_SENSOR] || (IsBusOk && IsAdapterOk && IsIntAdapterOk))
 					{
-						if(DataTable[REG_DEV_CASE] < 2000)
+						if(DataTable[REG_CASE_THYRISTOR])
+						{
+							if (DataTable[REG_DEV_CASE] > 2000)
+							{
+								DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
+								ZbGPIO_SwitchPowerConnection(FALSE);
+								CONTROL_SetDeviceState(DS_Ready, DSS_None);
+								break;
+							}
+							else
+							{
 							AdapterID = DataTable[REG_DEV_CASE];
+							}
+						}
+						else
+						{
+							if (DataTable[REG_DEV_CASE] < 2000)
+							{
+								DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
+								ZbGPIO_SwitchPowerConnection(FALSE);
+								CONTROL_SetDeviceState(DS_Ready, DSS_None);
+								break;
+							}
+							else if (DataTable[REG_DEV_CASE] == 2015)
+							{
+								AdapterID = DataTable[REG_DEV_CASE];
+							}
+						}
 
 						if(AdapterID == DataTable[REG_DEV_CASE])
 						{
@@ -311,9 +337,10 @@ static void CONTROL_HandleClampActions()
 						}
 						else
 						{
-							DataTable[REG_PROBLEM] = PROBLEM_OTHER_ADAPTER;
+							DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
 							ZbGPIO_SwitchPowerConnection(FALSE);
 							CONTROL_SetDeviceState(DS_Ready, DSS_None);
+							break;
 						}
 					}
 					else if(CONTROL_TimeCounter > Timeout)
@@ -421,6 +448,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_HOLD_ADAPTER:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Ready)
 				ZbGPIO_SwitchPowerConnection(TRUE);
+
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -640,6 +668,9 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 			case SC_Type_ADAP:
 				Reg = 6;
 				break;
+			case SC_Type_E2M:
+				Reg = 7;
+				break;
 //
 			case SC_Type_MIAA:
 				Reg = 40;
@@ -752,19 +783,21 @@ void UpdatePressureOK()
 // ----------------------------------------
 inline CONTROL_IntAdapterOk()
 {
-	DS18B20_Init();
-	if(CSAdapter_ReadID((Int16U*)&AdapterID))
+	if(DataTable[!REG_CASE_THYRISTOR])
 	{
-		ZbGPIO_CSMux(SPIMUX_EPROM);
-		return 1;
+		DS18B20_Init();
+		if(CSAdapter_ReadID((Int16U*)&AdapterID))
+		{
+			ZbGPIO_CSMux(SPIMUX_EPROM);
+			return 1;
+		}
+		else
+		{
+			ZbGPIO_CSMux(SPIMUX_EPROM);
+			return 0;
+		}
 	}
 	else
-	{
-		ZbGPIO_CSMux(SPIMUX_EPROM);
-		return 0;
-	}
+		return 1;
 }
 // ----------------------------------------
-
-
-

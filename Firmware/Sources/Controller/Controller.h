@@ -60,6 +60,7 @@ typedef enum __DevType
 	SC_Type_E0 = 1003,
 	SC_Type_F1 = 1004,
 	SC_Type_ADAP = 1007,
+	SC_Type_E2M = 1008,
 //
 	SC_Type_MIAA = 2001,
 	SC_Type_MIDA = 2002,

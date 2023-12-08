@@ -25,7 +25,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {CASE_MIN, CASE_MAX, CASE_ADAP_DEF},										// 6
 											   {0, 0, 0},																// 7
 											   {0, 0, 0},																// 8
-											   {0, 0, 0},																// 9
+											   {NO, YES, YES},															// 9
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 10
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 11
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 12
@@ -91,7 +91,7 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {0, 0, 0},																// 68
 											   {0, 0, 0},																// 69
 											   {0, INT16U_MAX, 0},														// 70
-											   {SC_Type_A2, SC_Type_MADAP, SC_Type_F1},									// 71
+											   {SC_Type_A2, SC_Type_MADAP, SC_Type_MIHA},								// 71
 											   {TRM_TEMP_MIN, TRM_TEMP_MAX, TRM_TEMP_DEF},								// 72
 											   {0, INT16U_MAX, 0},														// 73
 											   {0, 0, 0},																// 74
