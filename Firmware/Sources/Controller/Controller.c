@@ -640,6 +640,46 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 			case SC_Type_ADAP:
 				Reg = 6;
 				break;
+//
+			case SC_Type_MIAA:
+				Reg = 40;
+				break;
+			case SC_Type_MIDA:
+				Reg = 41;
+				break;
+			case SC_Type_MIFA:
+				Reg = 42;
+				break;
+			case SC_Type_MIHA:
+				Reg = 43;
+				break;
+			case SC_Type_MIHM:
+				Reg = 44;
+				break;
+			case SC_Type_MIHV:
+				Reg = 45;
+				break;
+			case SC_Type_MISM:
+				Reg = 46;
+				break;
+			case SC_Type_MISM2_CH:
+				Reg = 47;
+				break;
+			case SC_Type_MISM2_SS_SD:
+				Reg = 48;
+				break;
+			case SC_Type_MISV:
+				Reg = 49;
+				break;
+			case SC_Type_MIXM:
+				Reg = 50;
+				break;
+			case SC_Type_MIXV:
+				Reg = 51;
+				break;
+			case SC_Type_MADAP:
+				Reg = 52;
+				break;
 		}
 
 		CONTROL_PreparePositioningX(DataTable[Reg], DataTable[REG_SLOW_DOWN_DIST],
