@@ -74,7 +74,6 @@ typedef enum __DevType
 	SC_Type_MISV = 2008,
 	SC_Type_MIXM = 2009,
 	SC_Type_MIXV = 2010,
-	SC_Type_MADAP = 2015,
 
 } DevType;
 

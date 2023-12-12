@@ -91,7 +91,7 @@ const TableItemConstraint VConstraint[DATA_TABLE_WP_START - DATA_TABLE_WR_START]
 											   {0, 0, 0},																// 68
 											   {0, 0, 0},																// 69
 											   {0, INT16U_MAX, 0},														// 70
-											   {SC_Type_A2, SC_Type_MADAP, SC_Type_MIHA},								// 71
+											   {SC_Type_A2, SC_Type_MIXV, SC_Type_MIHA},								// 71
 											   {TRM_TEMP_MIN, TRM_TEMP_MAX, TRM_TEMP_DEF},								// 72
 											   {0, INT16U_MAX, 0},														// 73
 											   {0, 0, 0},																// 74

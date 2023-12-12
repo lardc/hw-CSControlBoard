@@ -317,19 +317,18 @@ static void CONTROL_HandleClampActions()
 						}
 						else
 						{
-							if (DataTable[REG_DEV_CASE] < 2000)
+							if (DataTable[REG_DEV_CASE] == SC_Type_ADAP)
+							{
+								AdapterID = SC_Type_ADAP;
+							}
+							else if (DataTable[REG_DEV_CASE] < 2000 || DataTable[REG_DEV_CASE] != SC_Type_ADAP)
 							{
 								DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
 								ZbGPIO_SwitchPowerConnection(FALSE);
 								CONTROL_SetDeviceState(DS_Ready, DSS_None);
 								break;
 							}
-							else if (DataTable[REG_DEV_CASE] == 2015)
-							{
-								AdapterID = DataTable[REG_DEV_CASE];
-							}
 						}
-
 						if(AdapterID == DataTable[REG_DEV_CASE])
 						{
 							CONTROL_PrepareClamping(TRUE);
@@ -666,8 +665,16 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 				Reg = 5;
 				break;
 			case SC_Type_ADAP:
-				Reg = 6;
-				break;
+				if(DataTable[REG_CASE_THYRISTOR])
+				{
+					Reg = 6;
+					break;
+				}
+				else
+				{
+					Reg = 52;
+					break;
+				}
 			case SC_Type_E2M:
 				Reg = 7;
 				break;
@@ -707,9 +714,6 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 				break;
 			case SC_Type_MIXV:
 				Reg = 51;
-				break;
-			case SC_Type_MADAP:
-				Reg = 52;
 				break;
 		}
 
