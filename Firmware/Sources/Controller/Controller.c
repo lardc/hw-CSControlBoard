@@ -18,6 +18,10 @@
 #include "StepperMotorDiag.h"
 #include "ZbCSAdapter.h"
 
+// Definitions
+//
+#define SC_TYPE_MASK		0xFC00
+
 // Types
 typedef void (*FUNC_AsyncDelegate)();
 
@@ -194,6 +198,7 @@ static void CONTROL_HandleFanControl()
 static void CONTROL_HandleClampActions()
 {
 	static Int64U Timeout = 0;
+	Boolean IsIGBTAdapterOk, IsBusClampOk, IsAdapterClampOk;
 
 	switch(CONTROL_State)
 	{
@@ -295,15 +300,23 @@ static void CONTROL_HandleClampActions()
 
 				case DSS_ClampingWaitSensors:
 				{
-					Boolean IsBusOk = ZbGPIO_IsBusToolingSensorOk();
-					Boolean IsAdapterOk = ZbGPIO_IsAdapterToolingSensorOk();
-					Boolean IsIntAdapterOk = CONTROL_IntAdapterOk();
+					DUT_Type DUTType = (DUT_Type)DataTable[REG_CASE_THYRISTOR];
+					IsBusClampOk = ZbGPIO_IsBusToolingSensorOk();
+					IsAdapterClampOk = ZbGPIO_IsAdapterToolingSensorOk();
 
-					if(!DataTable[REG_USE_TOOLING_SENSOR] || (IsBusOk && IsAdapterOk && IsIntAdapterOk))
+					if(!DataTable[REG_USE_TOOLING_SENSOR] || (IsBusClampOk && IsAdapterClampOk))
 					{
-						if(DataTable[REG_CASE_THYRISTOR])
+						AdapterID = (DUTType == DT_Thyristor) ? DataTable[REG_DEV_CASE] : CONTROL_ReadIGBTAdapterID(&IsIGBTAdapterOk);
+
+						if(DataTable[REG_DEV_CASE] == SC_Type_MIADAP && AdapterID == DataTable[REG_SERT_UPPER_ADAP_ID])
+							AdapterID = SC_Type_MIADAP;
+
+						if(!IsIGBTAdapterOk)
+							CONTROL_SwitchToFault(FAULT_IGBT_ADAPTER_CONN);
+						else
 						{
-							if (DataTable[REG_DEV_CASE] > 2000)
+							if ((DUTType == DT_Thyristor && (AdapterID & SC_TYPE_MASK)) || (DUTType == DT_IGBT && !(AdapterID & SC_TYPE_MASK)) ||
+									(DUTType == DT_IGBT && AdapterID != DataTable[REG_DEV_CASE]))
 							{
 								DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
 								ZbGPIO_SwitchPowerConnection(FALSE);
@@ -312,38 +325,14 @@ static void CONTROL_HandleClampActions()
 							}
 							else
 							{
-							AdapterID = DataTable[REG_DEV_CASE];
+								CONTROL_PrepareClamping(TRUE);
+								CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingOperating);
 							}
-						}
-						else
-						{
-							if (DataTable[REG_DEV_CASE] == SC_Type_ADAP)
-							{
-								AdapterID = SC_Type_ADAP;
-							}
-							else if (DataTable[REG_DEV_CASE] < 2000 || DataTable[REG_DEV_CASE] != SC_Type_ADAP)
-							{
-								DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
-								ZbGPIO_SwitchPowerConnection(FALSE);
-								CONTROL_SetDeviceState(DS_Ready, DSS_None);
-								break;
-							}
-						}
-						if(AdapterID == DataTable[REG_DEV_CASE])
-						{
-							CONTROL_PrepareClamping(TRUE);
-							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingOperating);
-						}
-						else
-						{
-							DataTable[REG_PROBLEM] = PROBLEM_TOP_ADAPTER_MISMATCHED;
-							ZbGPIO_SwitchPowerConnection(FALSE);
-							CONTROL_SetDeviceState(DS_Ready, DSS_None);
-							break;
 						}
 					}
-					else if(CONTROL_TimeCounter > Timeout)
-						CONTROL_SwitchToFault(IsBusOk ? IsAdapterOk ? FAULT_ADAPTER_CONN  : FAULT_ADAPTER_SEN : FAULT_BUS_SEN);
+					else
+						if(CONTROL_TimeCounter > Timeout)
+							CONTROL_SwitchToFault(IsAdapterClampOk ? FAULT_BUS_SEN : FAULT_ADAPTER_SEN);
 				}
 				break;
 
@@ -665,16 +654,9 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 				Reg = 5;
 				break;
 			case SC_Type_ADAP:
-				if(DataTable[REG_CASE_THYRISTOR])
-				{
-					Reg = 6;
-					break;
-				}
-				else
-				{
-					Reg = 52;
-					break;
-				}
+				Reg = 6;
+				break;
+
 			case SC_Type_E2M:
 				Reg = 7;
 				break;
@@ -714,6 +696,10 @@ void CONTROL_PrepareClamping(Boolean Clamp)
 				break;
 			case SC_Type_MIXV:
 				Reg = 51;
+				break;
+
+			case SC_Type_MIADAP:
+				Reg = 52;
 				break;
 		}
 
@@ -785,23 +771,14 @@ void UpdatePressureOK()
 }
 
 // ----------------------------------------
-inline CONTROL_IntAdapterOk()
+Int16U CONTROL_ReadIGBTAdapterID(pBoolean AdapterOk)
 {
-	if(DataTable[!REG_CASE_THYRISTOR])
-	{
-		DS18B20_Init();
-		if(CSAdapter_ReadID((Int16U*)&AdapterID))
-		{
-			ZbGPIO_CSMux(SPIMUX_EPROM);
-			return 1;
-		}
-		else
-		{
-			ZbGPIO_CSMux(SPIMUX_EPROM);
-			return 0;
-		}
-	}
-	else
-		return 1;
+	pInt16U AdapterID = 0;
+
+	DS18B20_Init();
+	*AdapterOk = CSAdapter_ReadID(AdapterID);
+	ZbGPIO_CSMux(SPIMUX_EPROM);
+
+	return *AdapterID;
 }
 // ----------------------------------------

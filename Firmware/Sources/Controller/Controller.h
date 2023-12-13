@@ -16,6 +16,12 @@
 
 // Types
 //
+typedef enum __DUTType
+{
+	DT_IGBT	= 0,
+	DT_Thyristor = 1
+} DUT_Type;
+
 typedef enum __DeviceState
 {
 	DS_None	= 0,
@@ -69,12 +75,13 @@ typedef enum __DevType
 	SC_Type_MIHM = 2005,
 	SC_Type_MIHV = 2006,
 	SC_Type_MISM = 2007,
-	SC_Type_MISM2_CH = 2012,
-	SC_Type_MISM2_SS_SD = 2014,
 	SC_Type_MISV = 2008,
 	SC_Type_MIXM = 2009,
 	SC_Type_MIXV = 2010,
-
+	// 2011
+	SC_Type_MISM2_CH = 2012,
+	SC_Type_MISM2_SS_SD = 2014,
+	SC_Type_MIADAP = 2015
 } DevType;
 
 // Variables
@@ -103,5 +110,5 @@ void CONTROL_PressureMeasuring(Int16U * const restrict pResults);
 //
 void CONTROL_UpdatePressureOK();
 //
-inline CONTROL_IntAdapterOk();
+Int16U CONTROL_ReadIGBTAdapterID(pBoolean AdapterOk);
 #endif // __CONTROLLER_H

@@ -88,6 +88,8 @@
 #define REG_CLAMP_HEIGHT_CASE_MIXM			50	// Высота подъёма столика для корпуса MIXM (мм)
 #define REG_CLAMP_HEIGHT_CASE_MIXV			51	// Высота подъёма столика для корпуса MIXV (мм)
 #define REG_CLAMP_HEIGHT_CASE_MADAP			52	// Высота подъёма столика для калибровочного адаптера IGBT (мм)
+//
+#define REG_SERT_UPPER_ADAP_ID				53	// ID верхнего адаптера аттестации (взять из DevType в Controller.h)
 // ----------------------------------------
 //
 #define REG_CUSTOM_POS						64	// Mannually configured position (in mm)
@@ -152,7 +154,7 @@
 //
 #define FAULT_BUS_SEN						7	// Ошибка сигнала с датчика поджатия шин
 #define FAULT_ADAPTER_SEN					8	// Ошибка сигнала с датчика поджатия адаптера
-#define FAULT_ADAPTER_CONN					9	// No connection to adapter
+#define FAULT_IGBT_ADAPTER_CONN				9	// No connection to IGBT adapter
 #define FAULT_PRESSURE						10	// Давление ниже нормы
 
 // PROBLEM CODES
