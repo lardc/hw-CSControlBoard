@@ -781,7 +781,6 @@ Int16U CONTROL_ReadIGBTAdapterID(pBoolean AdapterOk)
 
 	DS18B20_Init();
 	*AdapterOk = CSAdapter_ReadID(AdapterID);
-	ZwMemory_PrepareSPIForEPROM();
 
 	return *AdapterID;
 }
