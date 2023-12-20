@@ -34,9 +34,7 @@ volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout, PTimeout;
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
-#pragma DATA_SECTION(CONTROL_Values_1, "data_mem");
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
-#pragma DATA_SECTION(CONTROL_Values_1_32, "data_mem");
 Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
 volatile Int16U CONTROL_Values_Counter = 0, CSPressure = 0, AdapterID = 0;
 
