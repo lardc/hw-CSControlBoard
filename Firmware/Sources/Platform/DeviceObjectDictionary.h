@@ -152,10 +152,11 @@
 //
 #define FAULT_TRM							4	// TRM communication fault
 //
+#define FAULT_PRESSURE						5	// Давление ниже нормы
 #define FAULT_BUS_SEN						7	// Ошибка сигнала с датчика поджатия шин
 #define FAULT_ADAPTER_SEN					8	// Ошибка сигнала с датчика поджатия адаптера
 #define FAULT_IGBT_ADAPTER_CONN				9	// No connection to IGBT adapter
-#define FAULT_PRESSURE						10	// Давление ниже нормы
+
 
 // PROBLEM CODES
 //

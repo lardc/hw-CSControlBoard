@@ -410,7 +410,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			
 		case ACT_START_CLAMPING:
 					if(CONTROL_State == DS_Ready)
+					{
+						DataTable[REG_PROBLEM] = PROBLEM_NONE;
 						CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
+					}
 					else
 						*UserError = ERR_DEVICE_NOT_READY;
 					break;
