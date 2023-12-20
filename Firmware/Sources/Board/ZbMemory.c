@@ -26,7 +26,6 @@ static Int16U DataBuffer[DATA_BUFFER_SIZE];
 // Forward functions
 //
 static void ZbMemory_EnableWriteEPROM();
-static void ZwMemory_PrepareSPIForEPROM();
 
 // Functions
 //
@@ -124,7 +123,7 @@ static void ZbMemory_EnableWriteEPROM()
 }
 // ----------------------------------------
 
-static void ZwMemory_PrepareSPIForEPROM()
+void ZwMemory_PrepareSPIForEPROM()
 {
 	ZwSPIa_Init(TRUE, SPIA_BAUDRATE, 8, SPIA_PLR, SPIA_PHASE, 0, TRUE, FALSE);
 	ZbGPIO_CSMux(SPIMUX_EPROM);

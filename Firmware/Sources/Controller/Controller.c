@@ -17,6 +17,7 @@
 #include "StepperMotor.h"
 #include "StepperMotorDiag.h"
 #include "ZbCSAdapter.h"
+#include "ZbMemory.h"
 
 // Definitions
 //
@@ -777,7 +778,7 @@ Int16U CONTROL_ReadIGBTAdapterID(pBoolean AdapterOk)
 
 	DS18B20_Init();
 	*AdapterOk = CSAdapter_ReadID(AdapterID);
-	ZbGPIO_CSMux(SPIMUX_EPROM);
+	ZwMemory_PrepareSPIForEPROM();
 
 	return *AdapterID;
 }
