@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 #include "ClampControl.h"
 //
 #include "Clamp.h"

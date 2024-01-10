@@ -1,4 +1,4 @@
-#ifndef __TEMPERATUREFEEDBACK_H
+﻿#ifndef __TEMPERATUREFEEDBACK_H
 #define __TEMPERATUREFEEDBACK_H
 
 // Include

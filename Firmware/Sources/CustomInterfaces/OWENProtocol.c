@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 //
 #include "OWENProtocol.h"
 #include "SysConfig.h"

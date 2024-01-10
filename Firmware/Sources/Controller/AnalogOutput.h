@@ -1,4 +1,4 @@
-#ifndef __ANALOG_OUTPUT_H
+﻿#ifndef __ANALOG_OUTPUT_H
 #define __ANALOG_OUTPUT_H
 
 // Include

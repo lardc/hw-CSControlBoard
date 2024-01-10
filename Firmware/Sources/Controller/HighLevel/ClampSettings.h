@@ -1,4 +1,4 @@
-#ifndef __CLAMPSETTINGS_H
+﻿#ifndef __CLAMPSETTINGS_H
 #define __CLAMPSETTINGS_H
 
 // Definitions

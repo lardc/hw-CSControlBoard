@@ -1,4 +1,4 @@
-// Header
+﻿// Header
 #include "Clamp.h"
 //
 #include "ZbAnalogInput.h"

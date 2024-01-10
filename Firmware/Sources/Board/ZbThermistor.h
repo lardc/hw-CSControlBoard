@@ -1,4 +1,4 @@
-#ifndef __ZBTHERMISTOR_H
+﻿#ifndef __ZBTHERMISTOR_H
 #define __ZBTHERMISTOR_H
 
 // Include
