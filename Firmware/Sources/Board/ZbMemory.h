@@ -1,5 +1,5 @@
-﻿// -----------------------------------------
-// Driver for EEPROM & FRAM via SPI
+// ----------------------------------------
+// Driver for internal EEPROM
 // ----------------------------------------
 
 #ifndef __ZBMEMORY_H
@@ -16,4 +16,4 @@ void ZbMemory_WriteValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U Buffe
 // Read values from EPROM
 void ZbMemory_ReadValuesEPROM(Int16U EPROMAddress, pInt16U Buffer, Int16U BufferSize);
 
-#endif // __ZBMEMORY_H
+#endif // __ZBMEMORY_INT_H

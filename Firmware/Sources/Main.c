@@ -12,6 +12,7 @@
 #include "SysConfig.h"
 //
 #include "Controller.h"
+#include "Flash.h"
 
 // FORWARD FUNCTIONS
 // -----------------------------------------
@@ -50,6 +51,7 @@ void main()
 
 	// Boot process
 	clockInitResult = InitializeCPU();
+	FLASH_Init();
 
 	// Only if good clocking was established
 	if(clockInitResult)
