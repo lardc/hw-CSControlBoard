@@ -84,11 +84,16 @@ Boolean CONTROL_PressureOK();
 void CONTROL_Init(Boolean BadClockDetected)
 {
 	// Variables for endpoint configuration
-	Int16U EPIndexes_16[EP_COUNT_16] = {EP16_Data_ForceActual, EP16_Data_ForceDesired, EP16_Data_ForceError, EP16_XLog_SubState, EP16_XLog_Force, EP16_XLog_Error, EP16_XLog_TorqueLimit};
-	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE};
-	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter,
-										  (pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter};
-	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1, CONTROL_Values_2, CONTROL_Values_3, CONTROL_Values_SubState, CONTROL_Values_Force, CONTROL_Values_Error, CONTROL_Values_TorqueLimit};
+	Int16U EPIndexes_16[EP_COUNT_16] = {EP16_Data_ForceActual, EP16_Data_ForceDesired, EP16_Data_ForceError,
+			EP16_XLog_SubState, EP16_XLog_Force, EP16_XLog_Error, EP16_XLog_TorqueLimit};
+	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE, VALUES_x_SIZE, VALUES_x_SIZE, VALUES_XLOG_x_SIZE,
+			VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE, VALUES_XLOG_x_SIZE};
+	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_Counter,
+			(pInt16U)&CONTROL_Values_Counter, (pInt16U)&CONTROL_Values_XLogCounter,
+			(pInt16U)&CONTROL_Values_XLogCounter, (pInt16U)&CONTROL_Values_XLogCounter,
+			(pInt16U)&CONTROL_Values_XLogCounter};
+	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1, CONTROL_Values_2, CONTROL_Values_3, CONTROL_Values_SubState,
+			CONTROL_Values_Force, CONTROL_Values_Error, CONTROL_Values_TorqueLimit};
 
 	// Variables for endpoint configuration
 	Int16U EPIndexes_32[EP_COUNT_32] = {EP32_Data_CtrlIncrements, EP32_Data_Position};
@@ -97,7 +102,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32, (pInt16U)CONTROL_Values_2_32};
 
 	// Data-table EPROM service configuration
-	EPROMServiceConfig EPROMService = { &ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM };
+	EPROMServiceConfig EPROMService = {&ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM};
 
 	// Init data table
 	DT_Init(EPROMService, BadClockDetected);
@@ -128,7 +133,7 @@ void CONTROL_Init(Boolean BadClockDetected)
 		}
 
 		// Heating system init
-		if (DataTable[REG_USE_HEATING])
+		if(DataTable[REG_USE_HEATING])
 		{
 			TRMError dummy_error;
 
@@ -177,7 +182,8 @@ void inline CONTROL_RequestDPC(FUNC_AsyncDelegate Action)
 
 void inline CONTROL_RequestClampRelease()
 {
-	if (CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_Halt || CONTROL_State == DS_None)
+	if(CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_Halt
+			|| CONTROL_State == DS_None)
 	{
 		// prevent interrupt by regulator
 		MuteRegulator = TRUE;
@@ -201,7 +207,7 @@ Boolean CONTROL_SlidingSensorOK()
 // ----------------------------------------
 
 #ifdef BOOT_FROM_FLASH
-	#pragma CODE_SECTION(CONTROL_UpdateLow, "ramfuncs");
+#pragma CODE_SECTION(CONTROL_UpdateLow, "ramfuncs");
 #endif
 void CONTROL_UpdateLow()
 {
@@ -212,7 +218,7 @@ void CONTROL_UpdateLow()
 // ----------------------------------------
 
 #ifdef BOOT_FROM_FLASH
-	#pragma CODE_SECTION(CONTROL_NotifyCANaFault, "ramfuncs");
+#pragma CODE_SECTION(CONTROL_NotifyCANaFault, "ramfuncs");
 #endif
 void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
 {
@@ -221,7 +227,7 @@ void CONTROL_NotifyCANaFault(ZwCAN_SysFlags Flag)
 // ----------------------------------------
 
 #ifdef BOOT_FROM_FLASH
-	#pragma CODE_SECTION(CONTROL_NotifyCANbFault, "ramfuncs");
+#pragma CODE_SECTION(CONTROL_NotifyCANbFault, "ramfuncs");
 #endif
 void CONTROL_NotifyCANbFault(ZwCAN_SysFlags Flag)
 {
@@ -238,7 +244,7 @@ void CONTROL_NotifyCANopenFault()
 
 static void CONTROL_UpdateTemperatureFeedback()
 {
-	if (DataTable[REG_USE_HEATING] && !DataTable[REG_DBG_PAUSE_T_FEEDBACK])
+	if(DataTable[REG_USE_HEATING] && !DataTable[REG_DBG_PAUSE_T_FEEDBACK])
 		TempFb_UpdateTemperatureFeedback(CONTROL_TimeCounter);
 }
 // ----------------------------------------
@@ -256,7 +262,7 @@ static void CONTROL_FillWPPartDefault()
 
 static void CONTROL_SetDeviceState(DeviceState NewState)
 {
-	if (NewState == DS_Clamping || NewState == DS_ClampingUpdate)
+	if(NewState == DS_Clamping || NewState == DS_ClampingUpdate)
 		FanTimeout = FAN_TIMEOUT_TCK;
 
 	// Handle power switch
@@ -275,7 +281,7 @@ Boolean CONTROL_CheckLenzeError()
 {
 	Int32U err = CLAMP_ReadError();
 
-	if (err)
+	if(err)
 	{
 		DataTable[REG_DRV_ERROR] = err;
 		DataTable[REG_FAULT_REASON] = DISABLE_LENZE_ERROR;
@@ -295,7 +301,7 @@ Boolean CONTROL_PressureOK()
 static void CONTROL_HandleFanControl()
 {
 	ZbGPIO_SwitchFan((FanTimeout > 0 || HeatingActive) ? TRUE : FALSE);
-	if (FanTimeout > 0)
+	if(FanTimeout > 0)
 		--FanTimeout;
 }
 // ----------------------------------------
@@ -308,7 +314,8 @@ static void CONTROL_HandleClampActions()
 	CLAMPCTRL_XLog(CONTROL_State);
 
 	// Disable any actions with motor driver
-	if (MuteRegulator) return;
+	if(MuteRegulator)
+		return;
 
 	// Handle quick stop request
 	switch(CONTROL_State)
@@ -320,7 +327,7 @@ static void CONTROL_HandleClampActions()
 		case DS_ClampingUpdate:
 		case DS_ClampingRelease:
 			{
-				if (CLAMP_IsQSPActive())
+				if(CLAMP_IsQSPActive())
 				{
 					DINT;
 					CLAMP_CompleteOperation(TRUE);
@@ -338,7 +345,7 @@ static void CONTROL_HandleClampActions()
 	switch(CONTROL_State)
 	{
 		case DS_Homing:
-			if (CLAMP_IsHomingDone())
+			if(CLAMP_IsHomingDone())
 			{
 				CLAMP_CompleteOperation(FALSE);
 
@@ -350,7 +357,7 @@ static void CONTROL_HandleClampActions()
 			break;
 
 		case DS_Position:
-			if (CLAMP_IsTargetReached())
+			if(CLAMP_IsTargetReached())
 			{
 				CLAMP_CompleteOperation(TRUE);
 				CONTROL_SetDeviceState(DS_Ready);
@@ -358,7 +365,7 @@ static void CONTROL_HandleClampActions()
 			break;
 
 		case DS_Clamping:
-			if (CLAMPCTRL_IsClampingDone())
+			if(CLAMPCTRL_IsClampingDone())
 			{
 				// clamping process
 				ClampingDoneCounterCopy = CONTROL_TimeCounter;
@@ -371,7 +378,8 @@ static void CONTROL_HandleClampActions()
 				// post-clamping regulation
 				CLAMPCTRL_IsClampingDone();
 				// check release condition
-				if ((EnableAutoRelease && (CONTROL_TimeCounter - ClampingDoneCounterCopy > AutoReleaseTimeoutTicks)) || !CONTROL_PressureOK())
+				if((EnableAutoRelease && (CONTROL_TimeCounter - ClampingDoneCounterCopy > AutoReleaseTimeoutTicks))
+						|| !CONTROL_PressureOK())
 					CONTROL_RequestDPC(&CONTROL_RequestClampRelease);
 			}
 			break;
@@ -384,7 +392,7 @@ static void CONTROL_HandleClampActions()
 			break;
 
 		case DS_ClampingRelease:
-			if (CLAMPCTRL_IsClampingReleaseDone())
+			if(CLAMPCTRL_IsClampingReleaseDone())
 			{
 				CLAMP_CompleteOperation(TRUE);
 				CONTROL_SetDeviceState(DS_Ready);
@@ -393,14 +401,14 @@ static void CONTROL_HandleClampActions()
 
 		case DS_Sliding:
 			{
-				if (CONTROL_TimeCounter < Timeout)
+				if(CONTROL_TimeCounter < Timeout)
 				{
-					if (CONTROL_SlidingSensorOK())
+					if(CONTROL_SlidingSensorOK())
 						++SlidingCounter;
 					else
 						SlidingCounter = 0;
 
-					if (SlidingCounter > SLS_BOUNCE_COUNTER)
+					if(SlidingCounter > SLS_BOUNCE_COUNTER)
 					{
 						ZbGPIO_PneumoPushUp(FALSE);
 						CONTROL_SetDeviceState(DS_Ready);
@@ -430,9 +438,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	switch(ActionID)
 	{
 		case ACT_HOMING:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				if (CONTROL_CheckLenzeError())
+				if(CONTROL_CheckLenzeError())
 				{
 					*UserError = ERR_DEVICE_NOT_READY;
 				}
@@ -448,19 +456,20 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_GOTO_POSITION:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				if (CONTROL_CheckLenzeError() ||
-					((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
+				if(CONTROL_CheckLenzeError()
+						|| ((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
 				{
 					*UserError = ERR_DEVICE_NOT_READY;
 				}
 				else
 				{
-					if (DataTable[REG_CUSTOM_POS] <= DataTable[REG_ALLOWED_MOVE])
+					if(DataTable[REG_CUSTOM_POS] <= DataTable[REG_ALLOWED_MOVE])
 					{
 						DataTable[REG_PROBLEM] = PROBLEM_NONE;
-						CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT], DataTable[REG_POSITION_TORQUE_LIMIT]);
+						CLAMP_SpeedTorqueLimits(DataTable[REG_POSITION_SPEED_LIMIT],
+								DataTable[REG_POSITION_TORQUE_LIMIT]);
 						CLAMP_GoToPosition_mm(TRUE, DataTable[REG_CUSTOM_POS]);
 						CONTROL_SetDeviceState(DS_Position);
 					}
@@ -473,25 +482,28 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_START_CLAMPING:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
 			{
-				if (!CONTROL_PressureOK())
+				if(!CONTROL_PressureOK())
 				{
 					*UserError = ERR_NO_AIR_PRESSURE;
 				}
-				else if (!CONTROL_SlidingSensorOK())
+				else if(!CONTROL_SlidingSensorOK())
 				{
 					*UserError = ERR_SLIDING_SYSTEM;
 				}
-				else if (CONTROL_CheckLenzeError() ||
-					((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
+				else if(CONTROL_CheckLenzeError()
+						|| ((CONTROL_State == DS_None || CONTROL_State == DS_Halt) && !CLAMP_IsHomingPosAvailable()))
 				{
 					*UserError = ERR_DEVICE_NOT_READY;
 				}
 				else
 				{
-					AutoReleaseTimeoutTicks = ((Int32U)DataTable[REG_MAX_CONT_FORCE_TIMEOUT] * CS_MONITORING_FREQ) / 1000;
-					EnableAutoRelease = (DataTable[REG_FORCE_VAL] >= DataTable[REG_MAX_CONT_FORCE] && DataTable[REG_USE_CLAMP_BREAK] == 0) ? TRUE : FALSE;
+					AutoReleaseTimeoutTicks = ((Int32U)DataTable[REG_MAX_CONT_FORCE_TIMEOUT] * CS_MONITORING_FREQ)
+							/ 1000;
+					EnableAutoRelease =
+							(DataTable[REG_FORCE_VAL] >= DataTable[REG_MAX_CONT_FORCE]
+									&& DataTable[REG_USE_CLAMP_BREAK] == 0) ? TRUE : FALSE;
 
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					CONTROL_ResetScopes();
@@ -504,19 +516,22 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_CLAMPING_UPDATE:
-			if (CONTROL_State == DS_ClampingDone)
+			if(CONTROL_State == DS_ClampingDone)
 			{
 				// prevent interrupt by regulator
 				MuteRegulator = TRUE;
 
-				if (CONTROL_CheckLenzeError())
+				if(CONTROL_CheckLenzeError())
 				{
 					*UserError = ERR_DEVICE_NOT_READY;
 				}
 				else
 				{
-					AutoReleaseTimeoutTicks = ((Int32U)DataTable[REG_MAX_CONT_FORCE_TIMEOUT] * CS_MONITORING_FREQ) / 1000;
-					EnableAutoRelease = (DataTable[REG_FORCE_VAL] >= DataTable[REG_MAX_CONT_FORCE] && DataTable[REG_USE_CLAMP_BREAK] == 0) ? TRUE : FALSE;
+					AutoReleaseTimeoutTicks = ((Int32U)DataTable[REG_MAX_CONT_FORCE_TIMEOUT] * CS_MONITORING_FREQ)
+							/ 1000;
+					EnableAutoRelease =
+							(DataTable[REG_FORCE_VAL] >= DataTable[REG_MAX_CONT_FORCE]
+									&& DataTable[REG_USE_CLAMP_BREAK] == 0) ? TRUE : FALSE;
 
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					CONTROL_SetDeviceState(DS_ClampingUpdate);
@@ -530,12 +545,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_RELEASE_CLAMPING:
-			if (CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_Halt  || CONTROL_State == DS_None)
+			if(CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_Halt
+					|| CONTROL_State == DS_None)
 			{
 				// prevent interrupt by regulator
 				MuteRegulator = TRUE;
 
-				if (CONTROL_CheckLenzeError())
+				if(CONTROL_CheckLenzeError())
 					*UserError = ERR_DEVICE_NOT_READY;
 				else
 					CONTROL_RequestClampRelease();
@@ -543,7 +559,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				// resume regulator
 				MuteRegulator = FALSE;
 			}
-			else if (CONTROL_State != DS_ClampingRelease)
+			else if(CONTROL_State != DS_ClampingRelease)
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
 
@@ -558,7 +574,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_SLIDING_PUSH_OUT:
 			{
-				if (CONTROL_State == DS_Ready)
+				if(CONTROL_State == DS_Ready)
 				{
 					ZbGPIO_PneumoPushUp(TRUE);
 					DELAY_US(SLS_PUSH_UP_TO_OUT_PAUSE * 1000L);
@@ -571,7 +587,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_SLIDING_PUSH_IN:
 			{
-				if (CONTROL_State == DS_Ready)
+				if(CONTROL_State == DS_Ready)
 				{
 					ZbGPIO_PneumoPushUp(TRUE);
 					DELAY_US(SLS_PUSH_UP_TO_OUT_PAUSE * 1000L);
@@ -588,7 +604,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_FORCE:
 			{
-				if (!(CONTROL_State == DS_Clamping || CONTROL_State == DS_ClampingDone))
+				if(!(CONTROL_State == DS_Clamping || CONTROL_State == DS_ClampingDone))
 				{
 					ZbAnanlogInput_EnableAcq(TRUE);
 					DELAY_US(1000L * DELAY_OP_COMPLETE);
@@ -600,7 +616,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_RAW_ADC:
 			{
-				if (!(CONTROL_State == DS_Clamping || CONTROL_State == DS_ClampingDone))
+				if(!(CONTROL_State == DS_Clamping || CONTROL_State == DS_ClampingDone))
 				{
 					ZbAnanlogInput_EnableAcq(TRUE);
 					DELAY_US(1000L * DELAY_OP_COMPLETE);
@@ -620,33 +636,33 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_SET_TEMPERATURE:
 			{
-				if (DataTable[REG_USE_HEATING])
+				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
 
 					// prevent interrupt by regulator
 					MuteRegulator = TRUE;
 
-					if (DataTable[REG_TEMP_SETPOINT] < TRM_TEMP_THR)
+					if(DataTable[REG_TEMP_SETPOINT] < TRM_TEMP_THR)
 					{
 						TRM_SetTemp(TRM_CH1_ADDR, TRM_ROOM_TEMP, &error);
-						if (error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, TRM_ROOM_TEMP, &error);
-						if (error == TRME_None) TRM_Stop(TRM_CH1_ADDR, &error);
-						if (error == TRME_None) TRM_Stop(TRM_CH2_ADDR, &error);
+						if(error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, TRM_ROOM_TEMP, &error);
+						if(error == TRME_None) TRM_Stop(TRM_CH1_ADDR, &error);
+						if(error == TRME_None) TRM_Stop(TRM_CH2_ADDR, &error);
 
 						HeatingActive = FALSE;
 					}
 					else
 					{
 						TRM_SetTemp(TRM_CH1_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
-						if (error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
-						if (error == TRME_None) TRM_Start(TRM_CH1_ADDR, &error);
-						if (error == TRME_None) TRM_Start(TRM_CH2_ADDR, &error);
+						if(error == TRME_None) TRM_SetTemp(TRM_CH2_ADDR, DataTable[REG_TEMP_SETPOINT], &error);
+						if(error == TRME_None) TRM_Start(TRM_CH1_ADDR, &error);
+						if(error == TRME_None) TRM_Start(TRM_CH2_ADDR, &error);
 
 						HeatingActive = TRUE;
 					}
 
-					if (error != TRME_None)
+					if(error != TRME_None)
 					{
 						DataTable[REG_TRM_ERROR] = error;
 						DataTable[REG_FAULT_REASON] = FAULT_TRM;
@@ -713,11 +729,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DBG_WRITE_DAC_RAW:
-			if (CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready ||
-				CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled)
+			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready
+					|| CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled)
 			{
-				if (DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
-					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbDAC_WriteA(DataTable[REG_DBG_TEMP_CH_DATA]) : ZbDAC_WriteB(DataTable[REG_DBG_TEMP_CH_DATA]);
+				if(DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
+					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ?
+							ZbDAC_WriteA(DataTable[REG_DBG_TEMP_CH_DATA]) :
+							ZbDAC_WriteB(DataTable[REG_DBG_TEMP_CH_DATA]);
 				else
 					*UserError = ERR_OPERATION_BLOCKED;
 			}
@@ -726,10 +744,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DBG_WRITE_DAC_TEMP:
-			if ((CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready ||
-				CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled))
+			if((CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready
+					|| CONTROL_State == DS_Fault || CONTROL_State == DS_Disabled))
 			{
-				if (DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
+				if(DataTable[REG_DBG_PAUSE_T_FEEDBACK] && DataTable[REG_USE_HEATING])
 				{
 					_iq temp = _FPtoIQ2(DataTable[REG_DBG_TEMP_CH_DATA], 10);
 					(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? AnalogOutput_SetCH1(temp) : AnalogOutput_SetCH2(temp);
@@ -743,9 +761,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_TEMP:
 			{
-				if (DataTable[REG_USE_HEATING])
+				if(DataTable[REG_USE_HEATING])
 				{
-					_iq temp = (DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? TempFb_GetTemperatureCH1() : TempFb_GetTemperatureCH2();
+					_iq temp =
+							(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ?
+									TempFb_GetTemperatureCH1() : TempFb_GetTemperatureCH2();
 					DataTable[REG_DBG_TEMP] = _IQmpyI32int(temp, 10);
 				}
 				else
@@ -755,8 +775,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_TEMP_RAW:
 			{
-				if (DataTable[REG_USE_HEATING])
-					DataTable[REG_DBG_TEMP_RAW] = (DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbTh_ReadSEN1() : ZbTh_ReadSEN2();
+				if(DataTable[REG_USE_HEATING])
+					DataTable[REG_DBG_TEMP_RAW] =
+							(DataTable[REG_DBG_TEMP_CH_INDEX] == 1) ? ZbTh_ReadSEN1() : ZbTh_ReadSEN2();
 				else
 					*UserError = ERR_OPERATION_BLOCKED;
 			}
@@ -764,7 +785,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_TRM_TEMP:
 			{
-				if (DataTable[REG_USE_HEATING])
+				if(DataTable[REG_USE_HEATING])
 				{
 					// prevent interrupt by regulator
 					MuteRegulator = TRUE;
@@ -776,7 +797,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					// resume regulator
 					MuteRegulator = FALSE;
 
-					if (error != TRME_None)
+					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
 				}
 				else
@@ -786,7 +807,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_TRM_POWER:
 			{
-				if (DataTable[REG_USE_HEATING])
+				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
 
@@ -799,7 +820,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					// resume regulator
 					MuteRegulator = FALSE;
 
-					if (error != TRME_None)
+					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
 				}
 				else
@@ -809,7 +830,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_TRM_START:
 			{
-				if (DataTable[REG_USE_HEATING])
+				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
 
@@ -822,7 +843,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					// resume regulator
 					MuteRegulator = FALSE;
 
-					if (error != TRME_None)
+					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
 				}
 				else
@@ -832,7 +853,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_TRM_STOP:
 			{
-				if (DataTable[REG_USE_HEATING])
+				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
 
@@ -845,7 +866,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					// resume regulator
 					MuteRegulator = FALSE;
 
-					if (error != TRME_None)
+					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
 				}
 				else
@@ -898,5 +919,3 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 	return TRUE;
 }
 // ----------------------------------------
-
-// No more.

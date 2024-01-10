@@ -81,10 +81,10 @@ Boolean CLAMPCTRL_IsClampingDone()
 {
 	Boolean Result = FALSE;
 
-	switch (CLAMPCTRL_State)
+	switch(CLAMPCTRL_State)
 	{
 		case CS_CLAMP_GOTO_MID_POS:
-			if (CLAMP_IsTargetReached())
+			if(CLAMP_IsTargetReached())
 			{
 				CLAMP_CompleteOperation(FALSE);
 				CLAMP_SpeedTorqueLimits(ClampSpeedLimit, ClampTorqueLimit);
@@ -95,7 +95,7 @@ Boolean CLAMPCTRL_IsClampingDone()
 
 		case CS_CLAMP_DETECT_CLAMPING:
 			CLAMPCTRL_DummyDataLogger();
-			if (ForceActual > ClampDetect)
+			if(ForceActual > ClampDetect)
 			{
 				CLAMP_QuickStop(TRUE);
 				ControlSignal = CLAMP_CurrentIncrements();
@@ -111,18 +111,19 @@ Boolean CLAMPCTRL_IsClampingDone()
 				ZbAnanlogInput_EnableAcq(FALSE);
 				Result = CLAMPCTRL_Cycle();
 
-				if (++DelayTickCounter > ClampTimeout)
+				if(++DelayTickCounter > ClampTimeout)
 				{
-					if (!Result)
+					if(!Result)
 					{
 						Result = TRUE;
 						DataTable[REG_PROBLEM] = PROBLEM_NO_FORCE;
 					}
 				}
 
-				if (Result)
+				if(Result)
 				{
-					if (UseClampBreak) CLAMP_BrakeManualRelease(FALSE);
+					if(UseClampBreak)
+						CLAMP_BrakeManualRelease(FALSE);
 					CLAMPCTRL_Apply_Kp(REG_FORCE_Kp_POST_N, REG_FORCE_Kp_POST_D);
 
 					Result = FALSE;
@@ -140,12 +141,13 @@ Boolean CLAMPCTRL_IsClampingDone()
 				CLAMPCTRL_Cycle();
 				ZbAnanlogInput_EnableAcq(TRUE);
 
-				if (++DelayTickCounter > DelayPowerSwitch)
+				if(++DelayTickCounter > DelayPowerSwitch)
 				{
 					Result = TRUE;
 					CLAMPCTRL_State = CS_CLAMP_POSTREGULATOR2;
 
-					DataTable[REG_PROBLEM] = (UseAirControl ? ZbGPIO_PressureOK() : TRUE) ? PROBLEM_NONE : PROBLEM_NO_AIR_PRESSURE;
+					DataTable[REG_PROBLEM] =
+							(UseAirControl ? ZbGPIO_PressureOK() : TRUE) ? PROBLEM_NONE : PROBLEM_NO_AIR_PRESSURE;
 				}
 			}
 			break;
@@ -169,14 +171,14 @@ void CLAMPCTRL_XLog(DeviceState State)
 	static Boolean EnableSampling = FALSE;
 
 	// Start sampling on clamping start
-	if (State == DS_Clamping)
+	if(State == DS_Clamping)
 		EnableSampling = TRUE;
 
 	// Disable sampling in ready mode
-	if (State == DS_Ready)
+	if(State == DS_Ready)
 		EnableSampling = FALSE;
 
-	if (CONTROL_Values_XLogCounter < VALUES_XLOG_x_SIZE && EnableSampling)
+	if(CONTROL_Values_XLogCounter < VALUES_XLOG_x_SIZE && EnableSampling)
 	{
 		tmp = _IQint(CLAMP_ReadForce());
 		tmp = (tmp < 0) ? 0 : tmp;
@@ -211,7 +213,7 @@ void CLAMPCTRL_ClampingUpdateRequest()
 void CLAMPCTRL_StartClampingRelease(Boolean PositionMode)
 {
 	// Prepare
-	if (CounterOverflow)
+	if(CounterOverflow)
 	{
 		CounterOverflow = FALSE;
 		CONTROL_Values_Counter = VALUES_x_SIZE - 1;
@@ -220,7 +222,7 @@ void CLAMPCTRL_StartClampingRelease(Boolean PositionMode)
 	CLAMP_BrakeManualRelease(TRUE);
 
 	// Execute clamping release
-	if (PositionMode)
+	if(PositionMode)
 	{
 		ReleaseTargetPosition = DataTable[REG_CLAMPING_RLS_POS];
 
@@ -228,7 +230,7 @@ void CLAMPCTRL_StartClampingRelease(Boolean PositionMode)
 		CLAMP_GoToPosition_mm(TRUE, ReleaseTargetPosition);
 		CLAMPCTRL_State = CS_RLS_GOTO_START_POS;
 	}
-	else if (ForceDesired > Force2STReleaseMode && Use2STReleaseMode)
+	else if(ForceDesired > Force2STReleaseMode && Use2STReleaseMode)
 	{
 		ForceDesired = Force2STReleaseMode;
 		ControlSignal = CLAMP_CurrentIncrements();
@@ -248,23 +250,23 @@ Boolean CLAMPCTRL_IsClampingReleaseDone()
 {
 	Boolean CycleResult, Result = FALSE;
 
-	switch (CLAMPCTRL_State)
+	switch(CLAMPCTRL_State)
 	{
 		case CS_RLS_REGULATOR:
 			{
 				ZbAnanlogInput_EnableAcq(FALSE);
 				CycleResult = CLAMPCTRL_Cycle();
 
-				if (++DelayTickCounter > ClampTimeout)
+				if(++DelayTickCounter > ClampTimeout)
 				{
-					if (!CycleResult)
+					if(!CycleResult)
 					{
 						CycleResult = TRUE;
 						DataTable[REG_PROBLEM] = PROBLEM_NO_FORCE;
 					}
 				}
 
-				if (CycleResult)
+				if(CycleResult)
 					CLAMPCTRL_State = CS_RLS_CONFGIURE;
 				else
 					ZbAnanlogInput_EnableAcq(TRUE);
@@ -272,7 +274,7 @@ Boolean CLAMPCTRL_IsClampingReleaseDone()
 			break;
 
 		case CS_RLS_CONFGIURE:
-			if (CLAMP_IsTargetReached())
+			if(CLAMP_IsTargetReached())
 			{
 				CLAMP_CompleteOperation(FALSE);
 				CLAMP_SpeedTorqueLimits(PositionSpeedLimit, MAX(ClampTorqueLimit, PositionTorqueLimit));
@@ -281,7 +283,7 @@ Boolean CLAMPCTRL_IsClampingReleaseDone()
 			break;
 
 		case CS_RLS_START_OPERATION:
-			if (CLAMP_IsTargetReached())
+			if(CLAMP_IsTargetReached())
 			{
 				CLAMP_GoToPosition_mm(FALSE, ReleaseTargetPosition);
 				CLAMPCTRL_State = CS_RLS_GOTO_START_POS;
@@ -289,7 +291,7 @@ Boolean CLAMPCTRL_IsClampingReleaseDone()
 			break;
 
 		case CS_RLS_GOTO_START_POS:
-			if (CLAMP_IsTargetReached())
+			if(CLAMP_IsTargetReached())
 			{
 				CLAMP_CompleteOperation(FALSE);
 				DelayTickCounter = 0;
@@ -299,7 +301,7 @@ Boolean CLAMPCTRL_IsClampingReleaseDone()
 
 		case CS_RLS_SERVICE_DELAY:
 			{
-				if (++DelayTickCounter > SERVICE_DELAY_TICKS)
+				if(++DelayTickCounter > SERVICE_DELAY_TICKS)
 				{
 					// Automatic brake control
 					CLAMP_BrakeAutoControl(TRUE);
@@ -344,10 +346,12 @@ void CLAMPCTRL_CacheVariables()
 	Force2STReleaseMode = _IQI(100l * DataTable[REG_2ST_FORCE_LIM]);
 	Use2STReleaseMode = DataTable[REG_USE_2ST_CLAMP] ? TRUE : FALSE;
 	ClampDetect = _IQmpy(ForceDesired, _IQ(0.3f));
-	if (ClampDetect < CLAMP_DETECT_LIM) ClampDetect = CLAMP_DETECT_LIM;
+	if(ClampDetect < CLAMP_DETECT_LIM)
+		ClampDetect = CLAMP_DETECT_LIM;
 
 	ReleaseTargetPosition = DataTable[REG_CLAMPING_RLS_POS];
-	ClampMaxIncrements =  (MM_TO_INCREMENT / DataTable[REG_GEAR_RATIO_K_D]) * DataTable[REG_GEAR_RATIO_K_N] * ClampTopPosition;
+	ClampMaxIncrements = (MM_TO_INCREMENT / DataTable[REG_GEAR_RATIO_K_D]) * DataTable[REG_GEAR_RATIO_K_N]
+			* ClampTopPosition;
 	UseClampBreak = DataTable[REG_USE_CLAMP_BREAK] ? TRUE : FALSE;
 	UseAirControl = DataTable[REG_USE_AIR_CONTROL] ? TRUE : FALSE;
 	ContinuousControl = DataTable[REG_USE_CLAMP_BREAK] ? FALSE : DataTable[REG_CONTINUOUS_CTRL];
@@ -360,9 +364,11 @@ static Int16U CLAMPCTRL_CalcTorqueLimit(Boolean ForceRecalculate)
 	Int16U currClampTorqueLimit, newClampTorqueLimit;
 
 	currClampTorqueLimit = CLAMP_GetTorqueLimit();
-	newClampTorqueLimit	= _IQint(_IQsat(_IQmpy(_IQI(((Int32U)DataTable[REG_CLAMP_TORQUE_LIMIT]) * DataTable[REG_FORCE_VAL] / FORCE_VAL_MAX), _IQ(1.5f)), _IQI(DataTable[REG_CLAMP_TORQUE_LIMIT]), CLAMP_LOWEST_TORQUE));
+	newClampTorqueLimit =
+			_IQint(
+					_IQsat(_IQmpy(_IQI(((Int32U)DataTable[REG_CLAMP_TORQUE_LIMIT]) * DataTable[REG_FORCE_VAL] / FORCE_VAL_MAX), _IQ(1.5f)), _IQI(DataTable[REG_CLAMP_TORQUE_LIMIT]), CLAMP_LOWEST_TORQUE));
 
-	if (ForceRecalculate)
+	if(ForceRecalculate)
 		return newClampTorqueLimit;
 	else
 		return (newClampTorqueLimit > currClampTorqueLimit) ? newClampTorqueLimit : currClampTorqueLimit;
@@ -383,19 +389,21 @@ static Boolean CLAMPCTRL_Cycle()
 	Error = ForceDesired - ForceActual;
 	PositionActual = CLAMP_CurrentPosition() / 10000;
 
-	if (CLAMPCTRL_State == CS_CLAMP_REGULATOR || CLAMPCTRL_State == CS_RLS_REGULATOR ||
-	   (ContinuousControl && (CLAMPCTRL_State == CS_CLAMP_POSTREGULATOR1 || CLAMPCTRL_State == CS_CLAMP_POSTREGULATOR2)))
+	if(CLAMPCTRL_State == CS_CLAMP_REGULATOR || CLAMPCTRL_State == CS_RLS_REGULATOR
+			|| (ContinuousControl
+					&& (CLAMPCTRL_State == CS_CLAMP_POSTREGULATOR1 || CLAMPCTRL_State == CS_CLAMP_POSTREGULATOR2)))
 	{
-		if (CLAMP_IsPositionReached())
+		if(CLAMP_IsPositionReached())
 		{
-			if (ABS(_IQint(Error)) > MaxAllowedError)
+			if(ABS(_IQint(Error)) > MaxAllowedError)
 			{
 				CLAMP_CompleteOperation(FALSE);
 				// Delay for operation complete command
 				DELAY_US(1000L * DELAY_OP_COMPLETE);
 				ControlSignal += _IQint(_IQmpy(GearRatio, NEUTON_TO_INCREMENT)) * _IQint(_IQmpy(Error, Kp));
 
-				if (ControlSignal > ClampMaxIncrements)	ControlSignal = ClampMaxIncrements;
+				if(ControlSignal > ClampMaxIncrements)
+					ControlSignal = ClampMaxIncrements;
 				CLAMP_GoToPosition(ControlSignal);
 			}
 			else
@@ -416,8 +424,8 @@ static void CLAMPCTRL_DummyDataLogger()
 }
 // ----------------------------------------
 
-static void CLAMPCTRL_DataLogger(_iq _ForceActual, _iq _ForceDesired, _iq _ForceError,\
-								 Int32S _Control, Int32S _PositionActual)
+static void CLAMPCTRL_DataLogger(_iq _ForceActual, _iq _ForceDesired, _iq _ForceError, Int32S _Control,
+		Int32S _PositionActual)
 {
 	CONTROL_Values_1[CONTROL_Values_Counter] = (_ForceActual > 0) ? _IQint(_IQdiv(_ForceActual, _IQ(10))) : 0;
 	CONTROL_Values_2[CONTROL_Values_Counter] = _IQint(_IQdiv(_ForceDesired, _IQ(10)));
@@ -428,12 +436,10 @@ static void CLAMPCTRL_DataLogger(_iq _ForceActual, _iq _ForceDesired, _iq _Force
 
 	CONTROL_Values_Counter++;
 
-	if (CONTROL_Values_Counter >= VALUES_x_SIZE)
+	if(CONTROL_Values_Counter >= VALUES_x_SIZE)
 	{
 		CounterOverflow = TRUE;
 		CONTROL_Values_Counter = 0;
 	}
 }
 // ----------------------------------------
-
-// No more.
