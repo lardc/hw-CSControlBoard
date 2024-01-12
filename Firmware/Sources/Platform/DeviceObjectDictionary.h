@@ -160,6 +160,7 @@
 //
 #define REG_FORCE_RESULT			110	// Actual force value (in kN x10)
 #define REG_DRV_ERROR				111	// Lenze error
+#define REG_QUIK_STOP_STATUS		112	// Состояние сигнала QuickStop
 //
 #define REG_DBG_READ_REG			112	// Read Lenze register output
 #define REG_DBG_READ_REG_32			113

@@ -309,6 +309,7 @@ static void CONTROL_HandleFanControl()
 static void CONTROL_HandleClampActions()
 {
 	static Int64U ClampingDoneCounterCopy = 0;
+	static Int16U QSPCounter = 0;
 
 	// Extended data logging
 	CLAMPCTRL_XLog(CONTROL_State);
@@ -327,7 +328,10 @@ static void CONTROL_HandleClampActions()
 		case DS_ClampingUpdate:
 		case DS_ClampingRelease:
 			{
-				if(!DataTable[REG_NO_HALT_ON_QUICK_STOP] && CLAMP_IsQSPActive())
+				Boolean QSPStatus = CLAMP_IsQSPActive();
+				DataTable[REG_QUIK_STOP_STATUS] = QSPStatus ? 1 : 0;
+
+				if(!DataTable[REG_NO_HALT_ON_QUICK_STOP] && QSPStatus)
 				{
 					DINT;
 					CLAMP_CompleteOperation(TRUE);
@@ -338,6 +342,12 @@ static void CONTROL_HandleClampActions()
 			break;
 
 		default:
+			// Медленный апдейт при простое
+			if(QSPCounter++ > 20)
+			{
+				QSPCounter = 0;
+				DataTable[REG_QUIK_STOP_STATUS] = CLAMP_IsQSPActive() ? 1 : 0;
+			}
 			break;
 	}
 
