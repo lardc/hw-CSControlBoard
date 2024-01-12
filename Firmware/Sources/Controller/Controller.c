@@ -327,7 +327,7 @@ static void CONTROL_HandleClampActions()
 		case DS_ClampingUpdate:
 		case DS_ClampingRelease:
 			{
-				if(CLAMP_IsQSPActive())
+				if(!DataTable[REG_NO_HALT_ON_QUICK_STOP] && CLAMP_IsQSPActive())
 				{
 					DINT;
 					CLAMP_CompleteOperation(TRUE);

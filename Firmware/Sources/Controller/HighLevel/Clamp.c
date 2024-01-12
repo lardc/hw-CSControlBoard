@@ -70,10 +70,9 @@ void CLAMP_HomingStart()
 {
 	Int32U Data;
 
-#if (PATCH_LENZE_DI6_INVERT == TRUE)
 	// Configure DI6 input inversion
-	CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5f8d, 0, 0x20);
-#endif
+	if(DataTable[REG_INVERT_DI6_LENZE_INPUT])
+		CANopen_SdoWr(&DEVICE_CANopen_Interface, 0x5f8d, 0, 0x20);
 
 	// Read device state
 	CANopen_SdoRd(&DEVICE_CANopen_Interface, 0x5f76, 0, &Data);

@@ -60,7 +60,11 @@
 // REGISTERS
 //
 #define REG_ADC_INIT_OFFSET			0	// Initial ADC offset (in ticks of 4095)
-//
+
+// Конфигурация аппаратных особенностей блока
+#define REG_NO_HALT_ON_QUICK_STOP	1	// Игнорирование аппаратной остановки ПЧ (не приводит к переходу прошивки в состояние DS_Halt)
+#define REG_INVERT_DI6_LENZE_INPUT	2	// Инвертирование сигнала на входе DI6 ПЧ
+
 #define REG_FORCE_K_N				10	// Force recalculating K coefficient (N)
 #define REG_FORCE_K_D				11	// Force recalculating K coefficient (D)
 #define REG_FORCE_FINE_P2			12	// Force quadratic fine tuning P2 x1e6
