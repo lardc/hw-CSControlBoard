@@ -49,6 +49,7 @@
 									<listOptionValue builtIn="false" value="../../../hw-TMS-libs/RTS"/>
 									<listOptionValue builtIn="false" value="../../../hw-TMS-libs/IQmath"/>
 									<listOptionValue builtIn="false" value="../../../hw-TMS-libs/FlashAPI"/>
+									<listOptionValue builtIn="false" value="../../../hw-TMS-libs/Firmware"/>
 									<listOptionValue builtIn="false" value="../../../hw-TMS-libs/BootLoader/Controller"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.DEBUGGING_MODEL.1310992344" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.C2000_6.4.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
