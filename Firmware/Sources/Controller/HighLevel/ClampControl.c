@@ -350,8 +350,7 @@ void CLAMPCTRL_CacheVariables()
 		ClampDetect = CLAMP_DETECT_LIM;
 
 	ReleaseTargetPosition = DataTable[REG_CLAMPING_RLS_POS];
-	ClampMaxIncrements = (MM_TO_INCREMENT / DataTable[REG_GEAR_RATIO_K_D]) * DataTable[REG_GEAR_RATIO_K_N]
-			* ClampTopPosition;
+	ClampMaxIncrements = CLAMP_PositionToTicks(ClampTopPosition);
 	UseClampBreak = DataTable[REG_USE_CLAMP_BREAK] ? TRUE : FALSE;
 	UseAirControl = DataTable[REG_USE_AIR_CONTROL] ? TRUE : FALSE;
 	ContinuousControl = DataTable[REG_USE_CLAMP_BREAK] ? FALSE : DataTable[REG_CONTINUOUS_CTRL];

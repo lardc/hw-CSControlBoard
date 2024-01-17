@@ -196,7 +196,14 @@ void CLAMP_GoToPosition_mm(Boolean EnableController, Int32U Position)
 	// Enable controller
 	if (EnableController) CLAMP_EnableController(TRUE);
 
-	CLAMP_GoToPosition(Position * DataTable[REG_GEAR_RATIO_K_N] * (MM_TO_INCREMENT / DataTable[REG_GEAR_RATIO_K_D]));
+	CLAMP_GoToPosition(CLAMP_PositionToTicks(Position));
+}
+// ----------------------------------------
+
+Int32U CLAMP_PositionToTicks(Int32U Position)
+{
+	Int32U mmToIncrement = DataTable[REG_ALTER_MM_TO_INCREMENT] ? (1000ul * DataTable[REG_ALTER_MM_TO_INCREMENT]) : MM_TO_INCREMENT;
+	return Position * DataTable[REG_GEAR_RATIO_K_N] * (mmToIncrement / DataTable[REG_GEAR_RATIO_K_D]);
 }
 // ----------------------------------------
 

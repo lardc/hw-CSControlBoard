@@ -25,6 +25,7 @@ Int16U CLAMP_GetTorqueLimit();
 void CLAMP_HomingRefMLimit(Int16U Torque);
 void CLAMP_GoToPosition(Int32U Position);
 void CLAMP_GoToPosition_mm(Boolean EnableController, Int32U Position);
+Int32U CLAMP_PositionToTicks(Int32U Position);
 Boolean CLAMP_IsTargetReached();
 Boolean CLAMP_IsPositionReached();
 Int32S CLAMP_CurrentIncrements();

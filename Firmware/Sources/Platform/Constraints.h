@@ -23,6 +23,8 @@ typedef struct __TableItemConstraint
 
 // Restricitions
 //
+#define MAX_MM_TO_INCREMENT			200
+//
 #define FORCE_K_N_DEF				2751
 #define FORCE_FINE_N_DEF			100
 #define FORCE_Kp_N_DEF				40
