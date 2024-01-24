@@ -124,6 +124,24 @@ void CONTROL_Init(Boolean BadClockDetected)
 	ZbGPIO_PneumoPushOut(FALSE);
 	ZbGPIO_PneumoPushUp(FALSE);
 
+	// Инициализация SPI-UART моста
+	if(DataTable[REG_BOARD_VERSION] == 11)
+		ZbSUe_Init();
+	// Отключение GPIO для версии 1.0
+	else if(DataTable[REG_BOARD_VERSION] == 10)
+	{
+		ZwGPIO_PinToInput(PIN_M1M2, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_M3M4, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_SAFETY_HOLD, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_FAN, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_POWER_SWITCH, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_SPIMUX_A, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_SPIMUX_B, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_SPIMUX_C, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_RS485_CTRL, FALSE, PQ_Sample6);
+		ZwGPIO_PinToInput(PIN_AOUT_LDAC, FALSE, PQ_Sample6);
+	}
+
 	if(!BadClockDetected)
 	{
 		if(ZwSystem_GetDogAlarmFlag())
@@ -214,6 +232,7 @@ void CONTROL_UpdateLow()
 	CONTROL_HandleFanControl();
 	CONTROL_HandleClampActions();
 	ZbSU_UpdateTimeCounter(CONTROL_TimeCounter);
+	ZbSUe_UpdateTimeCounter(CONTROL_TimeCounter);
 }
 // ----------------------------------------
 

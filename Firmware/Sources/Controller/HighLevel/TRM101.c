@@ -7,6 +7,8 @@
 #include "ZwUtils.h"
 #include "ZbBoard.h"
 #include "IQmathUtils.h"
+#include "DataTable.h"
+#include "DeviceObjectDictionary.h"
 
 // Functions
 //
@@ -31,10 +33,19 @@ void TRM_DataExchange(Int16U Address, Int16U Hash, Boolean Request, pInt16U Data
 
 	// Convert to ASCII and send
 	DataCounter = OWENProtocol_FrameToASCII(RawBuffer, DataCounter, ASCIIBuffer);
-	ZbSU_SendData(ASCIIBuffer, DataCounter);
 
-	// Recieve data
-	ret_val = ZbSU_ReadData(ASCIIBuffer, OWNP_MAX_ASCII_FRAME_SIZE);
+	// Exchange data
+	if(DataTable[REG_BOARD_VERSION] == 11)
+	{
+		ZbSUe_SendData(ASCIIBuffer, DataCounter);
+		ret_val = ZbSUe_ReadData(ASCIIBuffer, OWNP_MAX_ASCII_FRAME_SIZE);
+	}
+	else
+	{
+		ZbSU_SendData(ASCIIBuffer, DataCounter);
+		ret_val = ZbSU_ReadData(ASCIIBuffer, OWNP_MAX_ASCII_FRAME_SIZE);
+	}
+
 	if (ret_val == -1)
 	{
 		*error = TRME_ResponseTimeout;

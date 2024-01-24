@@ -65,6 +65,10 @@
 #define REG_NO_HALT_ON_QUICK_STOP	1	// Игнорирование аппаратной остановки ПЧ (не приводит к переходу прошивки в состояние DS_Halt)
 #define REG_INVERT_DI6_LENZE_INPUT	2	// Инвертирование сигнала на входе DI6 ПЧ
 #define REG_ALTER_MM_TO_INCREMENT	3	// Переопределить коэффициент пересчёта перемещения (мм) в тики
+#define REG_BOARD_VERSION			4	// Включить специфические функции для плат версии:
+										// 10 - версия 1.0
+										// 11 - версия 1.1
+										// Все остальные значения трактуются как версия 2.0
 
 #define REG_FORCE_K_N				10	// Force recalculating K coefficient (N)
 #define REG_FORCE_K_D				11	// Force recalculating K coefficient (D)
