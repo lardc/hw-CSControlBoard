@@ -24,6 +24,7 @@
 #include "ZbWatchDog.h"
 #include "ZbDAC.h"
 #include "ZbUART.h"
+#include "ZbSPI-UART.h"
 #include "ZbThermistor.h"
 #include "ZbAnalogInput.h"
 
