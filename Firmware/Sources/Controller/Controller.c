@@ -204,6 +204,7 @@ void inline CONTROL_RequestClampRelease()
 			|| CONTROL_State == DS_None)
 	{
 		// prevent interrupt by regulator
+		Boolean PrevMuteState = MuteRegulator;
 		MuteRegulator = TRUE;
 
 		ZbGPIO_EnablePowerSwitch(FALSE);
@@ -213,7 +214,7 @@ void inline CONTROL_RequestClampRelease()
 		CONTROL_SetDeviceState(DS_ClampingRelease);
 
 		// resume regulator
-		MuteRegulator = FALSE;
+		MuteRegulator = PrevMuteState;
 	}
 }
 // ----------------------------------------
@@ -464,6 +465,8 @@ static void CONTROL_ResetScopes()
 
 static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
+	MuteRegulator = TRUE;
+
 	switch(ActionID)
 	{
 		case ACT_HOMING:
@@ -547,9 +550,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_CLAMPING_UPDATE:
 			if(CONTROL_State == DS_ClampingDone)
 			{
-				// prevent interrupt by regulator
-				MuteRegulator = TRUE;
-
 				if(CONTROL_CheckLenzeError())
 				{
 					*UserError = ERR_DEVICE_NOT_READY;
@@ -565,9 +565,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 					DataTable[REG_PROBLEM] = PROBLEM_NONE;
 					CONTROL_SetDeviceState(DS_ClampingUpdate);
 				}
-
-				// resume regulator
-				MuteRegulator = FALSE;
 			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -576,16 +573,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_RELEASE_CLAMPING:
 			if(CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready || CONTROL_State == DS_None)
 			{
-				// prevent interrupt by regulator
-				MuteRegulator = TRUE;
-
 				if(CONTROL_CheckLenzeError())
 					*UserError = ERR_DEVICE_NOT_READY;
 				else
 					CONTROL_RequestClampRelease();
-
-				// resume regulator
-				MuteRegulator = FALSE;
 			}
 			else if(CONTROL_State != DS_ClampingRelease)
 				*UserError = ERR_OPERATION_BLOCKED;
@@ -655,11 +646,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		case ACT_DBG_READ_LENZE_ERROR:
-			{
-				MuteRegulator = TRUE;
-				DataTable[REG_DRV_ERROR] = CLAMP_ReadError();
-				MuteRegulator = FALSE;
-			}
+			DataTable[REG_DRV_ERROR] = CLAMP_ReadError();
 			break;
 
 		case ACT_SET_TEMPERATURE:
@@ -667,10 +654,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
 					if(DataTable[REG_TEMP_SETPOINT] < TRM_TEMP_THR)
 					{
 						TRM_SetTemp(TRM_CH1_ADDR, TRM_ROOM_TEMP, &error);
@@ -697,9 +680,6 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 						CONTROL_SetDeviceState(DS_Fault);
 						*UserError = ERR_TRM_COMM_ERR;
 					}
-
-					// resume regulator
-					MuteRegulator = FALSE;
 				}
 				else
 				{
@@ -736,23 +716,15 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_DBG_READ_LENZE_REG:
 			{
-				MuteRegulator = TRUE;
-
 				Int32U Value = CLAMP_ReadRegister(DataTable[REG_DBG_CAN_INDEX], DataTable[REG_DBG_CAN_SUBCODE]);
 				DEVPROFILE_WriteValue32((pInt16U)DataTable, REG_DBG_READ_REG, Value);
-
-				MuteRegulator = FALSE;
 			}
 			break;
 
 		case ACT_DBG_WRITE_LENZE_REG:
 			{
-				MuteRegulator = TRUE;
-
 				Int32U Value = DEVPROFILE_ReadValue32((pInt16U)DataTable, REG_DBG_CAN_DATA);
 				CLAMP_WriteRegister(DataTable[REG_DBG_CAN_INDEX], DataTable[REG_DBG_CAN_SUBCODE], Value);
-
-				MuteRegulator = FALSE;
 			}
 			break;
 
@@ -815,15 +787,9 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			{
 				if(DataTable[REG_USE_HEATING])
 				{
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
 					TRMError error;
 					DataTable[REG_TRM_DATA] = TRM_ReadTemp(DataTable[REG_DBG_TRM_ADDRESS], &error);
 					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
 
 					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
@@ -838,15 +804,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
 					DataTable[REG_TRM_DATA] = TRM_ReadPower(DataTable[REG_DBG_TRM_ADDRESS], &error);
 					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
 
 					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
@@ -861,15 +820,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
 					TRM_Start(DataTable[REG_DBG_TRM_ADDRESS], &error);
 					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
 
 					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
@@ -884,15 +836,8 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 				if(DataTable[REG_USE_HEATING])
 				{
 					TRMError error;
-
-					// prevent interrupt by regulator
-					MuteRegulator = TRUE;
-
 					TRM_Stop(DataTable[REG_DBG_TRM_ADDRESS], &error);
 					DataTable[REG_TRM_ERROR] = error;
-
-					// resume regulator
-					MuteRegulator = FALSE;
 
 					if(error != TRME_None)
 						*UserError = ERR_TRM_COMM_ERR;
@@ -941,9 +886,11 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 
 		default:
+			MuteRegulator = FALSE;
 			return FALSE;
 	}
 
+	MuteRegulator = FALSE;
 	return TRUE;
 }
 // ----------------------------------------
