@@ -57,6 +57,7 @@ static void CLAMPCTRL_DataLogger(_iq _ForceActual, _iq _ForceDesired, _iq _Force
 static Boolean CLAMPCTRL_Cycle();
 static Int16U CLAMPCTL_GetMidPosition();
 static Int16U CLAMPCTRL_CalcTorqueLimit(Boolean ForceRecalculate);
+_iq CLAMPCTRL_GetForceSetpoint();
 
 // Functions
 //
@@ -192,9 +193,15 @@ void CLAMPCTRL_XLog(DeviceState State)
 }
 // ----------------------------------------
 
+_iq CLAMPCTRL_GetForceSetpoint()
+{
+	return _IQI(100l * DataTable[REG_FORCE_VAL] * DataTable[REG_FORCE_SET_K] / 1000 + 100l * (Int16S)DataTable[REG_FORCE_SET_B]);
+}
+// ----------------------------------------
+
 void CLAMPCTRL_ClampingUpdateRequest()
 {
-	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL] * DataTable[REG_FORCE_SET_K] / 1000);
+	ForceDesired = CLAMPCTRL_GetForceSetpoint();
 	MaxAllowedError = _IQint(_IQmpy(ForceDesired, _FPtoIQ2(DataTable[REG_CLAMP_ERR_ZONE], 100)));
 	ControlSignal = CLAMP_CurrentIncrements();
 
@@ -341,7 +348,7 @@ void CLAMPCTRL_CacheVariables()
 	ClampTorqueLimit = CLAMPCTRL_CalcTorqueLimit(TRUE);
 
 	GearRatio = _FPtoIQ2(DataTable[REG_GEAR_RATIO_K_N], DataTable[REG_GEAR_RATIO_K_D]);
-	ForceDesired = _IQI(100l * DataTable[REG_FORCE_VAL] * DataTable[REG_FORCE_SET_K] / 1000);
+	ForceDesired = CLAMPCTRL_GetForceSetpoint();
 
 	Force2STReleaseMode = _IQI(100l * DataTable[REG_2ST_FORCE_LIM]);
 	Use2STReleaseMode = DataTable[REG_USE_2ST_CLAMP] ? TRUE : FALSE;
