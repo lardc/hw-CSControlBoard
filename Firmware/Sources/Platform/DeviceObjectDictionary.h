@@ -18,6 +18,7 @@
 #define ACT_START_CLAMPING			102 // Star clamping
 #define ACT_CLAMPING_UPDATE			103 // Update regulator with new parameters
 #define ACT_RELEASE_CLAMPING		104 // Perform unclamp
+#define ACT_HALT					105 // Abort operation
 #define ACT_SET_TEMPERATURE			108	// Set temperature
 //
 #define ACT_DBG_READ_LENZE_REG		110	// Read Lenze register

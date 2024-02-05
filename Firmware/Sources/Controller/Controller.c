@@ -608,6 +608,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
 
+		case ACT_CLR_HALT:
+		case ACT_HALT:
+			break;
+
 		case ACT_DBG_READ_LENZE_REG:
 			{
 				MuteRegulator = TRUE;
