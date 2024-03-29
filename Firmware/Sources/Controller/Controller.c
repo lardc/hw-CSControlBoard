@@ -582,40 +582,52 @@ void CONTROL_PreparePositioningX(Int16U NewPosition, Int16U SlowDownDistance,
 
 void CONTROL_PrepareClamping(Boolean Clamp)
 {
+	Int16U Position = 0, SlowDownDist = 0;
+
 	if(Clamp)
 	{
-		Int16U Reg = 0;
+		SlowDownDist = DataTable[REG_SLOW_DOWN_DIST];
 		switch(DataTable[REG_DEV_CASE])
 		{
 			case SC_Type_A2:
-				Reg = 0;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_A2];
 				break;
+
 			case SC_Type_B1:
-				Reg = 1;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_B0];
 				break;
+
 			case SC_Type_C1:
-				Reg = 2;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_C1];
 				break;
+
 			case SC_Type_D0:
-				Reg = 3;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_D0];
 				break;
+
 			case SC_Type_E0:
-				Reg = 4;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_E0];
 				break;
+
 			case SC_Type_F1:
-				Reg = 5;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_F1];
 				break;
+
 			case SC_Type_ADAP:
-				Reg = 6;
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_ADAP];
+				break;
+
+			case SC_Type_E2M:
+				Position = DataTable[REG_CLAMP_HEIGHT_CASE_E2M];
+				break;
+
+			default:
 				break;
 		}
-
-		CONTROL_PreparePositioningX(DataTable[Reg], DataTable[REG_SLOW_DOWN_DIST],
-				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
 	}
-	else
-		CONTROL_PreparePositioningX(0, 0,
-				DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
+
+	CONTROL_PreparePositioningX(Position, SlowDownDist,
+			DataTable[REG_CLAMP_SPEED_MAX], DataTable[REG_CLAMP_SPEED_LOW], DataTable[REG_CLAMP_SPEED_MIN]);
 }
 // ----------------------------------------
 

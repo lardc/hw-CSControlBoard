@@ -49,7 +49,8 @@
 #define REG_CLAMP_HEIGHT_CASE_D0	3	// Высота подъёма столика для корпуса D0 (мм)
 #define REG_CLAMP_HEIGHT_CASE_E0	4	// Высота подъёма столика для корпуса E0 (мм)
 #define REG_CLAMP_HEIGHT_CASE_F1	5	// Высота подъёма столика для корпуса F1 (мм)
-#define REG_CLAMP_HEIGHT_CASE_ADAP  6   // высота подъёма столика для калибровочного адаптера (мм)
+#define REG_CLAMP_HEIGHT_CASE_ADAP	6	// высота подъёма столика для калибровочного адаптера (мм)
+#define REG_CLAMP_HEIGHT_CASE_E2M	7	// Высота подъёма столика для корпуса E2M (мм)
 
 #define REG_POS_SPEED_MIN			10	// Минимальная скорость перемещения при позиционировании (мм/сек)
 #define REG_POS_SPEED_LOW			11	// Пониженная скорость перемещения при позиционировании (мм/сек)
