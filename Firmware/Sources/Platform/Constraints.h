@@ -33,6 +33,7 @@ typedef struct __TableItemConstraint
 #define CASE_E_DEF					82
 #define CASE_F_DEF					144
 #define CASE_ADAP_DEF				50
+#define CASE_E2M_DEF				16
 
 // Расстояние замедления (мм)
 #define SLOW_DOWN_MIN				0

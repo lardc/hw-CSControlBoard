@@ -23,7 +23,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {CASE_MIN, CASE_MAX, CASE_E_DEF},										// 4
 											   {CASE_MIN, CASE_MAX, CASE_F_DEF},										// 5
 											   {CASE_MIN, CASE_MAX, CASE_ADAP_DEF},										// 6
-											   {0, 0, 0},																// 7
+											   {CASE_MIN, CASE_MAX, CASE_E2M_DEF},										// 7
 											   {0, 0, 0},																// 8
 											   {0, 0, 0},																// 9
 											   {SPEED_MIN, SPEED_MAX, SPEED_DEF},										// 10
