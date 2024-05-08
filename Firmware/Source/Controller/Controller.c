@@ -25,6 +25,7 @@ typedef void (*FUNC_AsyncDelegate)();
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = SS_None;
 static Boolean CycleActive = false;
+static Int16U CounterErrPress, CounterMaxErrPress;
 //
 volatile Int64U CONTROL_TimeCounter = 0;
 
@@ -85,19 +86,13 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 	
 	switch(ActionID)
 	{
-		case ACT_ENABLE_POWER:
+		case ACT_HOMING:
 			if(CONTROL_State == DS_None)
-				CONTROL_SetDeviceState(DS_None, SS_None);
+				CONTROL_SetDeviceState(DS_Ready, SS_None);
 			else if(CONTROL_State != DS_Ready)
 				*pUserError = ERR_OPERATION_BLOCKED;
 			break;
 			
-		case ACT_DISABLE_POWER:
-			if(CONTROL_State == DS_Ready)
-				CONTROL_SetDeviceState(DS_None, SS_None);
-			else if(CONTROL_State != DS_None)
-				*pUserError = ERR_OPERATION_BLOCKED;
-			break;
 			
 		case ACT_CLR_FAULT:
 			if(CONTROL_State == DS_Fault)
@@ -110,7 +105,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 		case ACT_CLR_WARNING:
 			DataTable[REG_WARNING] = WARNING_NONE;
 			break;
-			
+
+		case ACT_CLR_HALT:
+			if(CONTROL_State == DS_Halt)
+				CONTROL_SetDeviceState(DS_Ready, SS_None);
+			break;
+
 		case ACT_CLAMP:
 			if(CONTROL_State == DS_Ready)
 			{
@@ -143,7 +143,25 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			else
 				*pUserError = ERR_DEVICE_NOT_READY;
 			break;
-			
+
+		case ACT_HALT:
+			CONTROL_Halt();
+			break;
+
+		case ACT_CHECK_ADPTS_STATUS:
+
+			if(LOGIC_AdapterIDMatch(LL_MeasureIDTop()) != DataTable[REG_ID_ADPTR_SET])
+				DataTable[REG_TOP_ADPT_MISMATCHED] = 1;
+			else
+				DataTable[REG_TOP_ADPT_MISMATCHED] = 0;
+
+			if(LOGIC_AdapterIDMatch(LL_MeasureIDTop()) != DataTable[REG_ID_ADPTR_SET])
+				DataTable[REG_BOT_ADPT_MISMATCHED] = 1;
+			else
+				DataTable[REG_BOT_ADPT_MISMATCHED] = 0;
+
+			break;
+
 		default:
 			return DIAG_HandleDiagnosticAction(ActionID, pUserError);
 			
@@ -157,17 +175,17 @@ Int16U CONTROL_CSMPrepareLogic()
 	DUTType TopID = LOGIC_AdapterIDMatch(LL_MeasureIDTop());
 	DUTType BotID = LOGIC_AdapterIDMatch(LL_MeasureIDBot());
 
-	if(TopID != DataTable[REG_ID_ADPTR_SET])
+	if(LL_GetStateLimitSwitchTopAdapter())
+		return PROBLEM_TOP_ADAPTER_OPENED;
+
+	else if(LL_GetStateLimitSwitchBotAdapter())
+		return PROBLEM_BOT_ADAPTER_OPENED;
+
+	else if(TopID != DataTable[REG_ID_ADPTR_SET])
 		return PROBLEM_TOP_ADAPTER_MISMATCHED;
 
 	else if(BotID != DataTable[REG_ID_ADPTR_SET])
 		return PROBLEM_BOT_ADAPTER_MISMATCHED;
-
-	else if(!LL_GetStateLimitSwitchTopAdapter())
-		return PROBLEM_TOP_ADAPTER_OPENED;
-
-	else if(!LL_GetStateLimitSwitchBotAdapter())
-		return PROBLEM_BOT_ADAPTER_OPENED;
 
 	else
 		return PROBLEM_NONE;
@@ -245,15 +263,28 @@ void CONTROL_ClampLogic()
 
 void CONTROL_SamplePressureValue()
 {
-	float Pressure = MEASURE_GetPressureValue();
-	DataTable[REG_PRESSURE_VALUE] = Pressure;
+	static Int64U NextSampleTime = 0;
 
-	if(CONTROL_State == DS_Ready || CONTROL_State == DS_Clamping ||
-			CONTROL_State == DS_ClampingDone || CONTROL_State == DS_ClampingRelease)
+	if(CONTROL_TimeCounter > NextSampleTime)
 	{
-		float PressureError = fabsf(Pressure - DataTable[REG_SET_PRESSURE_VALUE]) / DataTable[REG_SET_PRESSURE_VALUE];
-		if(PressureError > DataTable[REG_ALLOWED_ERROR])
-			CONTROL_SwitchToFault(DF_PRESSURE_ERROR_EXCEED);
+		NextSampleTime = PRESSURE_SAMPLE_PERIOD + CONTROL_TimeCounter;
+
+		float Pressure = MEASURE_GetPressureValue();
+		DataTable[REG_PRESSURE_VALUE] = Pressure;
+		CounterMaxErrPress = DataTable[REG_COUNTER_MAX_ERR_PRESS];
+
+		if(CONTROL_State == DS_Ready || CONTROL_State == DS_Clamping ||
+				CONTROL_State == DS_ClampingDone || CONTROL_State == DS_ClampingRelease)
+		{
+			float PressureError = fabsf(Pressure - DataTable[REG_SET_PRESSURE_VALUE]) / DataTable[REG_SET_PRESSURE_VALUE];
+			if(PressureError > PRESSURE_MAX_ERR)
+				CounterErrPress++;
+			else
+				CounterErrPress = 0;
+
+			if(CounterErrPress > CounterMaxErrPress)
+				CONTROL_SwitchToFault(DF_PRESSURE_ERROR_EXCEED);
+		}
 	}
 }
 //------------------------------------------
@@ -291,4 +322,9 @@ void CONTROL_UpdateWatchDog()
 		IWDG_Refresh();
 }
 //------------------------------------------
+void CONTROL_Halt()
+{
+	CONTROL_SetDeviceState(DS_Halt, SS_None);
+}
+// ----------------------------------------
 

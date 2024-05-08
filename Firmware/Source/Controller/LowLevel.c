@@ -100,6 +100,6 @@ float LL_MeasureIDBot()
 
 float LL_MeasurePressure()
 {
-	return (float)ADC_Measure(ADC1, ADC_PRESSURE_CHANNEL) * ADC_REF_VOLTAGE / ADC_RESOLUTION;
+	return (float)ADC_Measure(ADC2, ADC_PRESSURE_CHANNEL) * ADC_REF_VOLTAGE / ADC_RESOLUTION;
 }
 //-----------------------------

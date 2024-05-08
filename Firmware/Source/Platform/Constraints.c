@@ -4,23 +4,24 @@
 
 // Header
 #include "Constraints.h"
+#include "Logic.h"
 
 // Constants
 //
 const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
-		{ADPTR_MIHM_REF_MIN, ADPTR_MIHM_REF_MAX, ADPTR_MIHM_REF_DEF},				// 0
-		{ADPTR_MIHV_REF_MIN, ADPTR_MIHV_REF_MAX, ADPTR_MIHV_REF_DEF},				// 1
-		{ADPTR_MISM_REF_MIN, ADPTR_MISM_REF_MAX, ADPTR_MISM_REF_DEF},				// 2
-		{ADPTR_MISV_REF_MIN, ADPTR_MISV_REF_MAX, ADPTR_MISV_REF_DEF},				// 3
-		{ADPTR_MIXM_REF_MIN, ADPTR_MIXM_REF_MAX, ADPTR_MIXM_REF_DEF},				// 4
-		{ADPTR_MIXV_REF_MIN, ADPTR_MIXV_REF_MAX, ADPTR_MIXV_REF_DEF},				// 5
+		{0, 0, 0},																	// 0
+		{0, 0, 0},																	// 1
+		{0, 0, 0},																	// 2
+		{0, 0, 0},																	// 3
+		{0, 0, 0},																	// 4
+		{0, 0, 0},																	// 5
 		{PRESSURE_OFFSET_MIN, PRESSURE_OFFSET_MAX, PRESSURE_OFFSET_DEF},			// 6
 		{PRESSURE_K_MIN, PRESSURE_K_MAX, PRESSURE_K_DEF},							// 7
 		{PRESSURE_P2_MIN, PRESSURE_P2_MAX, PRESSURE_P2_DEF},						// 8
 		{PRESSURE_P1_MIN, PRESSURE_P1_MAX, PRESSURE_P1_DEF},						// 9
 		{PRESSURE_P0_MIN, PRESSURE_P0_MAX, PRESSURE_P0_DEF},						// 10
 		{SET_PRESSURE_VALUE_MIN, SET_PRESSURE_VALUE_MAX, SET_PRESSURE_VALUE_DEF},	// 11
-		{ALLOWED_ERROR_MIN, ALLOWED_ERROR_MAX, ALLOWED_ERROR_DEF},					// 12
+		{0, PRESS_COUNTER_MAX, PRESS_COUNTER_DEF},									// 12
 		{0, 0, 0},																	// 13
 		{0, 0, 0},																	// 14
 		{0, 0, 0},																	// 15
@@ -48,22 +49,22 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																	// 37
 		{0, 0, 0},																	// 38
 		{0, 0, 0},																	// 39
-		{0, 0, 0},																	// 40
-		{0, 0, 0},																	// 41
-		{0, 0, 0},																	// 42
-		{0, 0, 0},																	// 43
-		{0, 0, 0},																	// 44
-		{0, 0, 0},																	// 45
-		{0, 0, 0},																	// 46
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIAA_REF_DEF},							// 40
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIDA_REF_DEF},							// 41
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIFA_REF_DEF},							// 42
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIHA_REF_DEF},							// 43
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIHM_REF_DEF},							// 44
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIHV_REF_DEF},							// 45
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MISM_REF_DEF},							// 46
 		{0, 0, 0},																	// 47
 		{0, 0, 0},																	// 48
-		{0, 0, 0},																	// 49
-		{0, 0, 0},																	// 50
-		{0, 0, 0},																	// 51
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MISV_REF_DEF},							// 49
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIXM_REF_DEF},							// 50
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MIXV_REF_DEF},							// 51
 		{0, 0, 0},																	// 52
 		{0, 0, 0},																	// 53
-		{0, 0, 0},																	// 54
-		{0, 0, 0},																	// 55
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MISM2_REF_DEF},						// 54
+		{ADPTR_REF_MIN, ADPTR_REF_MAX, ADPTR_MCDA_REF_DEF},							// 55
 		{0, 0, 0},																	// 56
 		{0, 0, 0},																	// 57
 		{0, 0, 0},																	// 58
@@ -78,9 +79,9 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																	// 67
 		{0, 0, 0},																	// 68
 		{0, 0, 0},																	// 69
-		{0, 0, 0},																	// 70
-		{0, 0, 0},																	// 71
-		{0, 0, 0},																	// 72
+		{0, INT16U_MAX, 0},															// 70
+		{DT_None, DT_MISM2, DT_None},												// 71
+		{0, INT16U_MAX, 0},															// 72
 		{0, 0, 0},																	// 73
 		{0, 0, 0},																	// 74
 		{0, 0, 0},																	// 75
@@ -104,100 +105,4 @@ const TableItemConstraint Constraint[DATA_TABLE_WP_START] = {
 		{0, 0, 0},																	// 93
 		{0, 0, 0},																	// 94
 		{0, 0, 0},																	// 95
-		{0, 0, 0},																	// 96
-		{0, 0, 0},																	// 97
-		{0, 0, 0},																	// 98
-		{0, 0, 0},																	// 99
-		{0, 0, 0},																	// 100
-		{0, 0, 0},																	// 101
-		{0, 0, 0},																	// 102
-		{0, 0, 0},																	// 103
-		{0, 0, 0},																	// 104
-		{0, 0, 0},																	// 105
-		{0, 0, 0},																	// 106
-		{0, 0, 0},																	// 107
-		{0, 0, 0},																	// 108
-		{0, 0, 0},																	// 109
-		{0, 0, 0},																	// 110
-		{0, 0, 0},																	// 111
-		{0, 0, 0},																	// 112
-		{0, 0, 0},																	// 113
-		{0, 0, 0},																	// 114
-		{0, 0, 0},																	// 115
-		{0, 0, 0},																	// 116
-		{0, 0, 0},																	// 117
-		{0, 0, 0},																	// 118
-		{0, 0, 0},																	// 119
-		{0, 0, 0},																	// 120
-		{0, 0, 0},																	// 121
-		{0, 0, 0},																	// 122
-		{0, 0, 0},																	// 123
-		{0, 0, 0},																	// 124
-		{0, 0, 0},																	// 125
-		{0, 0, 0},																	// 126
-		{0, 0, 0},																	// 127
-		{0, INT16U_MAX, 0},															// 128
-		{0, 0, 0},																	// 129
-		{0, 0, 0},																	// 130
-		{0, 0, 0},																	// 131
-		{0, 0, 0},																	// 132
-		{0, 0, 0},																	// 133
-		{0, 0, 0},																	// 134
-		{0, 0, 0},																	// 135
-		{0, 0, 0},																	// 136
-		{0, 0, 0},																	// 137
-		{0, 0, 0},																	// 138
-		{0, 0, 0},																	// 139
-		{0, 0, 0},																	// 140
-		{0, 0, 0},																	// 141
-		{0, 0, 0},																	// 142
-		{0, 0, 0},																	// 143
-		{0, 0, 0},																	// 144
-		{0, 0, 0},																	// 145
-		{0, 0, 0},																	// 146
-		{0, 0, 0},																	// 147
-		{0, 0, 0},																	// 148
-		{0, 0, 0},																	// 149
-		{0, INT16U_MAX, 0},															// 150
-		{0, INT16U_MAX, 0},															// 151
-		{0, 0, 0},																	// 152
-		{0, 0, 0},																	// 153
-		{0, 0, 0},																	// 154
-		{0, 0, 0},																	// 155
-		{0, 0, 0},																	// 156
-		{0, 0, 0},																	// 157
-		{0, 0, 0},																	// 158
-		{0, 0, 0},																	// 159
-		{0, 0, 0},																	// 160
-		{0, 0, 0},																	// 161
-		{0, 0, 0},																	// 162
-		{0, 0, 0},																	// 163
-		{0, 0, 0},																	// 164
-		{0, 0, 0},																	// 165
-		{0, 0, 0},																	// 166
-		{0, 0, 0},																	// 167
-		{0, 0, 0},																	// 168
-		{0, 0, 0},																	// 169
-		{0, 0, 0},																	// 170
-		{0, 0, 0},																	// 171
-		{0, 0, 0},																	// 172
-		{0, 0, 0},																	// 173
-		{0, 0, 0},																	// 174
-		{0, 0, 0},																	// 175
-		{0, 0, 0},																	// 176
-		{0, 0, 0},																	// 177
-		{0, 0, 0},																	// 178
-		{0, 0, 0},																	// 179
-		{0, 0, 0},																	// 180
-		{0, 0, 0},																	// 181
-		{0, 0, 0},																	// 182
-		{0, 0, 0},																	// 183
-		{0, 0, 0},																	// 184
-		{0, 0, 0},																	// 185
-		{0, 0, 0},																	// 186
-		{0, 0, 0},																	// 187
-		{0, 0, 0},																	// 188
-		{0, 0, 0},																	// 189
-		{0, 0, 0},																	// 190
-		{0, 0, 0}																	// 191
 };

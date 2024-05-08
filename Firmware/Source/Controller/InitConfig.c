@@ -35,6 +35,11 @@ void INITCFG_ConfigIO()
 	GPIO_InitInput(GPIO_ADPTR_TOP, NoPull);
 	GPIO_InitInput(GPIO_ADPTR_BOT, NoPull);
 
+	// Аналоговые входы
+	GPIO_InitAnalog(GPIO_MEASURE_BOT);
+	GPIO_InitAnalog(GPIO_MEASURE_TOP);
+	GPIO_InitAnalog(GPIO_MEASURE_PRESS);
+
 	// Начальная установка состояний выводов
 	GPIO_SetState(GPIO_LED, false);
 	GPIO_SetState(GPIO_IND_CSM, false);
@@ -82,7 +87,15 @@ void INITCFG_ConfigADC()
 
 	// ADC1
 	ADC_Calibration(ADC1);
+	ADC_Calibration(ADC2);
+
+	ADC_ChannelSet_SampleTime(ADC1, ADC_ID_TOP_CHANNEL, ADC_SMPL_TIME_61_5);
+	ADC_ChannelSet_SampleTime(ADC1, ADC_ID_BOT_CHANNEL, ADC_SMPL_TIME_61_5);
+	ADC_ChannelSet_SampleTime(ADC2, ADC_PRESSURE_CHANNEL, ADC_SMPL_TIME_181_5);
+
 	ADC_SoftTrigConfig(ADC1);
+	ADC_SoftTrigConfig(ADC2);
 	ADC_Enable(ADC1);
+	ADC_Enable(ADC2);
 }
 //-----------------------------------------------

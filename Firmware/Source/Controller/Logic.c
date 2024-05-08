@@ -15,12 +15,24 @@ bool LOGIC_IDVoltageInRane(float IDVoltage, Int16U ReferenceReg);
 //
 DUTType LOGIC_AdapterIDMatch(float IDVoltage)
 {
-	if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIHM))
+	if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MCDA))
+		return DT_MCDA;
+	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIAA))
+		return DT_MIAA;
+	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIDA))
+		return DT_MIDA;
+	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIFA))
+		return DT_MIFA;
+	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIHA))
+		return DT_MIHA;
+	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIHM))
 		return DT_MIHM;
 	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIHV))
 		return DT_MIHV;
 	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MISM))
 		return DT_MISM;
+	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MISM2))
+		return DT_MISM2;
 	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MISV))
 		return DT_MISV;
 	else if(LOGIC_IDVoltageInRane(IDVoltage, REG_ADPTR_REF_MIXM))
@@ -34,21 +46,19 @@ DUTType LOGIC_AdapterIDMatch(float IDVoltage)
 
 bool LOGIC_IDVoltageInRane(float IDVoltage, Int16U ReferenceReg)
 {
-	return (fabsf(IDVoltage - DataTable[ReferenceReg]) / DataTable[ReferenceReg]) < VOLTAGE_ID_MAX_ERR;
+	return(fabsf(IDVoltage - DataTable[ReferenceReg])) < VOLTAGE_ID_ABSOLUTE_MAX_ERR ||
+			(fabsf(IDVoltage - DataTable[ReferenceReg]) / DataTable[ReferenceReg]) < VOLTAGE_ID_RELATIVE_MAX_ERR;
 }
 //------------------------------------------
 
 void LOGIC_UpdateSensors()
 {
-	DataTable[REF_TL_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT1() ? YES : NO;
-	DataTable[REF_TR_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT2() ? YES : NO;
-	DataTable[REF_BL_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT3() ? YES : NO;
-	DataTable[REF_BR_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT4() ? YES : NO;
+	DataTable[REG_TL_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT1() ? YES : NO;
+	DataTable[REG_TR_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT2() ? YES : NO;
+	DataTable[REG_BL_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT3() ? YES : NO;
+	DataTable[REG_BR_DUT_PRESENCE] = LL_GetStatePresenceSensorDUT4() ? YES : NO;
 
 	DataTable[REG_SEN_TOP_ADAPTER] = LL_GetStateLimitSwitchTopAdapter() ? YES : NO;
 	DataTable[REG_SEN_BOT_ADAPTER] = LL_GetStateLimitSwitchBotAdapter() ? YES : NO;
-
-	DataTable[REG_ID_TOP_ADAPTER] = LOGIC_AdapterIDMatch(LL_MeasureIDTop());
-	DataTable[REG_ID_BOT_ADAPTER] = LOGIC_AdapterIDMatch(LL_MeasureIDBot());
 }
 //------------------------------------------

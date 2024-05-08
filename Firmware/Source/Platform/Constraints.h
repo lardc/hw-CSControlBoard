@@ -8,57 +8,48 @@
 
 //Definitions
 //
-#define ADPTR_MIHM_REF_MIN			140		// в мВ
-#define ADPTR_MIHM_REF_MAX			180		// в мВ
-#define ADPTR_MIHM_REF_DEF			160		// в мВ
+#define ADPTR_REF_MIN				1		// в мВ
+#define ADPTR_REF_MAX				3000	// в мВ
 
-#define ADPTR_MIHV_REF_MIN			280		// в мВ
-#define ADPTR_MIHV_REF_MAX			420		// в мВ
-#define ADPTR_MIHV_REF_DEF			340		// в мВ
+#define ADPTR_MCDA_REF_DEF			2400	// в мВ
+#define ADPTR_MIAA_REF_DEF			2035	// в мВ
+#define ADPTR_MIDA_REF_DEF			2750	// в мВ
+#define ADPTR_MIFA_REF_DEF			29		// в мВ
+#define ADPTR_MIHA_REF_DEF			1140	// в мВ
+#define ADPTR_MIHM_REF_DEF			63		// в мВ
+#define ADPTR_MIHV_REF_DEF			137		// в мВ
+#define ADPTR_MISM_REF_DEF			286		// в мВ
+#define ADPTR_MISM2_REF_DEF			567		// в мВ
+#define ADPTR_MISV_REF_DEF			440		// в мВ
+#define ADPTR_MIXM_REF_DEF			810		// в мВ
+#define ADPTR_MIXV_REF_DEF			1374	// в мВ
 
-#define ADPTR_MISM_REF_MIN			560		// в мВ
-#define ADPTR_MISM_REF_MAX			800		// в мВ
-#define ADPTR_MISM_REF_DEF			680		// в мВ
-
-#define ADPTR_MISV_REF_MIN			900		// в мВ
-#define ADPTR_MISV_REF_MAX			1200	// в мВ
-#define ADPTR_MISV_REF_DEF			1000	// в мВ
-
-#define ADPTR_MIXM_REF_MIN			1450	// в мВ
-#define ADPTR_MIXM_REF_MAX			1900	// в мВ
-#define ADPTR_MIXM_REF_DEF			1670	// в мВ
-
-#define ADPTR_MIXV_REF_MIN			2250	// в мВ
-#define ADPTR_MIXV_REF_MAX			2750	// в мВ
-#define ADPTR_MIXV_REF_DEF			2500	// в мВ
-
-#define PRESSURE_OFFSET_MIN			1
-#define PRESSURE_OFFSET_MAX			10000
+#define PRESSURE_OFFSET_MIN			0.001
+#define PRESSURE_OFFSET_MAX			4095
 #define PRESSURE_OFFSET_DEF			0
 
-#define PRESSURE_K_MIN				1
-#define PRESSURE_K_MAX				10000
-#define PRESSURE_K_DEF				1000
+#define PRESSURE_K_MIN				0.001
+#define PRESSURE_K_MAX				10
+#define PRESSURE_K_DEF				1
 
-#define PRESSURE_P2_MIN				1
-#define PRESSURE_P2_MAX				10000
+#define PRESSURE_P2_MIN				0.001
+#define PRESSURE_P2_MAX				10
 #define PRESSURE_P2_DEF				0
 
-#define PRESSURE_P1_MIN				1
-#define PRESSURE_P1_MAX				10000
-#define PRESSURE_P1_DEF				1000
+#define PRESSURE_P1_MIN				0.001
+#define PRESSURE_P1_MAX				10
+#define PRESSURE_P1_DEF				1
 
-#define PRESSURE_P0_MIN				1
-#define PRESSURE_P0_MAX				10000
+#define PRESSURE_P0_MIN				0.001
+#define PRESSURE_P0_MAX				10
 #define PRESSURE_P0_DEF				0
 
-#define SET_PRESSURE_VALUE_MIN		3		// в Бар
-#define SET_PRESSURE_VALUE_MAX		7		// в Бар
-#define SET_PRESSURE_VALUE_DEF		6		// в Бар
+#define SET_PRESSURE_VALUE_MIN		4		// в Бар
+#define SET_PRESSURE_VALUE_MAX		6		// в Бар
+#define SET_PRESSURE_VALUE_DEF		5		// в Бар
 
-#define ALLOWED_ERROR_MIN			1		// в % / 10
-#define ALLOWED_ERROR_MAX			100		// в % / 10
-#define ALLOWED_ERROR_DEF			50		// в % / 10
+#define PRESS_COUNTER_MAX			10
+#define	PRESS_COUNTER_DEF			3
 //
 #define NO							0
 #define YES							1

@@ -10,7 +10,7 @@ float MEASURE_GetPressureValue()
 
 	Offset = DataTable[REG_PRESSURE_OFFSET];
 	K = DataTable[REG_PRESSURE_K];
-	Pressure = ((float)ADC_Measure(ADC1, ADC_PRESSURE_CHANNEL) - Offset) * ADC_REF_VOLTAGE / ADC_RESOLUTION * K;
+	Pressure = ((float)ADC_Measure(ADC2, ADC_PRESSURE_CHANNEL) - Offset) * ADC_REF_VOLTAGE / ADC_RESOLUTION * K;
 
 	// Тонкая подстройка измерения напряжения
 	P2 = DataTable[REG_PRESSURE_P2];

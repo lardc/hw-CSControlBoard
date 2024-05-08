@@ -14,6 +14,7 @@ typedef enum __DeviceState
 	DS_Fault				= 1,
 	DS_Disabled 			= 2,
 	DS_Ready 				= 3,
+	DS_Halt					= 4,
 	DS_Clamping				= 7,
 	DS_ClampingDone			= 8,
 	DS_ClampingRelease 		= 10
@@ -44,5 +45,6 @@ void CONTROL_Idle();
 void CONTROL_DelayMs(uint32_t Delay);
 void CONTROL_SwitchToFault(Int16U Reason);
 void CONTROL_SetDeviceState(DeviceState NewState, DeviceSubState NewSubState);
+void CONTROL_Halt();
 
 #endif // __CONTROLLER_H
