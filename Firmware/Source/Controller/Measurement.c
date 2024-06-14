@@ -1,4 +1,4 @@
-#include "Measurement.h"
+п»ї#include "Measurement.h"
 #include "DataTable.h"
 #include "DeviceObjectDictionary.h"
 #include "SysConfig.h"
@@ -12,7 +12,7 @@ float MEASURE_GetPressureValue()
 	K = DataTable[REG_PRESSURE_K];
 	Pressure = ((float)ADC_Measure(ADC2, ADC_PRESSURE_CHANNEL) - Offset) * ADC_REF_VOLTAGE / ADC_RESOLUTION * K;
 
-	// Тонкая подстройка измерения напряжения
+	// РўРѕРЅРєР°СЏ РїРѕРґСЃС‚СЂРѕР№РєР° РёР·РјРµСЂРµРЅРёСЏ РЅР°РїСЂСЏР¶РµРЅРёСЏ
 	P2 = DataTable[REG_PRESSURE_P2];
 	P1 = DataTable[REG_PRESSURE_P1];
 	P0 = DataTable[REG_PRESSURE_P0];
