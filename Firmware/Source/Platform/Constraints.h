@@ -16,7 +16,7 @@
 #define ADPTR_MIDA_REF_DEF			2750	// в мВ
 #define ADPTR_MIFA_REF_DEF			29		// в мВ
 #define ADPTR_MIHA_REF_DEF			1140	// в мВ
-#define ADPTR_MIHM_REF_DEF			63		// в мВ
+#define ADPTR_MIHM_REF_DEF			70		// в мВ
 #define ADPTR_MIHV_REF_DEF			137		// в мВ
 #define ADPTR_MISM_REF_DEF			286		// в мВ
 #define ADPTR_MISM2_REF_DEF			567		// в мВ
@@ -24,23 +24,23 @@
 #define ADPTR_MIXM_REF_DEF			810		// в мВ
 #define ADPTR_MIXV_REF_DEF			1374	// в мВ
 
-#define PRESSURE_OFFSET_MIN			0.001
+#define PRESSURE_OFFSET_MIN			0
 #define PRESSURE_OFFSET_MAX			4095
 #define PRESSURE_OFFSET_DEF			0
 
-#define PRESSURE_K_MIN				0.001
+#define PRESSURE_K_MIN				0
 #define PRESSURE_K_MAX				10
 #define PRESSURE_K_DEF				1
 
-#define PRESSURE_P2_MIN				0.001
+#define PRESSURE_P2_MIN				0
 #define PRESSURE_P2_MAX				10
 #define PRESSURE_P2_DEF				0
 
-#define PRESSURE_P1_MIN				0.001
+#define PRESSURE_P1_MIN				0
 #define PRESSURE_P1_MAX				10
 #define PRESSURE_P1_DEF				1
 
-#define PRESSURE_P0_MIN				0.001
+#define PRESSURE_P0_MIN				0
 #define PRESSURE_P0_MAX				10
 #define PRESSURE_P0_DEF				0
 

@@ -107,9 +107,12 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U pUserError)
 			break;
 
 		case ACT_CLR_HALT:
-			if(CONTROL_State == DS_Halt)
-				CONTROL_SetDeviceState(DS_Ready, SS_None);
-			break;
+					if(CONTROL_State == DS_Halt)
+					{
+						DataTable[REG_OP_RESULT] = OPRESULT_NONE;
+						CONTROL_SetDeviceState(DS_ClampingRelease, SS_StartRelease);
+					}
+					break;
 
 		case ACT_CLAMP:
 			if(CONTROL_State == DS_Ready)
