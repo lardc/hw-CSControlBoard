@@ -69,6 +69,7 @@
 										// 10 - версия 1.0
 										// 11 - версия 1.1
 										// Все остальные значения трактуются как версия 2.0
+#define REG_MAX_ALLOWED_FORCE		5	// Переопределить максимальное разрешённое усилие (в кН х10)
 
 #define REG_FORCE_K_N				10	// Force recalculating K coefficient (N)
 #define REG_FORCE_K_D				11	// Force recalculating K coefficient (D)

@@ -318,7 +318,11 @@ static Boolean DEVPROFILE_Validate16(Int16U Address, Int16U Data)
 	}
 	else if(Address < DATA_TABLE_WP_START)
 	{
-		if(Data < VConstraint[Address - DATA_TABLE_WR_START].Min || Data > VConstraint[Address - DATA_TABLE_WR_START].Max)
+		Int16U MaxValue = VConstraint[Address - DATA_TABLE_WR_START].Max;
+		if(Address == REG_FORCE_VAL && DataTable[REG_MAX_ALLOWED_FORCE])
+			MaxValue = DataTable[REG_MAX_ALLOWED_FORCE];
+
+		if(Data < VConstraint[Address - DATA_TABLE_WR_START].Min || Data > MaxValue)
 			return FALSE;
 	}
 
