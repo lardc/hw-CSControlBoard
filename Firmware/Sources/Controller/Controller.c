@@ -24,7 +24,7 @@ typedef void (*FUNC_AsyncDelegate)();
 static volatile Boolean CycleActive = FALSE, HeatingActive = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 
-volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout;
+volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0;
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
@@ -312,7 +312,7 @@ static void CONTROL_HandleClampActions()
 						{
 							ZbGPIO_SwitchControlConnection(TRUE);
 							Timeout = CONTROL_TimeCounter + PNEUMATIC_CTRL_PAUSE
-									+ (DataTable[REG_DEV_CASE] == SC_Type_E2M) ? DataTable[REG_E2M_CLAMP_EX_DELAY] : 0;
+									+ ((DataTable[REG_DEV_CASE] == SC_Type_E2M) ? DataTable[REG_E2M_CLAMP_EX_DELAY] : 0);
 							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
 						}
 					}
