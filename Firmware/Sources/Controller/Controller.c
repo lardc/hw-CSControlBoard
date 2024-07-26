@@ -57,13 +57,13 @@ void CONTROL_UpdateTRMTemperature();
 void CONTROL_Init(Boolean BadClockDetected)
 {
 	// Variables for endpoint configuration
-	Int16U EPIndexes_16[EP_COUNT_16] = {0};
+	Int16U EPIndexes_16[EP_COUNT_16] = {1};
 	Int16U EPSized_16[EP_COUNT_16] = {VALUES_x_SIZE};
 	pInt16U EPCounters_16[EP_COUNT_16] = {(pInt16U)&CONTROL_Values_Counter};
 	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1};
 	
 	// Variables for endpoint configuration
-	Int16U EPIndexes_32[EP_COUNT_32] = {0};
+	Int16U EPIndexes_32[EP_COUNT_32] = {1};
 	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE};
 	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_Values_Counter};
 	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32};
