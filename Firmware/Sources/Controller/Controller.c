@@ -311,7 +311,8 @@ static void CONTROL_HandleClampActions()
 						else
 						{
 							ZbGPIO_SwitchControlConnection(TRUE);
-							Timeout = CONTROL_TimeCounter + PNEUMATIC_CTRL_PAUSE;
+							Timeout = CONTROL_TimeCounter + PNEUMATIC_CTRL_PAUSE
+									+ (DataTable[REG_DEV_CASE] == SC_Type_E2M) ? DataTable[REG_E2M_CLAMP_EX_DELAY] : 0;
 							CONTROL_SetDeviceState(CONTROL_State, DSS_ClampingConnectControl);
 						}
 					}

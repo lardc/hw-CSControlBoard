@@ -39,7 +39,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {NO, YES, YES},															// 20
 											   {NO, YES, YES},															// 21
 											   {NO, YES, YES},															// 22
-											   {0, 0, 0},																// 23
+											   {E2M_DELAY_MIN, E2M_DELAY_MAX, E2M_DELAY_DEF},							// 23
 											   {0, 0, 0},																// 24
 											   {0, 0, 0},																// 25
 											   {0, 0, 0},																// 26

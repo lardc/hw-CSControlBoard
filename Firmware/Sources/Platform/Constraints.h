@@ -55,6 +55,11 @@ typedef struct __TableItemConstraint
 #define TRM_TEMP_MAX				2000	// in C x10
 #define TRM_TEMP_DEF				0		// in C x10
 
+// Задержка для E2M (мс)
+#define E2M_DELAY_MIN				0
+#define E2M_DELAY_MAX				10000
+#define E2M_DELAY_DEF				3000
+
 // Variables
 //
 extern const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE];
