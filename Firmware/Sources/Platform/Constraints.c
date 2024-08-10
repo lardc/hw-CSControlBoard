@@ -19,7 +19,7 @@ const TableItemConstraint NVConstraint[DATA_TABLE_NV_SIZE] =
 											   {NO, YES, NO},															// 2
 											   {0, MAX_MM_TO_INCREMENT, 0},												// 3
 											   {0, 100, 0},																// 4
-											   {0, 0, 0},																// 5
+											   {FORCE_VAL_MIN, FORCE_VAL_MAX, FORCE_VAL_DEF},							// 5
 											   {0, 0, 0},																// 6
 											   {0, 0, 0},																// 7
 											   {0, 0, 0},																// 8
