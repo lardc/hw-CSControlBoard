@@ -30,7 +30,7 @@ typedef void (*FUNC_AsyncDelegate)();
 static volatile Boolean CycleActive = FALSE, HeatingActive = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 
-volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout, PTimeout;
+volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout, PTimeout = 0;
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
@@ -90,9 +90,6 @@ void CONTROL_Init(Boolean BadClockDetected)
 	
 	SM_ResetZeroPoint();
 	ZwTimer_StartT1();
-
-	PTimeout = CONTROL_TimeCounter + PNEUMATIC_READ_PAUSE;
-
 
 	// Sliding system init
 	if(!BadClockDetected)
@@ -763,13 +760,18 @@ void CONTROL_PressureMeasuring(Int16U * const restrict pResults)
 
 void UpdatePressureOK()
 {
-
 	ZwADC_StartSEQ1();
 	// Control Pressure
 	ZwADC_SubscribeToResults1(&CONTROL_PressureMeasuring);
+	if (CSPressure < DataTable[REG_PRESSURE_OK] && PTimeout == 0)
+		PTimeout = CONTROL_TimeCounter + PNEUMATIC_READ_PAUSE;
 
 	if (CSPressure < DataTable[REG_PRESSURE_OK] && CONTROL_TimeCounter > PTimeout)
+	{
+		PTimeout = 0;
+		DataTable[REG_DBG] = CSPressure;
 		CONTROL_SwitchToFault(FAULT_PRESSURE);
+	}
 }
 
 // ----------------------------------------

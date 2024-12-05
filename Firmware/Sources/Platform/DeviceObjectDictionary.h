@@ -138,6 +138,7 @@
 //
 #define REG_SP__3							159
 //
+#define REG_DBG								170
 // ----------------------------------------
 //
 #define REG_FWINFO_SLAVE_NID				256	// Device CAN slave node ID
