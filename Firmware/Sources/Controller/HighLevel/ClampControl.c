@@ -90,11 +90,29 @@ Boolean CLAMPCTRL_IsClampingDone()
 				CLAMP_SpeedTorqueLimits(ClampSpeedLimit, ClampTorqueLimit);
 				CLAMP_GoToPosition_mm(FALSE, ClampTopPosition);
 				CLAMPCTRL_State = CS_CLAMP_DETECT_CLAMPING;
+				DelayTickCounter = 0;
 			}
 			break;
 
 		case CS_CLAMP_DETECT_CLAMPING:
 			CLAMPCTRL_DummyDataLogger();
+			if (++DelayTickCounter > ClampTimeout)
+			{
+				DataTable[REG_PROBLEM] = PROBLEM_NO_CLAMPING;
+				// При обнаружении проблемы останавливаем движение ЗУ
+				CLAMP_QuickStop(TRUE);
+				ControlSignal = CLAMP_CurrentIncrements();
+				CLAMP_GoToPosition(ControlSignal);
+				CLAMP_QuickStop(FALSE);
+				DelayTickCounter = 0;
+				// Прибавляем ошибку регулятора и продложаем обработку.
+				if (UseClampBreak)
+					CLAMP_BrakeManualRelease(FALSE);
+				CLAMPCTRL_Apply_Kp(REG_FORCE_Kp_POST_N, REG_FORCE_Kp_POST_D);
+				ZbGPIO_EnablePowerSwitch(TRUE);
+				CLAMPCTRL_State = CS_CLAMP_POSTREGULATOR1;
+			}
+
 			if (ForceActual > ClampDetect)
 			{
 				CLAMP_QuickStop(TRUE);

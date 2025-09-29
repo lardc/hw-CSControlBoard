@@ -213,6 +213,7 @@
 #define PROBLEM_NONE				0	// No problem
 #define PROBLEM_NO_FORCE			1	// Force not reached
 #define PROBLEM_NO_AIR_PRESSURE		2	// No air pressure for power switch
+#define PROBLEM_NO_CLAMPING			3	// Clamping not detected
 
 // DISABLE CODES
 //
