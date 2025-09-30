@@ -161,8 +161,8 @@ Boolean CLAMPCTRL_IsClampingDone()
 				{
 					Result = TRUE;
 					CLAMPCTRL_State = CS_CLAMP_POSTREGULATOR2;
-
-					DataTable[REG_PROBLEM] = (UseAirControl ? ZbGPIO_PressureOK() : TRUE) ? PROBLEM_NONE : PROBLEM_NO_AIR_PRESSURE;
+					if(!DataTable[REG_PROBLEM])
+						DataTable[REG_PROBLEM] = (UseAirControl ? ZbGPIO_PressureOK() : TRUE) ? PROBLEM_NONE : PROBLEM_NO_AIR_PRESSURE;
 				}
 			}
 			break;
