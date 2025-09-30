@@ -112,8 +112,7 @@ Boolean CLAMPCTRL_IsClampingDone()
 				ZbGPIO_EnablePowerSwitch(TRUE);
 				CLAMPCTRL_State = CS_CLAMP_POSTREGULATOR1;
 			}
-
-			if (ForceActual > ClampDetect)
+			else if (ForceActual > ClampDetect)
 			{
 				CLAMP_QuickStop(TRUE);
 				ControlSignal = CLAMP_CurrentIncrements();
