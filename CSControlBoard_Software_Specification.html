@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>CSControlBoard — Software Specification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+body{font-family:Segoe UI,Arial,sans-serif;line-height:1.5;margin:24px;color:#111}
+h1,h2,h3{margin:0.8em 0 0.4em}
+table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14px}
+th,td{border:1px solid #ccc;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f5f5f5}
+small{color:#666}
+code{background:#f6f8fa;padding:0 4px;border-radius:3px}
+.section{margin:28px 0}
+</style>
+</head>
+<body>
+<h2>CSControlBoard — Software Specification</h2>
+<p><b>Branch</b>: <code>develop-PCBv2.0-MME016</code><br />
+<b>Commit</b>: <code>47f60f7093925e53202f5c996038724e734d0134</code><br />
+<b>Build date</b>: <code>2025/09/30T11:08:06</code></p>
+
+<div class="section">
+<h3>Overview</h3>
+<p>Clamp control firmware for TMS320F2809. It controls clamping motor (speed/torque/position), regulates force using sensor feedback, monitors temperature and controls heating, operates a pneumatic power switch with air pressure monitoring, and drives a sliding system. Communication interfaces include CAN (internal/external), RS‑232 (SCCI), and SPI peripherals (DAC, TRM, optical sensors). Data streams and extended logs are provided via endpoints.</p>
+<p><small>DataTable layout: 0–63 NV RW; 64–95 RW; 96–159 RO; 256+ FW info (RO). All types are uint16 unless noted.</small></p>
+</div>
+
+<div class="section">
+<h3>Writable Registers</h3>
+<h4>Device Configuration &amp; Calibration (NV 0–63)</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Type</th><th>Description</th><th>Value List/Range</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>0</td><td>REG_ADC_INIT_OFFSET</td><td>uint16</td><td>Initial ADC offset (ticks of 4095)</td><td>0–4095</td><td></td><td>ADC offset correction in raw ticks</td></tr>
+<tr><td>10</td><td>REG_FORCE_K_N</td><td>uint16</td><td>Force recalculation K numerator</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Force gain numerator (default 2751)</td></tr>
+<tr><td>11</td><td>REG_FORCE_K_D</td><td>uint16</td><td>Force recalculation K denominator</td><td>1–10000</td><td>1 to X_D_MAX</td><td>Force gain denominator</td></tr>
+<tr><td>12</td><td>REG_FORCE_FINE_P2</td><td>uint16</td><td>Force quadratic fine tune P2 ×1e6</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Quadratic term p2 (×1e6)</td></tr>
+<tr><td>13</td><td>REG_FORCE_FINE_P1</td><td>uint16</td><td>Force quadratic fine tune P1 ×1000</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Linear term p1 (×1000, default 1000)</td></tr>
+<tr><td>14</td><td>REG_FORCE_FINE_P0</td><td>uint16</td><td>Force quadratic fine tune P0 (N)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Offset term p0 (N)</td></tr>
+<tr><td>15</td><td>REG_HOMING_REF_SPEED</td><td>uint16</td><td>Homing initial speed (units/s)</td><td>100–5000</td><td>HOMING_REF_SPEED_MIN to HOMING_REF_SPEED_MAX</td><td>Initial homing speed</td></tr>
+<tr><td>16</td><td>REG_HOMING_SEARCH_SPEED</td><td>uint16</td><td>Homing search speed (units/s)</td><td>100–5000</td><td>HOMING_SEARCH_SPEED_MIN to HOMING_SEARCH_SPEED_MAX</td><td>Search speed while homing</td></tr>
+<tr><td>17</td><td>REG_HOMING_OFFSET</td><td>uint16</td><td>Homing offset (units)</td><td>100–10000</td><td>HOMING_OFFSET_MIN to HOMING_OFFSET_MAX</td><td>Offset after reference found</td></tr>
+<tr><td>18</td><td>REG_HOMING_TORQUE_LIMIT</td><td>uint16</td><td>Homing torque limit (%)</td><td>5–50</td><td>HOMING_TORQUE_MIN to HOMING_TORQUE_MAX</td><td>Max torque allowed during homing</td></tr>
+<tr><td>19</td><td>REG_POSITION_SPEED_LIMIT</td><td>uint16</td><td>Positioning speed limit (%)</td><td>10–150</td><td>POSITION_SPEED_MIN to POSITION_SPEED_MAX</td><td>Speed limit for position moves</td></tr>
+<tr><td>20</td><td>REG_POSITION_TORQUE_LIMIT</td><td>uint16</td><td>Positioning torque limit (%)</td><td>10–100</td><td>POSITION_TORQUE_MIN to POSITION_TORQUE_MAX</td><td>Torque limit for position moves</td></tr>
+<tr><td>21</td><td>REG_CLAMP_SPEED_LIMIT</td><td>uint16</td><td>Clamping speed limit (%)</td><td>5–50</td><td>CLAMP_SPEED_MIN to CLAMP_SPEED_MAX</td><td>Speed limit during clamping</td></tr>
+<tr><td>22</td><td>REG_CLAMP_TORQUE_LIMIT</td><td>uint16</td><td>Clamping torque limit (%)</td><td>5–199</td><td>CLAMP_TORQUE_LIMIT_MIN to CLAMP_TORQUE_LIMIT_MAX</td><td>Torque limit during clamping</td></tr>
+<tr><td>23</td><td>REG_CLAMP_TIMEOUT</td><td>uint16</td><td>Clamp timeout to reach force (ms)</td><td>1000–60000</td><td>CLAMP_TIMEOUT_MIN to CLAMP_TIMEOUT_MAX</td><td>Time budget to reach set force (20 Hz step)</td></tr>
+<tr><td>24</td><td>REG_CLAMP_ERR_ZONE</td><td>uint16</td><td>Force error dead-zone (%)</td><td>1–20</td><td>CLAMP_ERR_ZONE_MIN to CLAMP_ERR_ZONE_MAX</td><td>Allowed relative error band</td></tr>
+<tr><td>25</td><td>REG_MAX_CONT_FORCE</td><td>uint16</td><td>Max continuous force (kN×10)</td><td>50–1100</td><td>FORCE_VAL_MIN to FORCE_VAL_MAX</td><td>Limit to protect mechanism</td></tr>
+<tr><td>26</td><td>REG_MAX_CONT_FORCE_TIMEOUT</td><td>uint16</td><td>Auto release timeout at max force (ms)</td><td>2000–10000</td><td>AUTO_RLS_TIMEOUT_MIN to AUTO_RLS_TIMEOUT_MAX</td><td>Hold time before auto-release</td></tr>
+<tr><td>27</td><td>REG_CLAMPING_RLS_POS</td><td>uint16</td><td>Release target position (mm)</td><td>0–50</td><td>POS_RLS_OFFS_MIN to POS_RLS_OFFS_MAX</td><td>Target position for unclamp</td></tr>
+<tr><td>28</td><td>REG_CLAMPING_DEV_OFFSET</td><td>uint16</td><td>Device safe offset (mm)</td><td>0–50</td><td>POS_DEV_OFFS_MIN to POS_DEV_OFFS_MAX</td><td>Mechanical safety offset</td></tr>
+<tr><td>29</td><td>REG_FORCE_Kp_N</td><td>uint16</td><td>Force regulator Kp numerator</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Proportional gain numerator (default 40)</td></tr>
+<tr><td>30</td><td>REG_FORCE_Kp_D</td><td>uint16</td><td>Force regulator Kp denominator</td><td>1–10000</td><td>1 to X_D_MAX</td><td>Proportional gain denominator</td></tr>
+<tr><td>31</td><td>REG_FORCE_Kp_POST_N</td><td>uint16</td><td>Post‑regulation Kp numerator</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Post phase Kp numerator (default 10)</td></tr>
+<tr><td>32</td><td>REG_FORCE_Kp_POST_D</td><td>uint16</td><td>Post‑regulation Kp denominator</td><td>1–10000</td><td>1 to X_D_MAX</td><td>Post phase Kp denominator</td></tr>
+<tr><td>34</td><td>REG_TEMP1_READ_FINE_P2</td><td>uint16</td><td>Temp ch1 read poly p2 (×1e6)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Quadratic correction p2</td></tr>
+<tr><td>35</td><td>REG_TEMP1_READ_FINE_P1</td><td>uint16</td><td>Temp ch1 read poly p1 (×1000)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Linear correction p1 (default 1000)</td></tr>
+<tr><td>36</td><td>REG_TEMP1_READ_FINE_P0</td><td>uint16</td><td>Temp ch1 read poly p0 (C×10)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Offset correction p0</td></tr>
+<tr><td>37</td><td>REG_TEMP2_READ_FINE_P2</td><td>uint16</td><td>Temp ch2 read poly p2 (×1e6)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Quadratic correction p2</td></tr>
+<tr><td>38</td><td>REG_TEMP2_READ_FINE_P1</td><td>uint16</td><td>Temp ch2 read poly p1 (×1000)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Linear correction p1 (default 1000)</td></tr>
+<tr><td>39</td><td>REG_TEMP2_READ_FINE_P0</td><td>uint16</td><td>Temp ch2 read poly p0 (C×10)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Offset correction p0</td></tr>
+<tr><td>40</td><td>REG_TEMP1_TO_DAC_FINE_P2</td><td>uint16</td><td>Temp ch1→DAC poly p2 (×1e6)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Quadratic conversion p2</td></tr>
+<tr><td>41</td><td>REG_TEMP1_TO_DAC_FINE_P1</td><td>uint16</td><td>Temp ch1→DAC poly p1 (×1000)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Linear conversion p1 (default 1000)</td></tr>
+<tr><td>42</td><td>REG_TEMP1_TO_DAC_FINE_P0</td><td>uint16</td><td>Temp ch1→DAC poly p0 (C×10)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Offset conversion p0</td></tr>
+<tr><td>43</td><td>REG_TEMP2_TO_DAC_FINE_P2</td><td>uint16</td><td>Temp ch2→DAC poly p2 (×1e6)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Quadratic conversion p2</td></tr>
+<tr><td>44</td><td>REG_TEMP2_TO_DAC_FINE_P1</td><td>uint16</td><td>Temp ch2→DAC poly p1 (×1000)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Linear conversion p1 (default 1000)</td></tr>
+<tr><td>45</td><td>REG_TEMP2_TO_DAC_FINE_P0</td><td>uint16</td><td>Temp ch2→DAC poly p0 (C×10)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Offset conversion p0</td></tr>
+<tr><td>55</td><td>REG_GEAR_RATIO_K_N</td><td>uint16</td><td>Gear ratio K numerator</td><td>1–10000</td><td>1 to X_D_MAX</td><td>Mechanical ratio numerator</td></tr>
+<tr><td>56</td><td>REG_GEAR_RATIO_K_D</td><td>uint16</td><td>Gear ratio K denominator</td><td>1–10000</td><td>1 to X_D_MAX</td><td>Mechanical ratio denominator</td></tr>
+<tr><td>57</td><td>REG_BALL_SCREW_STROKE</td><td>uint16</td><td>Ball screw overall stroke (mm)</td><td>0–120</td><td>0 to POS_MAX</td><td>Mechanical stroke length</td></tr>
+<tr><td>58</td><td>REG_ALLOWED_MOVE</td><td>uint16</td><td>Clamp allowed move (mm)</td><td>0–120</td><td>0 to POS_MAX</td><td>Allowed travel in current setup</td></tr>
+<tr><td>61</td><td>REG_FORCE_SET_K</td><td>uint16</td><td>Force setpoint K (×1000)</td><td>100–10000</td><td>X_D_DEF1 to X_D_DEF3</td><td>Scaling for force setpoint</td></tr>
+</table>
+
+<h4>Safety &amp; Monitoring Control (NV 0–63)</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Type</th><th>Description</th><th>Value List/Range</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>33</td><td>REG_CONTINUOUS_CTRL</td><td>uint16</td><td>Enable controller after force reached</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Keep regulator active after reaching set force</td></tr>
+<tr><td>46</td><td>REG_USE_HEATING</td><td>uint16</td><td>Enable/disable heating system</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Heating controller on/off</td></tr>
+<tr><td>52</td><td>REG_USE_2ST_CLAMP</td><td>uint16</td><td>Enable double‑stage clamping</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Two‑stage clamping on/off</td></tr>
+<tr><td>53</td><td>REG_USE_SLIDING_SENSOR</td><td>uint16</td><td>Use sliding system sensor</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Enable sliding sensor input</td></tr>
+<tr><td>54</td><td>REG_USE_CLAMP_BREAK</td><td>uint16</td><td>Use motor brake control</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Enable brake output control</td></tr>
+<tr><td>59</td><td>REG_POWER_SW_DELAY</td><td>uint16</td><td>Pneumatic power switch close time (ms)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Time to close power switch (20 Hz step)</td></tr>
+<tr><td>60</td><td>REG_USE_AIR_CONTROL</td><td>uint16</td><td>Use air pressure monitoring</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Enable low‑pressure detection</td></tr>
+</table>
+
+<h4>Runtime Control Parameters (RW 64–95)</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Type</th><th>Description</th><th>Value List/Range</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>64</td><td>REG_CUSTOM_POS</td><td>uint16</td><td>Manually configured position (mm)</td><td>0–120</td><td>0 to POS_MAX</td><td>Target position for manual moves</td></tr>
+<tr><td>70</td><td>REG_FORCE_VAL</td><td>uint16</td><td>Force setpoint (kN×10)</td><td>50–1100</td><td>FORCE_VAL_MIN to FORCE_VAL_MAX</td><td>Desired clamping force</td></tr>
+<tr><td>71</td><td>REG_DEV_HEIGHT</td><td>uint16</td><td>Device height (mm)</td><td>0–70</td><td>DEV_HEIGHT_MIN to DEV_HEIGHT_MAX</td><td>Height of device under clamp</td></tr>
+<tr><td>72</td><td>REG_TEMP_SETPOINT</td><td>uint16</td><td>Temperature setpoint (C×10)</td><td>0–2000</td><td>TRM_TEMP_MIN to TRM_TEMP_MAX</td><td>Target temperature</td></tr>
+<tr><td>73</td><td>REG_USE_SLIDING_SYSTEM</td><td>uint16</td><td>Activate sliding system</td><td>0–1</td><td>DISABLE/ENABLE</td><td>Engage sliding mechanism</td></tr>
+</table>
+
+<h4>Debug Parameters &amp; Service (RW 64–95)</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Type</th><th>Description</th><th>Value List/Range</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>80</td><td>REG_DBG_CAN_INDEX</td><td>uint16</td><td>Lenze register index (debug)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Target register index</td></tr>
+<tr><td>81</td><td>REG_DBG_CAN_SUBCODE</td><td>uint16</td><td>Lenze register subcode (debug)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Target subcode</td></tr>
+<tr><td>82</td><td>REG_DBG_TEMP_CH_INDEX</td><td>uint16</td><td>Temperature channel select</td><td>1–2</td><td>CH1/CH2</td><td>Select channel 1 or 2</td></tr>
+<tr><td>83</td><td>REG_DBG_TEMP_CH_DATA</td><td>uint16</td><td>DAC data to write (debug)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Raw DAC data value</td></tr>
+<tr><td>84</td><td>REG_DBG_TRM_ADDRESS</td><td>uint16</td><td>TRM address</td><td>0–255</td><td></td><td>External TRM device address</td></tr>
+<tr><td>85</td><td>REG_DBG_PAUSE_T_FEEDBACK</td><td>uint16</td><td>Pause temperature feedback</td><td>0–1</td><td>RUN/PAUSE</td><td>Run/stop temperature loop</td></tr>
+<tr><td>86</td><td>REG_DBG_CAN_DATA</td><td>uint16</td><td>Lenze register data (debug)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Data payload</td></tr>
+<tr><td>87</td><td>REG_DBG_CAN_DATA_32</td><td>uint16</td><td>Lenze register data (debug, 32‑bit part)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>32‑bit value part</td></tr>
+</table>
+
+<h4>Security &amp; Locking (RW 64–95)</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Type</th><th>Description</th><th>Value List/Range</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>91</td><td>REG_PWD_1</td><td>uint16</td><td>Unlock password word 1</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Unlock key (word 1)</td></tr>
+<tr><td>92</td><td>REG_PWD_2</td><td>uint16</td><td>Unlock password word 2</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Unlock key (word 2)</td></tr>
+<tr><td>93</td><td>REG_PWD_3</td><td>uint16</td><td>Unlock password word 3</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Unlock key (word 3)</td></tr>
+<tr><td>94</td><td>REG_PWD_4</td><td>uint16</td><td>Unlock password word 4</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Unlock key (word 4)</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h3>Read‑Only Registers</h3>
+<h4>Device Status (96–100)</h4>
+<table>
+<tr><th>Register</th><th>Num</th><th>Value</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>REG_DEV_STATE</td><td>96</td><td>0</td><td>DS_None</td><td>No active state</td></tr>
+<tr><td></td><td></td><td>1</td><td>DS_Fault</td><td>Fault state (latched fault)</td></tr>
+<tr><td></td><td></td><td>2</td><td>DS_Disabled</td><td>Disabled due to error or request</td></tr>
+<tr><td></td><td></td><td>3</td><td>DS_Ready</td><td>Ready/idle state</td></tr>
+<tr><td></td><td></td><td>4</td><td>DS_Halt</td><td>Halted by user or safety</td></tr>
+<tr><td></td><td></td><td>5</td><td>DS_Homing</td><td>Homing procedure in progress</td></tr>
+<tr><td></td><td></td><td>6</td><td>DS_Position</td><td>Moving to target position</td></tr>
+<tr><td></td><td></td><td>7</td><td>DS_Clamping</td><td>Clamping in progress</td></tr>
+<tr><td></td><td></td><td>8</td><td>DS_ClampingDone</td><td>Force reached, post‑regulation phase</td></tr>
+<tr><td></td><td></td><td>9</td><td>DS_ClampingUpdate</td><td>Applying updated clamping parameters</td></tr>
+<tr><td></td><td></td><td>10</td><td>DS_ClampingRelease</td><td>Unclamping in progress</td></tr>
+<tr><td></td><td></td><td>11</td><td>DS_Sliding</td><td>Sliding system operation</td></tr>
+<tr><td>REG_FAULT_REASON</td><td>97</td><td>0</td><td>FAULT_NONE</td><td>No fault</td></tr>
+<tr><td></td><td></td><td>2</td><td>FAULT_THERMOSYSTEM</td><td>Thermosystem fault</td></tr>
+<tr><td></td><td></td><td>3</td><td>FAULT_CANOPEN</td><td>CANopen high‑level fault</td></tr>
+<tr><td></td><td></td><td>4</td><td>FAULT_TRM</td><td>TRM communication fault</td></tr>
+<tr><td></td><td></td><td>5</td><td>FAULT_PRESSURE</td><td>Air pressure too low</td></tr>
+<tr><td></td><td></td><td>6</td><td>FAULT_SLIDING</td><td>Sliding system fault</td></tr>
+<tr><td>REG_DISABLE_REASON</td><td>98</td><td>0</td><td>DISABLE_NONE</td><td>Not disabled</td></tr>
+<tr><td></td><td></td><td>1</td><td>DISABLE_LENZE_ERROR</td><td>Lenze inverter error</td></tr>
+<tr><td></td><td></td><td>1001</td><td>DISABLE_BAD_CLOCK</td><td>Main oscillator problem</td></tr>
+<tr><td>REG_WARNING</td><td>99</td><td>0</td><td>WARNING_NONE</td><td>No warnings</td></tr>
+<tr><td></td><td></td><td>1001</td><td>WARNING_WATCHDOG_RESET</td><td>System was reset by watchdog</td></tr>
+<tr><td>REG_PROBLEM</td><td>100</td><td>0</td><td>PROBLEM_NONE</td><td>No problems</td></tr>
+<tr><td></td><td></td><td>1</td><td>PROBLEM_NO_FORCE</td><td>Desired force not reached</td></tr>
+<tr><td></td><td></td><td>2</td><td>PROBLEM_NO_AIR_PRESSURE</td><td>Air pressure for power switch too low</td></tr>
+<tr><td></td><td></td><td>3</td><td>PROBLEM_NO_CLAMPING</td><td>Clamping not detected</td></tr>
+</table>
+
+<h4>Sensors, Telemetry &amp; Diagnostics</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Type</th><th>Description</th><th>Value List/Range</th><th>Value Name</th><th>Value Description</th></tr>
+<tr><td>101</td><td>REG_TEMP_CH1</td><td>uint16</td><td>Temperature channel 1 (C×10)</td><td>0–2000</td><td>TRM_TEMP_MIN to TRM_TEMP_MAX</td><td>Measured temperature Ch1</td></tr>
+<tr><td>102</td><td>REG_TEMP_CH2</td><td>uint16</td><td>Temperature channel 2 (C×10)</td><td>0–2000</td><td>TRM_TEMP_MIN to TRM_TEMP_MAX</td><td>Measured temperature Ch2</td></tr>
+<tr><td>103</td><td>REG_TRM_DATA</td><td>uint16</td><td>TRM read data</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Last value from TRM</td></tr>
+<tr><td>104</td><td>REG_TRM_ERROR</td><td>uint16</td><td>TRM error code</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>TRM communication/status code</td></tr>
+<tr><td>105</td><td>REG_SLIDING_SENSOR</td><td>uint16</td><td>Sliding sensor state</td><td>0–1</td><td>OFF/ON</td><td>Sliding sensor inactive/active</td></tr>
+<tr><td>110</td><td>REG_FORCE_RESULT</td><td>uint16</td><td>Actual force (kN×10)</td><td>0–1100</td><td></td><td>Measured clamping force</td></tr>
+<tr><td>111</td><td>REG_DRV_ERROR</td><td>uint16</td><td>Lenze error</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Current Lenze inverter error</td></tr>
+<tr><td>112</td><td>REG_DBG_READ_REG</td><td>uint16</td><td>Lenze register readout</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Read data (16‑bit)</td></tr>
+<tr><td>113</td><td>REG_DBG_READ_REG_32</td><td>uint16</td><td>Lenze register readout (32‑bit part)</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Read data (32‑bit part)</td></tr>
+<tr><td>114</td><td>REG_DBG_TEMP</td><td>uint16</td><td>Temperature isolator (C×10)</td><td>0–2000</td><td>TRM_TEMP_MIN to TRM_TEMP_MAX</td><td>Temperature from isolator</td></tr>
+<tr><td>115</td><td>REG_DBG_ADC_RAW_DATA</td><td>uint16</td><td>ADC raw data (ticks of 4095)</td><td>0–4095</td><td></td><td>Raw ADC sample</td></tr>
+<tr><td>117</td><td>REG_DBG_TEMP_RAW</td><td>uint16</td><td>Temperature isolator raw</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Raw sensor data</td></tr>
+<tr><td>120</td><td>REG_CANA_BUSOFF_COUNTER</td><td>uint16</td><td>CANa bus‑off counter</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Number of bus‑off events</td></tr>
+<tr><td>121</td><td>REG_CANA_STATUS_REG</td><td>uint32</td><td>CANa status register (low/high)</td><td></td><td></td><td>Bitfield status (lo/hi words)</td></tr>
+<tr><td>122</td><td>REG_CANA_STATUS_REG_32</td><td>uint16</td><td>CANa status register (second word)</td><td></td><td></td><td>High word of status</td></tr>
+<tr><td>123</td><td>REG_CANA_DIAG_TEC</td><td>uint16</td><td>CANa TEC</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Transmit error counter</td></tr>
+<tr><td>124</td><td>REG_CANA_DIAG_REC</td><td>uint16</td><td>CANa REC</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Receive error counter</td></tr>
+<tr><td>125</td><td>REG_CANB_BUSOFF_COUNTER</td><td>uint16</td><td>CANb bus‑off counter</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Number of bus‑off events</td></tr>
+<tr><td>126</td><td>REG_CANB_STATUS_REG</td><td>uint32</td><td>CANb status register (low/high)</td><td></td><td></td><td>Bitfield status (lo/hi words)</td></tr>
+<tr><td>127</td><td>REG_CANB_STATUS_REG_32</td><td>uint16</td><td>CANb status register (second word)</td><td></td><td></td><td>High word of status</td></tr>
+<tr><td>128</td><td>REG_CANB_DIAG_TEC</td><td>uint16</td><td>CANb TEC</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Transmit error counter</td></tr>
+<tr><td>129</td><td>REG_CANB_DIAG_REC</td><td>uint16</td><td>CANb REC</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Receive error counter</td></tr>
+<tr><td>256</td><td>REG_FWINFO_SLAVE_NID</td><td>uint16</td><td>Device CAN slave node ID</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Slave CAN node ID</td></tr>
+<tr><td>257</td><td>REG_FWINFO_MASTER_NID</td><td>uint16</td><td>Device CAN master node ID</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>Master CAN node ID</td></tr>
+<tr><td>260</td><td>REG_FWINFO_STR_LEN</td><td>uint16</td><td>Firmware info string length</td><td>0 - INT16U_MAX</td><td>0 to INT16U_MAX</td><td>String length in bytes</td></tr>
+<tr><td>261</td><td>REG_FWINFO_STR_BEGIN</td><td>uint16</td><td>Firmware info string buffer</td><td></td><td></td><td>String data (words)</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h3>Commands</h3>
+<h4>Power &amp; System Control</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Description</th></tr>
+<tr><td>1</td><td>ACT_ENABLE_POWER</td><td>Enable power (standby/ready)</td></tr>
+<tr><td>2</td><td>ACT_DISABLE_POWER</td><td>Disable power (turn off)</td></tr>
+<tr><td>3</td><td>ACT_CLR_FAULT</td><td>Clear fault state</td></tr>
+<tr><td>4</td><td>ACT_CLR_WARNING</td><td>Clear warnings and problems</td></tr>
+<tr><td>5</td><td>ACT_CLR_HALT</td><td>Clear halt and return to ready</td></tr>
+</table>
+<h4>Motion &amp; Clamping Control</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Description</th></tr>
+<tr><td>100</td><td>ACT_HOMING</td><td>Start homing procedure</td></tr>
+<tr><td>101</td><td>ACT_GOTO_POSITION</td><td>Go to manual position</td></tr>
+<tr><td>102</td><td>ACT_START_CLAMPING</td><td>Start clamping cycle</td></tr>
+<tr><td>103</td><td>ACT_CLAMPING_UPDATE</td><td>Apply updated regulation parameters</td></tr>
+<tr><td>104</td><td>ACT_RELEASE_CLAMPING</td><td>Perform unclamp</td></tr>
+<tr><td>105</td><td>ACT_HALT</td><td>Abort operation and halt</td></tr>
+<tr><td>106</td><td>ACT_SLIDING_PUSH_OUT</td><td>Push out sliding system</td></tr>
+<tr><td>107</td><td>ACT_SLIDING_PUSH_IN</td><td>Push in sliding system</td></tr>
+</table>
+<h4>Temperature &amp; Debug</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Description</th></tr>
+<tr><td>108</td><td>ACT_SET_TEMPERATURE</td><td>Set temperature target</td></tr>
+<tr><td>110</td><td>ACT_DBG_READ_LENZE_REG</td><td>Read Lenze register</td></tr>
+<tr><td>111</td><td>ACT_DBG_WRITE_DAC_RAW</td><td>Write raw value to DAC</td></tr>
+<tr><td>112</td><td>ACT_DBG_WRITE_DAC_TEMP</td><td>Write temperature value to DAC (with correction)</td></tr>
+<tr><td>113</td><td>ACT_DBG_READ_TEMP</td><td>Read temperature value</td></tr>
+<tr><td>114</td><td>ACT_DBG_READ_TEMP_RAW</td><td>Read temperature raw ADC</td></tr>
+<tr><td>115</td><td>ACT_DBG_READ_TRM_TEMP</td><td>Read TRM actual temperature</td></tr>
+<tr><td>116</td><td>ACT_DBG_READ_TRM_POWER</td><td>Read TRM output power</td></tr>
+<tr><td>117</td><td>ACT_DBG_TRM_START</td><td>Start TRM operation</td></tr>
+<tr><td>118</td><td>ACT_DBG_TRM_STOP</td><td>Stop TRM operation</td></tr>
+<tr><td>119</td><td>ACT_DBG_CON_POWER_SW</td><td>Connect pneumatic power switch</td></tr>
+<tr><td>120</td><td>ACT_DBG_DISCON_POWER_SW</td><td>Disconnect pneumatic power switch</td></tr>
+<tr><td>121</td><td>ACT_DBG_WRITE_LENZE_REG</td><td>Write Lenze register</td></tr>
+<tr><td>122</td><td>ACT_DBG_READ_RAW_ADC</td><td>Read raw ADC data</td></tr>
+<tr><td>123</td><td>ACT_DBG_BREAK_MAN_RLS_ON</td><td>Enable brake manual release</td></tr>
+<tr><td>124</td><td>ACT_DBG_BREAK_MAN_RLS_OFF</td><td>Disable brake manual release</td></tr>
+<tr><td>125</td><td>ACT_DBG_BREAK_AUTO_CONTROL</td><td>Disable brake manual control</td></tr>
+<tr><td>126</td><td>ACT_DBG_READ_FORCE</td><td>Read current force value</td></tr>
+<tr><td>127</td><td>ACT_DBG_READ_LENZE_ERROR</td><td>Read current Lenze error</td></tr>
+<tr><td>130</td><td>ACT_DBG_SLS_PUSH_UP</td><td>Sliding system push up</td></tr>
+<tr><td>131</td><td>ACT_DBG_SLS_PUSH_DOWN</td><td>Sliding system push down</td></tr>
+<tr><td>132</td><td>ACT_DBG_SLS_PUSH_OUT</td><td>Sliding system push out</td></tr>
+<tr><td>133</td><td>ACT_DBG_SLS_PUSH_IN</td><td>Sliding system push in</td></tr>
+</table>
+<h4>NV Data Management &amp; Boot</h4>
+<table>
+<tr><th>Num</th><th>Name</th><th>Description</th></tr>
+<tr><td>200</td><td>ACT_SAVE_TO_ROM</td><td>Save NV area to EPROM</td></tr>
+<tr><td>201</td><td>ACT_RESTORE_FROM_ROM</td><td>Restore NV area from EPROM</td></tr>
+<tr><td>202</td><td>ACT_RESET_TO_DEFAULT</td><td>Reset parameters to defaults (RAM)</td></tr>
+<tr><td>203</td><td>ACT_LOCK_NV_AREA</td><td>Lock NV area modifications</td></tr>
+<tr><td>204</td><td>ACT_UNLOCK_NV_AREA</td><td>Unlock NV area (password protected)</td></tr>
+<tr><td>320</td><td>ACT_BOOT_LOADER_REQUEST</td><td>Reboot to bootloader</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h3>Endpoints (Read‑only)</h3>
+<table>
+<tr><th>Num</th><th>Name</th><th>Description</th><th>Data Type</th><th>Size</th></tr>
+<tr><td>1</td><td>EP16_Data_ForceActual</td><td>Clamping force (sensor)</td><td>uint16</td><td>500</td></tr>
+<tr><td>2</td><td>EP16_Data_ForceDesired</td><td>Configured clamping force</td><td>uint16</td><td>500</td></tr>
+<tr><td>3</td><td>EP16_Data_ForceError</td><td>Force error</td><td>uint16</td><td>500</td></tr>
+<tr><td>4</td><td>EP16_XLog_SubState</td><td>Extended logging: clamping sub‑state</td><td>uint16</td><td>1000</td></tr>
+<tr><td>5</td><td>EP16_XLog_Force</td><td>Extended logging: force trace</td><td>uint16</td><td>1000</td></tr>
+<tr><td>6</td><td>EP16_XLog_Error</td><td>Extended logging: error trace</td><td>uint16</td><td>1000</td></tr>
+<tr><td>7</td><td>EP16_XLog_TorqueLimit</td><td>Extended logging: torque limit trace</td><td>uint16</td><td>1000</td></tr>
+<tr><td>1</td><td>EP32_Data_CtrlIncrements</td><td>Position controller input data</td><td>uint32</td><td>500</td></tr>
+<tr><td>2</td><td>EP32_Data_Position</td><td>Resolver position data</td><td>uint32</td><td>500</td></tr>
+</table>
+</div>
+
+<hr />
+<p><small>Notes: Data Type — all registers are uint16 unless noted; EP32 values are logically 32‑bit and may be stored as two 16‑bit words. Volatility — 0–63 are NV (EPROM), 64–95 runtime RW, 96–159 &amp; 256+ RO. Communication — CAN (internal/external), RS‑232 (SCCI), SPI (DAC/TRM/optical). Categories — Device Configuration &amp; Calibration; Safety &amp; Monitoring Control; Runtime Control Parameters; Debug Parameters &amp; Service; Security &amp; Locking; Device Status; Sensors/Telemetry &amp; Diagnostics; NV Data Management &amp; Boot. Generated from: Platform/DeviceObjectDictionary.h, Platform/DataTable.h, Platform/DataTable.c, Platform/Constraints.h, Platform/Constraints.c, Controller/Controller.c, Controller/Global.h, Sources/git_info.h.</small></p>
+</body>
+</html>
