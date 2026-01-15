@@ -30,7 +30,7 @@ typedef void (*FUNC_AsyncDelegate)();
 static volatile Boolean CycleActive = FALSE, HeatingActive = FALSE;
 static volatile FUNC_AsyncDelegate DPCDelegate = NULL;
 
-volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout, PTimeout = 0;
+volatile Int64U FanTimeout = 0, CONTROL_TimeCounter = 0, Timeout;
 volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
@@ -131,6 +131,7 @@ void CONTROL_Idle()
 	DataTable[REG_BUS_TOOLING_SENSOR] = ZbGPIO_IsBusToolingSensorOk();
 	DataTable[REG_ADAPTER_TOOLING_SENSOR] = ZbGPIO_IsAdapterToolingSensorOk();
 	UpdatePressureOK();
+
 	// Process deferred procedures
 	if(DPCDelegate)
 	{
@@ -747,34 +748,35 @@ void CONTROL_UpdateTRMTemperature()
 	}
 }
 // ----------------------------------------
+
 void CONTROL_PressureMeasuring(Int16U * const restrict pResults)
 {
-
 	Int32U Pressure = *(Int16U *)pResults;
 	CSPressure = (Pressure * DataTable[REG_PRESSURE_K] / 1000) + DataTable[REG_PRESSURE_OFFSET];
 	DataTable[REG_PRESSURE] = CSPressure;
-
-
 }
 // ----------------------------------------
 
 void UpdatePressureOK()
 {
+	static Int64U PressureOkTime = 0;
+
 	ZwADC_StartSEQ1();
+
 	// Control Pressure
 	ZwADC_SubscribeToResults1(&CONTROL_PressureMeasuring);
-	if (CSPressure < DataTable[REG_PRESSURE_OK] && PTimeout == 0)
-		PTimeout = CONTROL_TimeCounter + PNEUMATIC_READ_PAUSE;
 
-	if (CSPressure < DataTable[REG_PRESSURE_OK] && CONTROL_TimeCounter > PTimeout)
+	if(CSPressure >= DataTable[REG_PRESSURE_OK])
+		PressureOkTime = CONTROL_TimeCounter;
+
+	if (CONTROL_TimeCounter > PressureOkTime + PNEUMATIC_READ_PAUSE)
 	{
-		PTimeout = 0;
 		DataTable[REG_DBG] = CSPressure;
 		CONTROL_SwitchToFault(FAULT_PRESSURE);
 	}
 }
-
 // ----------------------------------------
+
 Int16U CONTROL_ReadIGBTAdapterID(pBoolean AdapterOk)
 {
 	pInt16U AdapterID = 0;
