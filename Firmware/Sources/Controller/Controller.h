@@ -91,7 +91,7 @@ extern volatile DeviceState CONTROL_State;
 extern volatile Int16U CONTROL_BootLoaderRequest;
 //
 extern Int16U CONTROL_Values_1[VALUES_x_SIZE];
-extern Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
+extern Int32U CONTROL_ExtInfoData[VALUES_x_SIZE];
 extern Int16U CONTROL_Values_SubState[VALUES_XLOG_x_SIZE];
 extern volatile Int16U CONTROL_Values_Counter;
 

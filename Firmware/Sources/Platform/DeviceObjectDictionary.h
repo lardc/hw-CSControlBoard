@@ -184,4 +184,8 @@
 //
 #define ERR_TRM_COMM_ERR					7	// Communication with TRM failed
 
+// ENDPOINTS
+//
+#define EP32_ExtInfoData					20	// External information from flash
+
 #endif // __DEV_OBJ_DIC_H

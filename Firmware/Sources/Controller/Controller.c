@@ -36,7 +36,7 @@ volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
-Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
+Int32U CONTROL_ExtInfoData[VALUES_x_SIZE];
 volatile Int16U CONTROL_Values_Counter = 0, CSPressure = 0, AdapterID = 0;
 Int32U HomingDuration = 0, ClampingDuration = 0, ReleaseDuration = 0;
 
@@ -59,6 +59,8 @@ void CONTROL_PrepareClamping(Boolean Clamp);
 void CONTROL_Halt();
 void CONTROL_UpdateTRMTemperature();
 void UpdatePressureOK();
+static void CONTROL_InitStoragePointers();
+
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
 {
@@ -69,10 +71,10 @@ void CONTROL_Init(Boolean BadClockDetected)
 	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1};
 	
 	// Variables for endpoint configuration
-	Int16U EPIndexes_32[EP_COUNT_32] = {0};
+	Int16U EPIndexes_32[EP_COUNT_32] = {EP32_ExtInfoData};
 	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE};
 	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_Values_Counter};
-	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32};
+	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_ExtInfoData};
 	
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = {&ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM};
@@ -90,6 +92,8 @@ void CONTROL_Init(Boolean BadClockDetected)
 	// Reset control values
 	DEVPROFILE_ResetControlSection();
 	
+	CONTROL_InitStoragePointers();
+
 	SM_ResetZeroPoint();
 	ZwTimer_StartT1();
 
