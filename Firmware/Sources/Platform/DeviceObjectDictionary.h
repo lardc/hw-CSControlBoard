@@ -44,6 +44,12 @@
 
 #define ACT_BOOT_LOADER_REQUEST				320	// Request reboot to bootloader
 
+#define ACT_FLASH_DIAG_INIT_READ			331	// Инициализировать начало считывания отладочной информации
+#define ACT_FLASH_DIAG_SAVE					332	// Сохранение блока отладочной информации во флэш
+#define ACT_FLASH_DIAG_ERASE				333	// Стирание области отладочной информации
+
+#define ACT_FLASH_DIAG_TO_EP				340	// Выполнить чтение массива из памяти отладочной информации в EP
+
 // REGISTERS
 //
 #define REG_CLAMP_HEIGHT_CASE_A2			0	// Высота подъёма столика для корпуса А2 (мм)
