@@ -38,7 +38,7 @@ volatile DeviceSubState CONTROL_SubState = DSS_None;
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
 Int32U CONTROL_ExtInfoData[VALUES_x_SIZE];
 volatile Int16U CONTROL_Values_Counter = 0, CSPressure = 0, AdapterID = 0, CONTROL_ExtInfoCounter = 0;
-Int32U HomingDuration = 0, ClampingDuration = 0, ReleaseDuration = 0;
+volatile Int32U HomingDuration = 0, ClampingDuration = 0, ReleaseDuration = 0;
 Boolean RequestSaveToFlash = FALSE;
 
 // Boot-loader flag
@@ -281,6 +281,7 @@ static void CONTROL_HandleClampActions()
 					{
 						SM_ResetZeroPoint();
 						HomingDuration = CONTROL_TimeCounter - HomingDuration;
+						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
 			}
@@ -353,6 +354,7 @@ static void CONTROL_HandleClampActions()
 						if(DataTable[REG_DEV_CASE] == SC_Type_C1 || DataTable[REG_DEV_CASE] == SC_Type_F1)
 						{
 							ClampingDuration = CONTROL_TimeCounter - ClampingDuration;
+							RequestSaveToFlash = TRUE;
 							CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
 						}
 						else
@@ -368,6 +370,7 @@ static void CONTROL_HandleClampActions()
 					if(CONTROL_TimeCounter > Timeout)
 					{
 						ClampingDuration = CONTROL_TimeCounter - ClampingDuration;
+						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
 					}
 					break;
@@ -386,6 +389,7 @@ static void CONTROL_HandleClampActions()
 					if(SM_IsPositioningDone())
 					{
 						ReleaseDuration = CONTROL_TimeCounter - ReleaseDuration;
+						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
 					break;
@@ -444,7 +448,7 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 		case ACT_RELEASE_CLAMPING:
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready)
 			{
-				ReleaseDuration = CONTROL_TimeCounter;
+				ReleaseDuration = HomingDuration = CONTROL_TimeCounter;
 				// После срабатывания шторки безопасности команда разжатия приводит к хоумингу
 				CONTROL_SetDeviceState(SM_IsSafetyEvent() ? DS_Homing : DS_ClampingRelease, DSS_Com_CheckControl);
 			}

@@ -373,7 +373,10 @@ static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 				DEVPROFILE_ResetEPReadState();
 				DEVPROFILE_ResetScopes32(0);
 				for (CONTROL_ExtInfoCounter = 0; CONTROL_ExtInfoCounter < VALUES_x_SIZE && MemoryPointer <= FLASH_DIAG_END_ADDR;)
-					CONTROL_ExtInfoData[CONTROL_ExtInfoCounter++] =	*(pInt16U)(MemoryPointer++);
+				{
+					CONTROL_ExtInfoData[CONTROL_ExtInfoCounter++] =	MemoryPointer;
+					MemoryPointer += 2;
+				}
 			}
 			break;
 
