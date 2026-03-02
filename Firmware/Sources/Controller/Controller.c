@@ -281,6 +281,7 @@ static void CONTROL_HandleClampActions()
 					{
 						SM_ResetZeroPoint();
 						HomingDuration = CONTROL_TimeCounter - HomingDuration;
+						ClampingDuration = ReleaseDuration = 0;
 						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
@@ -354,6 +355,7 @@ static void CONTROL_HandleClampActions()
 						if(DataTable[REG_DEV_CASE] == SC_Type_C1 || DataTable[REG_DEV_CASE] == SC_Type_F1)
 						{
 							ClampingDuration = CONTROL_TimeCounter - ClampingDuration;
+							HomingDuration = ReleaseDuration = 0;
 							RequestSaveToFlash = TRUE;
 							CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
 						}
@@ -370,6 +372,7 @@ static void CONTROL_HandleClampActions()
 					if(CONTROL_TimeCounter > Timeout)
 					{
 						ClampingDuration = CONTROL_TimeCounter - ClampingDuration;
+						HomingDuration = ReleaseDuration = 0;
 						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
 					}
@@ -389,6 +392,7 @@ static void CONTROL_HandleClampActions()
 					if(SM_IsPositioningDone())
 					{
 						ReleaseDuration = CONTROL_TimeCounter - ReleaseDuration;
+						HomingDuration = ClampingDuration = 0;
 						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
