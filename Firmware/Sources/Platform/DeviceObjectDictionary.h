@@ -76,6 +76,7 @@
 #define REG_USE_HEATING						20	// Включение/выключение обработки команд системы нагрева
 #define REG_USE_SAFETY_SENSOR				21	// Включение/выключение обработки датчика безопасности
 #define REG_USE_TOOLING_SENSOR				22	// Включение/выключение обработки датчика оснастки
+#define REG_USE_SAVE_DIAG					23	// Разрешить сохранение во флэш отладочной информации
 //
 #define REG_PRESSURE_OFFSET 				30	// Смещение давления
 #define REG_PRESSURE_K						31  // Линейный коэффициент давления x1000

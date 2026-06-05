@@ -147,7 +147,7 @@ void CONTROL_Idle()
 		del();
 	}
 
-	if (RequestSaveToFlash)
+	if(DataTable[REG_USE_SAVE_DIAG] && RequestSaveToFlash)
 	{
 		RequestSaveToFlash = FALSE;
 		STF_SaveDiagData();
