@@ -13,6 +13,7 @@
 #include "DataTable.h"
 #include "Controller.h"
 #include "Constraints.h"
+#include "SaveToFlash.h"
 
 
 // Types
@@ -300,6 +301,8 @@ static Boolean DEVPROFILE_Validate32(Int16U Address, Int32U Data)
 
 static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 {
+	static Int32U MemoryPointer = 0;
+
 	switch(ActionID)
 	{
 		case ACT_SAVE_TO_ROM:
@@ -310,6 +313,7 @@ static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 					DT_SaveNVPartToEPROM();
 			}
 			break;
+
 		case ACT_RESTORE_FROM_ROM:
 			{
 				if(ENABLE_LOCKING && !UnlockedForNVWrite)
@@ -318,6 +322,7 @@ static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 					DT_RestoreNVPartFromEPROM();
 			}
 			break;
+
 		case ACT_RESET_TO_DEFAULT:
 			{
 				if(ENABLE_LOCKING && !UnlockedForNVWrite)
@@ -326,9 +331,11 @@ static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 					DT_ResetNVPart(&DEVPROFILE_FillNVPartDefault);
 			}
 			break;
+
 		case ACT_LOCK_NV_AREA:
 			UnlockedForNVWrite = FALSE;
 			break;
+
 		case ACT_UNLOCK_NV_AREA:
 			if(DataTable[REG_PWD_1] == UNLOCK_PWD_1 &&
 				DataTable[REG_PWD_2] == UNLOCK_PWD_2 &&
@@ -344,9 +351,35 @@ static Boolean DEVPROFILE_DispatchAction(Int16U ActionID, pInt16U UserError)
 			else
 				*UserError = ERR_WRONG_PWD;
 			break;
+
 		case ACT_BOOT_LOADER_REQUEST:
 			CONTROL_BootLoaderRequest = BOOT_LOADER_REQUEST;
 			break;
+
+		case ACT_FLASH_DIAG_SAVE:
+			STF_SaveDiagData();
+			break;
+
+		case ACT_FLASH_DIAG_ERASE:
+			STF_EraseDataSector();
+			break;
+
+		case ACT_FLASH_DIAG_INIT_READ:
+			MemoryPointer = FLASH_DIAG_START_ADDR;
+			break;
+
+		case ACT_FLASH_DIAG_TO_EP:
+			{
+				DEVPROFILE_ResetEPReadState();
+				DEVPROFILE_ResetScopes32(0);
+				for (CONTROL_ExtInfoCounter = 0; CONTROL_ExtInfoCounter < VALUES_x_SIZE && MemoryPointer <= FLASH_DIAG_END_ADDR;)
+				{
+					CONTROL_ExtInfoData[CONTROL_ExtInfoCounter++] =	*(pInt32U)MemoryPointer;
+					MemoryPointer += 2;
+				}
+			}
+			break;
+
 		default:
 			return (ControllerDispatchFunction) ? ControllerDispatchFunction(ActionID, UserError) : FALSE;
 	}

@@ -18,6 +18,7 @@
 #include "StepperMotorDiag.h"
 #include "ZbCSAdapter.h"
 #include "ZbMemory.h"
+#include "SaveToFlash.h"
 
 // Definitions
 //
@@ -35,8 +36,10 @@ volatile DeviceState CONTROL_State = DS_None;
 volatile DeviceSubState CONTROL_SubState = DSS_None;
 
 Int16U CONTROL_Values_1[VALUES_x_SIZE];
-Int32U CONTROL_Values_1_32[VALUES_x_SIZE];
-volatile Int16U CONTROL_Values_Counter = 0, CSPressure = 0, AdapterID = 0;
+Int32U CONTROL_ExtInfoData[VALUES_x_SIZE];
+volatile Int16U CONTROL_Values_Counter = 0, CSPressure = 0, AdapterID = 0, CONTROL_ExtInfoCounter = 0;
+volatile Int32U HomingDuration = 0, ClampingDuration = 0, ReleaseDuration = 0;
+volatile Boolean RequestSaveToFlash = FALSE;
 
 // Boot-loader flag
 #pragma DATA_SECTION(CONTROL_BootLoaderRequest, "bl_flag");
@@ -57,6 +60,8 @@ void CONTROL_PrepareClamping(Boolean Clamp);
 void CONTROL_Halt();
 void CONTROL_UpdateTRMTemperature();
 void UpdatePressureOK();
+static void CONTROL_InitStoragePointers();
+
 // Functions
 void CONTROL_Init(Boolean BadClockDetected)
 {
@@ -67,10 +72,10 @@ void CONTROL_Init(Boolean BadClockDetected)
 	pInt16U EPDatas_16[EP_COUNT_16] = {CONTROL_Values_1};
 	
 	// Variables for endpoint configuration
-	Int16U EPIndexes_32[EP_COUNT_32] = {0};
+	Int16U EPIndexes_32[EP_COUNT_32] = {EP32_ExtInfoData};
 	Int16U EPSized_32[EP_COUNT_32] = {VALUES_x_SIZE};
-	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_Values_Counter};
-	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_Values_1_32};
+	pInt16U EPCounters_32[EP_COUNT_32] = {(pInt16U)&CONTROL_ExtInfoCounter};
+	pInt16U EPDatas_32[EP_COUNT_32] = {(pInt16U)CONTROL_ExtInfoData};
 	
 	// Data-table EPROM service configuration
 	EPROMServiceConfig EPROMService = {&ZbMemory_WriteValuesEPROM, &ZbMemory_ReadValuesEPROM};
@@ -88,6 +93,8 @@ void CONTROL_Init(Boolean BadClockDetected)
 	// Reset control values
 	DEVPROFILE_ResetControlSection();
 	
+	CONTROL_InitStoragePointers();
+
 	SM_ResetZeroPoint();
 	ZwTimer_StartT1();
 
@@ -138,6 +145,12 @@ void CONTROL_Idle()
 		FUNC_AsyncDelegate del = DPCDelegate;
 		DPCDelegate = NULL;
 		del();
+	}
+
+	if(DataTable[REG_USE_SAVE_DIAG] && RequestSaveToFlash)
+	{
+		RequestSaveToFlash = FALSE;
+		STF_SaveDiagData();
 	}
 }
 // ----------------------------------------
@@ -267,6 +280,9 @@ static void CONTROL_HandleClampActions()
 					if(SM_IsPositioningDone())
 					{
 						SM_ResetZeroPoint();
+						HomingDuration = CONTROL_TimeCounter - HomingDuration;
+						ClampingDuration = ReleaseDuration = 0;
+						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
 					}
 			}
@@ -337,7 +353,12 @@ static void CONTROL_HandleClampActions()
 					if(SM_IsPositioningDone())
 					{
 						if(DataTable[REG_DEV_CASE] == SC_Type_C1 || DataTable[REG_DEV_CASE] == SC_Type_F1)
+						{
+							ClampingDuration = CONTROL_TimeCounter - ClampingDuration;
+							HomingDuration = ReleaseDuration = 0;
+							RequestSaveToFlash = TRUE;
 							CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
+						}
 						else
 						{
 							ZbGPIO_SwitchControlConnection(TRUE);
@@ -349,7 +370,12 @@ static void CONTROL_HandleClampActions()
 
 				case DSS_ClampingConnectControl:
 					if(CONTROL_TimeCounter > Timeout)
+					{
+						ClampingDuration = CONTROL_TimeCounter - ClampingDuration;
+						HomingDuration = ReleaseDuration = 0;
+						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_ClampingDone, DSS_None);
+					}
 					break;
 			}
 			break;
@@ -364,7 +390,12 @@ static void CONTROL_HandleClampActions()
 
 				case DSS_ClampingReleaseOperating:
 					if(SM_IsPositioningDone())
+					{
+						ReleaseDuration = CONTROL_TimeCounter - ReleaseDuration;
+						HomingDuration = ClampingDuration = 0;
+						RequestSaveToFlash = TRUE;
 						CONTROL_SetDeviceState(DS_Ready, DSS_None);
+					}
 					break;
 			}
 			break;
@@ -392,7 +423,10 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 
 		case ACT_HOMING:
 			if(CONTROL_State == DS_None || CONTROL_State == DS_Halt || CONTROL_State == DS_Ready)
+			{
+				HomingDuration = CONTROL_TimeCounter;
 				CONTROL_SetDeviceState(DS_Homing, DSS_Com_CheckControl);
+			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -405,19 +439,23 @@ static Boolean CONTROL_DispatchAction(Int16U ActionID, pInt16U UserError)
 			break;
 			
 		case ACT_START_CLAMPING:
-					if(CONTROL_State == DS_Ready)
-					{
-						DataTable[REG_PROBLEM] = PROBLEM_NONE;
-						CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
-					}
-					else
-						*UserError = ERR_DEVICE_NOT_READY;
-					break;
+			if (CONTROL_State == DS_Ready)
+			{
+				ClampingDuration = CONTROL_TimeCounter;
+				DataTable[REG_PROBLEM] = PROBLEM_NONE;
+				CONTROL_SetDeviceState(DS_Clamping, DSS_Com_CheckControl);
+			}
+			else
+				*UserError = ERR_DEVICE_NOT_READY;
+			break;
 			
 		case ACT_RELEASE_CLAMPING:
 			if(CONTROL_State == DS_Halt || CONTROL_State == DS_ClampingDone || CONTROL_State == DS_Ready)
+			{
+				ReleaseDuration = HomingDuration = CONTROL_TimeCounter;
 				// После срабатывания шторки безопасности команда разжатия приводит к хоумингу
 				CONTROL_SetDeviceState(SM_IsSafetyEvent() ? DS_Homing : DS_ClampingRelease, DSS_Com_CheckControl);
+			}
 			else
 				*UserError = ERR_OPERATION_BLOCKED;
 			break;
@@ -787,3 +825,11 @@ Int16U CONTROL_ReadIGBTAdapterID(pBoolean AdapterOk)
 	return *AdapterID;
 }
 // ----------------------------------------
+
+void CONTROL_InitStoragePointers()
+{
+	STF_AssignPointer(0, (Int32U)&HomingDuration);
+	STF_AssignPointer(1, (Int32U)&ClampingDuration);
+	STF_AssignPointer(2, (Int32U)&ReleaseDuration);
+}
+//--------------------

@@ -44,6 +44,12 @@
 
 #define ACT_BOOT_LOADER_REQUEST				320	// Request reboot to bootloader
 
+#define ACT_FLASH_DIAG_INIT_READ			331	// Инициализировать начало считывания отладочной информации
+#define ACT_FLASH_DIAG_SAVE					332	// Сохранение блока отладочной информации во флэш
+#define ACT_FLASH_DIAG_ERASE				333	// Стирание области отладочной информации
+
+#define ACT_FLASH_DIAG_TO_EP				340	// Выполнить чтение массива из памяти отладочной информации в EP
+
 // REGISTERS
 //
 #define REG_CLAMP_HEIGHT_CASE_A2			0	// Высота подъёма столика для корпуса А2 (мм)
@@ -70,6 +76,7 @@
 #define REG_USE_HEATING						20	// Включение/выключение обработки команд системы нагрева
 #define REG_USE_SAFETY_SENSOR				21	// Включение/выключение обработки датчика безопасности
 #define REG_USE_TOOLING_SENSOR				22	// Включение/выключение обработки датчика оснастки
+#define REG_USE_SAVE_DIAG					23	// Разрешить сохранение во флэш отладочной информации
 //
 #define REG_PRESSURE_OFFSET 				30	// Смещение давления
 #define REG_PRESSURE_K						31  // Линейный коэффициент давления x1000
@@ -183,5 +190,9 @@
 #define ERR_WRONG_PWD						4	// Wrong password - unlock failed
 //
 #define ERR_TRM_COMM_ERR					7	// Communication with TRM failed
+
+// ENDPOINTS
+//
+#define EP32_ExtInfoData					20	// External information from flash
 
 #endif // __DEV_OBJ_DIC_H
